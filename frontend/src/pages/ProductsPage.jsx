@@ -86,7 +86,7 @@ const ProductsPage = () => {
                 }}
               />
             )}
-            <h3 style={{ fontSize: "1rem", marginBottom: "0.25rem" }}>{p.name}</h3>
+            <h3 style={{ fontSize: "1rem", marginBottom: "0.25rem" }}>{p.productName}</h3>
             <p style={{ margin: 0, fontWeight: "bold" }}>₹{p.price}</p>
             {p.carModel && (
               <p style={{ margin: "0.25rem 0", fontSize: "0.85rem", color: "#555" }}>

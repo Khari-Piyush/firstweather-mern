@@ -1,12 +1,33 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState, useContext } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+
 import api from "../api";
+import { CartContext } from "../contexts/CartContext.jsx";
 
 const ProductDetailPage = () => {
   const { id } = useParams(); // /products/:id
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { addItem } = useContext(CartContext);
+  const navigate = useNavigate();
+
+  const handleAddToCart = () => {
+    if (!product) return;
+
+    // frontend/src/pages/ProductDetailPage.jsx (inside handleAddToCart)
+    addItem({
+      product: product._id,
+      productId: product.productId || product.slug || product._id,
+      name: product.productName || product.slug || product.productId || product._id,
+      price: product.price,
+      qty: 1,
+      imageUrl: product.imageUrl || "",
+    });
+
+
+    navigate("/cart");
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -67,10 +88,7 @@ const ProductDetailPage = () => {
           {product.carModel && <p>Car Model: {product.carModel}</p>}
           {product.category && <p>Category: {product.category}</p>}
           {product.compatibleYears && product.compatibleYears.length > 0 && (
-            <p>
-              Compatible Years:{" "}
-              {product.compatibleYears.join(", ")}
-            </p>
+            <p>Compatible Years: {product.compatibleYears.join(", ")}</p>
           )}
           <p
             style={{
@@ -82,7 +100,21 @@ const ProductDetailPage = () => {
             {product.inStock ? "In Stock" : "Out of Stock"}
           </p>
 
-          {/* Day 9 me yaha "Add to Cart" button aayega */}
+          <button
+            onClick={handleAddToCart}
+            disabled={!product.inStock}
+            style={{
+              marginTop: "1rem",
+              padding: "0.5rem 1rem",
+              background: "#2563eb",
+              color: "#fff",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+            }}
+          >
+            {product.inStock ? "Add to Cart" : "Out of Stock"}
+          </button>
         </div>
       </div>
 
