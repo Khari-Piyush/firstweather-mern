@@ -1,0 +1,12 @@
+{
+  "name": "firstweather-app",
+  "private": true,
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "scripts": {
+    "dev": "concurrently \"npm:backend\" \"npm:frontend\" --names \"BACKEND,FRONTEND\" --prefix \"[{name}]\"",
+    "backend": "cd backend && npm run dev",
+    "frontend": "cd frontend && npm run dev"
+  }
+}
