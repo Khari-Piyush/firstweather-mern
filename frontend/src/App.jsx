@@ -5,10 +5,12 @@ import ProductDetailPage from "./pages/ProductDetailPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
-import AdminProductsPage from "./pages/AdminProductsPage.jsx";
-import AdminOrdersPage from "./pages/AdminOrdersPage.jsx";
+import AdminProducts from "./pages/AdminProducts.jsx";
+import AdminOrders from "./pages/AdminOrders.jsx"
 import Navbar from "./components/Navbar.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import AdminDashboard from "./pages/AdminDashboard.jsx";
+
 
 const App = () => {
   return (
@@ -29,11 +31,28 @@ const App = () => {
           path="/admin/products"
           element={
             <ProtectedRoute adminOnly={true}>
-              <AdminProductsPage />
+              <AdminProducts />
             </ProtectedRoute>
           }
         />
-        <Route path="/admin/orders" element={<AdminOrdersPage />} />
+
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute adminOnly>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/orders"
+          element={
+            <ProtectedRoute adminOnly>
+              <AdminOrders />
+            </ProtectedRoute>
+          }
+        />
 
         {/* 404 page */}
         <Route path="*" element={<div style={{ padding: "1rem" }}>Page not found</div>} />

@@ -140,4 +140,12 @@ router.get("/:id", protect, async (req, res) => {
   }
 });
 
+router.put("/:id/status", protect, adminOnly, async (req, res) => {
+  const order = await Order.findById(req.params.id);
+  order.status = req.body.status;
+  await order.save();
+  res.json(order);
+});
+
+
 export default router;

@@ -28,7 +28,14 @@ const Navbar = () => {
         ) : (
           <>
             <span>Hi, {user.firstName || user.lastName}</span>
-            {user.isAdmin && <Link to="/admin/products">Admin</Link>}
+            {user?.isAdmin && (
+              <>
+                <Link to="/admin">Dashboard</Link>
+                <Link to="/admin/products">Products</Link>
+                <Link to="/admin/orders">Orders</Link>
+              </>
+            )}
+
             <button onClick={handleLogout} style={{ cursor: "pointer" }}>Logout</button>
           </>
         )}
