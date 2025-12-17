@@ -2,7 +2,6 @@ import { Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage.jsx";
 import ProductsPage from "./pages/ProductsPage.jsx";
 import ProductDetailPage from "./pages/ProductDetailPage.jsx";
-import CartPage from "./pages/CartPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 import AdminProducts from "./pages/AdminProducts.jsx";
@@ -10,6 +9,11 @@ import AdminOrders from "./pages/AdminOrders.jsx"
 import Navbar from "./components/Navbar.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Footer from "./components/Footer.jsx";
+import WhatsAppButton from "./components/WhatsappButton.jsx";
+
 
 
 const App = () => {
@@ -22,7 +26,7 @@ const App = () => {
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/products/:id" element={<ProductDetailPage />} />
 
-        <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
+        {/* <Route path="/enquire/:productId" element={<EnquiryPage />} /> */}
 
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -57,6 +61,22 @@ const App = () => {
         {/* 404 page */}
         <Route path="*" element={<div style={{ padding: "1rem" }}>Page not found</div>} />
       </Routes>
+      
+
+      <>
+        <ToastContainer
+          position="top-right"
+          autoClose={2500}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          pauseOnHover
+          theme="light"
+        />
+      </>
+      <Footer />
+      <WhatsAppButton />
+
     </div>
   );
 };

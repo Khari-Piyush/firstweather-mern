@@ -1,47 +1,250 @@
-import { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext.jsx";
-import { CartContext } from "../contexts/CartContext.jsx";
+import logo from "../assets/fw-logo-blue.png";
+import { useContext, useState, useEffect } from "react";
+
+// Icons
+import {
+  FiMenu,
+  FiX,
+  FiBox,
+  FiLogIn,
+  FiLogOut,
+  FiHome,
+  FiPhone,
+} from "react-icons/fi";
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
-  const { cartCount } = useContext(CartContext);
   const navigate = useNavigate();
 
-  const handleLogout = () => { logout(); navigate("/"); };
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+    setMenuOpen(false);
+    navigate("/");
+  };
 
   return (
-    <nav style={{ display: "flex", justifyContent: "space-between", padding: "0.75rem 1.5rem", borderBottom: "1px solid #ddd", marginBottom: "1rem" }}>
-      <div>
-        <Link to="/" style={{ textDecoration: "none", fontWeight: "bold", fontSize: "1.2rem" }}>FirstWeather</Link>
-      </div>
+    <>
+      {/* ================= NAVBAR ================= */}
+      <nav style={navOuter}>
+        <div style={navInner}>
+          {/* LEFT : LOGO + TEXT */}
+          <Link to="/" style={logoWrap} onClick={() => setMenuOpen(false)}>
+            <img src={logo} alt="First Weather Logo" style={logoStyle} />
+            <span style={logoText}>FIRST WEATHER</span>
+          </Link>
 
-      <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-        <Link to="/products">Products</Link>
-        <Link to="/cart">Cart ({cartCount})</Link>
+          {/* CENTER : SEARCH BAR (DESKTOP ONLY) */}
+          {!isMobile && (
+            <input
+              type="text"
+              placeholder="Search products..."
+              style={searchInput}
+            />
+          )}
 
-        {!user ? (
-          <>
-            <Link to="/login">Login</Link>
-            <Link to="/register">Register</Link>
-          </>
-        ) : (
-          <>
-            <span>Hi, {user.firstName || user.lastName}</span>
-            {user?.isAdmin && (
-              <>
-                <Link to="/admin">Dashboard</Link>
-                <Link to="/admin/products">Products</Link>
-                <Link to="/admin/orders">Orders</Link>
-              </>
-            )}
+          {/* RIGHT : LINKS / HAMBURGER */}
+          {!isMobile ? (
+            <div style={linksWrap}>
+              <NavLink to="/" label="Home" />
+              <NavLink to="/products" label="Products" />
+              <NavLink to="/contact" label="Contact Us" />
 
-            <button onClick={handleLogout} style={{ cursor: "pointer" }}>Logout</button>
-          </>
-        )}
-      </div>
-    </nav>
+              {!user ? (
+                <NavLink to="/login" label="Login" />
+              ) : (
+                <button onClick={handleLogout} style={logoutBtn}>
+                  Logout
+                </button>
+              )}
+            </div>
+          ) : (
+            <button onClick={() => setMenuOpen(!menuOpen)} style={hamburgerBtn}>
+              {menuOpen ? <FiX size={26} /> : <FiMenu size={26} />}
+            </button>
+          )}
+        </div>
+      </nav>
+
+      {/* ================= MOBILE MENU ================= */}
+      {menuOpen && isMobile && (
+        <div style={mobileMenu}>
+          <input
+            type="text"
+            placeholder="Search products..."
+            style={mobileSearch}
+          />
+
+          <MobileLink
+            to="/"
+            icon={<FiHome />}
+            label="Home"
+            setMenuOpen={setMenuOpen}
+          />
+          <MobileLink
+            to="/products"
+            icon={<FiBox />}
+            label="Products"
+            setMenuOpen={setMenuOpen}
+          />
+          <MobileLink
+            to="/contact"
+            icon={<FiPhone />}
+            label="Contact Us"
+            setMenuOpen={setMenuOpen}
+          />
+
+          {!user ? (
+            <MobileLink
+              to="/login"
+              icon={<FiLogIn />}
+              label="Login"
+              setMenuOpen={setMenuOpen}
+            />
+          ) : (
+            <button onClick={handleLogout} style={mobileLogout}>
+              <FiLogOut /> Logout
+            </button>
+          )}
+        </div>
+      )}
+    </>
   );
+};
+
+/* ================= SMALL COMPONENTS ================= */
+
+const NavLink = ({ to, label }) => (
+  <Link to={to} style={navLink}>
+    {label}
+  </Link>
+);
+
+const MobileLink = ({ to, icon, label, setMenuOpen }) => (
+  <Link to={to} style={mobileLink} onClick={() => setMenuOpen(false)}>
+    {icon}
+    <span>{label}</span>
+  </Link>
+);
+
+/* ================= STYLES ================= */
+
+const navOuter = {
+  width: "100%",
+  background: "#ffffff",
+  borderBottom: "1px solid #e5e7eb",
+};
+
+const navInner = {
+  maxWidth: "1200px",
+  margin: "0 auto",
+  padding: "0.75rem 1rem",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+};
+
+const logoWrap = {
+  display: "flex",
+  alignItems: "center",
+  textDecoration: "none",
+};
+
+const logoStyle = {
+  height: "44px",
+};
+
+const logoText = {
+  marginLeft: "10px",
+  fontWeight: "700",
+  fontSize: "1.1rem",
+  color: "#1E40AF",
+  letterSpacing: "1px",
+};
+
+const searchInput = {
+  padding: "7px 16px",
+  borderRadius: "20px",
+  border: "1px solid #cbd5e1",
+  outline: "none",
+  width: "240px",
+};
+
+const linksWrap = {
+  display: "flex",
+  alignItems: "center",
+  gap: "1.2rem",
+};
+
+const navLink = {
+  textDecoration: "none",
+  color: "#2563eb",
+  fontWeight: "600",
+};
+
+const logoutBtn = {
+  background: "#2563eb",
+  color: "white",
+  border: "none",
+  padding: "6px 14px",
+  borderRadius: "6px",
+  cursor: "pointer",
+};
+
+const hamburgerBtn = {
+  background: "transparent",
+  border: "none",
+  color: "#2563eb",
+  cursor: "pointer",
+};
+
+const mobileMenu = {
+  maxWidth: "1200px",
+  margin: "0 auto",
+  background: "#ffffff",
+  borderBottom: "1px solid #e5e7eb",
+  display: "flex",
+  flexDirection: "column",
+  padding: "1rem",
+  gap: "1rem",
+};
+
+const mobileSearch = {
+  padding: "8px 14px",
+  borderRadius: "20px",
+  border: "1px solid #cbd5e1",
+  outline: "none",
+};
+
+const mobileLink = {
+  display: "flex",
+  alignItems: "center",
+  gap: "0.75rem",
+  textDecoration: "none",
+  color: "#2563eb",
+  fontWeight: "500",
+};
+
+const mobileLogout = {
+  display: "flex",
+  alignItems: "center",
+  gap: "0.75rem",
+  background: "#2563eb",
+  color: "white",
+  border: "none",
+  padding: "10px",
+  borderRadius: "6px",
+  cursor: "pointer",
 };
 
 export default Navbar;

@@ -22,8 +22,9 @@ export const protect = (req, res, next ) => {
 };
 
 export const adminOnly = (req, res, next) => {
-    if( !req.user || !req.user.isAdmin ) {
-        return res.status(403).json({ message: "Admin Access only"});
-    }
+  if (req.user && req.user.isAdmin) {
     next();
+  } else {
+    return res.status(403).json({ message: "Admin access only" });
+  }
 };
