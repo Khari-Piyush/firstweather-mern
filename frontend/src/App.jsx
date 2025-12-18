@@ -12,7 +12,7 @@ import AdminDashboard from "./pages/AdminDashboard.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Footer from "./components/Footer.jsx";
-import WhatsAppButton from "./components/WhatsappButton.jsx";
+import FloatingSocialMenu from "./components/FloatingSocialMenu.jsx";
 
 
 
@@ -75,7 +75,7 @@ const App = () => {
         />
       </>
       <Footer />
-      <WhatsAppButton />
+      <FloatingSocialMenu/>
 
     </div>
   );

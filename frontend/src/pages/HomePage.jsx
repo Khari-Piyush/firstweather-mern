@@ -1,17 +1,52 @@
 import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import { FaStar, FaWhatsapp, FaFacebook, FaInstagram } from "react-icons/fa";
+import { FaStar, FaUserCircle, FaQuoteLeft } from "react-icons/fa";
+import { FaCalendarAlt, FaBriefcase, FaUserCheck } from "react-icons/fa";
 
 import wiperArm from "../assets/fw-wiper-arm.png";
 import wiperBlade from "../assets/fw-wiper-blade.png";
 import wiperLinkage from "../assets/fw-wiper-linkage.png";
 import wiperGear from "../assets/fw-gear.png";
-import wiperWheelBox from "../assets/fw-wiper-wheelbox.png";
-import wiperRods from "../assets/fw-rods.png";
 import testimonials from "../data/testimonial";
 import heroImage from "../assets/hero-wiper-collage.png";
 
+import tata from "../assets/brands/tata.png";
+import hyundai from "../assets/brands/hyundai.png";
+import mahindra from "../assets/brands/mahindra.png";
+import ashoka from "../assets/brands/ashok-leyland.png";
+import ford from "../assets/brands/ford.png";
+import eicher from "../assets/brands/eicher.png";
+import volvo from "../assets/brands/volvo.png"
+import toyota from "../assets/brands/toyota.png";
+import maruti from "../assets/brands/maruti.png";
+import force from "../assets/brands/force.png";
+import piaggio from "../assets/brands/piaggo.png";
+import sml from "../assets/brands/sml.png";
+
+
+const brands = [
+  { name: "Tata", logo: tata },
+  { name: "Hyundai", logo: hyundai },
+  { name: "Mahindra", logo: mahindra },
+  { name: "Ashok Leyland", logo: ashoka },
+  { name: "Eicher", logo: eicher },
+  { name: "Volvo", logo: volvo },
+  { name: "Toyota", logo: toyota },
+  { name: "Maruti", logo: maruti },
+  { name: "Force", logo: force },
+  { name: "Ford", logo: ford },
+  { name: "Piaggio", logo: piaggio },
+  { name: "SML", logo: sml },
+];
+
+
 const HomePage = () => {
+  const [pageLoaded, setPageLoaded] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => setPageLoaded(true), 100);
+  }, []);
+
   const sliderRef = useRef(null);
   const [testimonialIndex, setTestimonialIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -47,7 +82,11 @@ const HomePage = () => {
   }, []);
 
   return (
-    <div>
+    <div style={{
+    opacity: pageLoaded ? 1 : 0,
+    transform: pageLoaded ? "translateY(0)" : "translateY(20px)",
+    transition: "all 0.6s ease",
+  }}>
       {/* ================= HERO ================= */}
       <section style={heroSection}>
         <div style={overlay}></div>
@@ -64,15 +103,46 @@ const HomePage = () => {
           </p>
 
           <div style={heroBtns}>
-            <Link to="/products" style={primaryBtn}>View Products</Link>
+            <Link
+              to="/products"
+              style={primaryBtn}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#1e88e5";
+                e.currentTarget.style.color = "#ffffff";
+                e.currentTarget.style.transform = "translateY(-3px)";
+                e.currentTarget.style.boxShadow = "0 10px 25px rgba(30,136,229,0.35)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "#ffffff";
+                e.currentTarget.style.color = "#0f2a44";
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            >
+              View Products
+            </Link>
+
             <a
               href="https://wa.me/917428088039"
               target="_blank"
               rel="noreferrer"
               style={secondaryBtn}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#25D366";
+                e.currentTarget.style.color = "#ffffff";
+                e.currentTarget.style.transform = "translateY(-3px)";
+                e.currentTarget.style.boxShadow = "0 10px 25px rgba(37,211,102,0.35)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.color = "#25D366";
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
             >
               WhatsApp Enquiry
             </a>
+
           </div>
         </div>
       </section>
@@ -85,31 +155,127 @@ const HomePage = () => {
             gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)",
           }}
         >
-          <StatBox value="2005" label="Established" isMobile={isMobile} />
-          <StatBox value="20+" label="Years Experience" isMobile={isMobile} />
-          <StatBox value="98%" label="Customer Retention" isMobile={isMobile} />
+          <StatBox
+            value="2005"
+            label="Established"
+            icon={<FaCalendarAlt />}
+            isMobile={isMobile}
+          />
+
+          <StatBox
+            value="20+"
+            label="Years Experience"
+            icon={<FaBriefcase />}
+            isMobile={isMobile}
+          />
+
+          <StatBox
+            value="98%"
+            label="Customer Retention"
+            icon={<FaUserCheck />}
+            isMobile={isMobile}
+          />
         </div>
       </section>
 
-      {/* ================= PRODUCT RANGE ================= */}
-      <section>
+
+      {/* ================= PRODUCT RANGE (GRID LIKE IMAGE) ================= */}
+      <section style={{ background: "#fff" }}>
         <div style={container}>
-          <h2 style={sectionTitle}>Product Range</h2>
-          <div ref={sliderRef} style={productSlider}>
-            <ProductCard title="Wiper Arm" img={wiperArm} />
-            <ProductCard title="Wiper Blade" img={wiperBlade} />
-            <ProductCard title="Wiper Linkage" img={wiperLinkage} />
-            <ProductCard title="Wiper Gear" img={wiperGear} />
-            <ProductCard title="Wheel Box" img={wiperWheelBox} />
-            <ProductCard title="Wiper Rods" img={wiperRods} />
+          <h2 style={productTitle}>Our Product Range</h2>
+          <p style={productSubtitle}>Have a look on our products</p>
+
+          <div style={productGrid}>
+            <ProductRangeCard
+              img={wiperArm}
+              title="Wiper Arm"
+              desc="We sell a wide range of Wiper Arms like Bayonet, Hook Type, Double Pipe and many more."
+              loading="lazy"
+            />
+
+            <ProductRangeCard
+              img={wiperBlade}
+              title="Wiper Blade"
+              desc="Our range of Wiper Blades includes imported U-Hook, Soft ( Frameless Blades) and Hybrid Blades."
+              loading="lazy"
+            />
+
+            <ProductRangeCard
+              img={wiperLinkage}
+              title="Wiper Linkage Assembly"
+              desc="We offer a comprehensive solution for Wiper Linkage Assembly used in the automobile industry."
+              loading="lazy"
+            />
+
+            <ProductRangeCard
+              img={wiperGear}
+              title="Wiper Motor Gear"
+              desc="We offer wide variety of wiper motor gear with best quality."
+              loading="lazy"
+            />
+          </div>
+
+          <div style={{ textAlign: "center", marginTop: "2.5rem" }}>
+            <Link to="/products" 
+            style={viewAllBtn}
+            onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#1e88e5";
+                e.currentTarget.style.color = "#ffffff";
+                e.currentTarget.style.transform = "translateY(-3px)";
+                e.currentTarget.style.boxShadow = "0 10px 25px rgba(30,136,229,0.35)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "#140a7bff";
+                e.currentTarget.style.color = "#ffffff";
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
+              }}>
+              View All Products
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* ================= TESTIMONIAL ================= */}
-      <section style={{ background: "#f8fafc" }}>
+
+      {/* ================= VEHICLE BRANDS (BLUE THEME) ================= */}
+      <section style={brandSection}>
+        <div style={brandOverlay}></div>
+
+        <div style={brandContainer}>
+          <h2 style={brandTitle}>
+            Complete Range of Commercial and Passenger Vehicles
+          </h2>
+          <p style={brandSubtitle}>Have a look on our products</p>
+
+          <div style={brandDivider}></div>
+
+          <div style={brandGrid}>
+            {brands.map((b, i) => (
+              <div
+                key={i}
+                style={brandCard}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "#4da3ff";
+                  e.currentTarget.style.background = "rgba(77,163,255,0.08)";
+                  e.currentTarget.style.transform = "translateY(-5px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.25)";
+                  e.currentTarget.style.background = "rgba(255,255,255,0.03)";
+                  e.currentTarget.style.transform = "translateY(0)";
+                }}
+              >
+                <img src={b.logo} alt={b.name} style={brandLogo} loading="lazy" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ================= TESTIMONIALS ================= */}
+      <section style={testimonialSection}>
         <div style={container}>
-          <h2 style={sectionTitle}>Customer Reviews</h2>
+          <h2 style={testimonialTitle}>Customer Testimonials</h2>
 
           <div style={testimonialBox}>
             <div
@@ -121,13 +287,24 @@ const HomePage = () => {
               {testimonials.map((t, i) => (
                 <div key={i} style={testimonialSlide}>
                   <div style={testimonialCard}>
-                    <div style={{ color: "#facc15" }}>
-                      {[...Array(t.rating)].map((_, i) => (
-                        <FaStar key={i} />
+                    {/* Quote */}
+                    <FaQuoteLeft style={quoteIcon} />
+
+                    {/* Stars */}
+                    <div style={testimonialStars}>
+                      {[...Array(t.rating)].map((_, idx) => (
+                        <FaStar key={idx} />
                       ))}
                     </div>
-                    <p>“{t.text}”</p>
-                    <strong>{t.name}</strong>
+
+                    {/* Text */}
+                    <p style={testimonialText}>“{t.text}”</p>
+
+                    {/* User */}
+                    <div style={testimonialUser}>
+                      <FaUserCircle style={userIcon} />
+                      <span>{t.name}</span>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -141,26 +318,54 @@ const HomePage = () => {
 };
 
 /* ================= COMPONENTS ================= */
+const StatBox = ({ value, label, icon, isMobile }) => {
+  return (
+    <div style={statCard}>
+      {/* ICON */}
+      <div style={iconStyle}>{icon}</div>
 
-const StatBox = ({ value, label, isMobile }) => (
-  <div
-    style={{
-      ...statCard,
-      borderRight: isMobile ? "none" : "1px solid rgba(255,255,255,0.15)",
-      borderBottom: isMobile ? "1px solid rgba(255,255,255,0.15)" : "none",
-    }}
-  >
-    <h2 style={statNumber}>{value}</h2>
-    <p style={statLabel}>{label}</p>
-  </div>
-);
+      {/* NUMBER */}
+      <div
+        style={{
+          ...statNumber,
+          fontSize: isMobile ? "28px" : "32px",
+        }}
+      >
+        {value}
+      </div>
 
-const ProductCard = ({ title, img }) => (
-  <div style={productCard}>
-    <img src={img} alt={title} style={productImg} />
-    <div style={productLabel}>{title}</div>
-  </div>
-);
+      {/* LABEL */}
+      <div style={statLabel}>{label}</div>
+    </div>
+  );
+};
+
+const ProductRangeCard = ({ img, title, desc, brand }) => {
+  return (
+    <div
+      style={rangeCard}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "translateY(-6px)";
+        e.currentTarget.style.boxShadow = "0 14px 30px rgba(0,0,0,0.12)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.06)";
+      }}
+    >
+      <img src={img} alt={title} style={rangeImg} loading="lazy" />
+
+      <h3 style={rangeTitle}>{title}</h3>
+
+      <p style={rangeDesc}>{desc}</p>
+
+      <Link to="/products" style={rangeBtn}>
+        View Product
+      </Link>
+    </div>
+  );
+};
+
 
 /* ================= STYLES ================= */
 
@@ -196,23 +401,39 @@ const heroText = { margin: "1.2rem 0 2.2rem", maxWidth: "520px" };
 const heroBtns = { display: "flex", gap: "1rem", flexWrap: "wrap" };
 
 const primaryBtn = {
-  background: "#fff",
+  background: "#ffffff",
   color: "#0f2a44",
   padding: "12px 26px",
-  border: "none",
+  borderRadius: "6px",
+  border: "2px solid transparent",
   textDecoration: "none",
+  fontWeight: "600",
+  transition: "all 0.35s ease",
 };
+
 
 const secondaryBtn = {
   background: "transparent",
-  border: "2px solid #fff",
-  color: "#fff",
+  border: "2px solid #25D366",
+  color: "#25D366",
   padding: "12px 26px",
+  borderRadius: "6px",
   textDecoration: "none",
+  fontWeight: "600",
+  transition: "all 0.35s ease",
 };
 
+const iconStyle = {
+  fontSize: "28px",
+  color: "#1e88e5",
+  marginBottom: "6px",
+};
+
+
 const statsSection = {
-  background: "linear-gradient(135deg, #0b1f3a, #102e52)",
+  background:
+    "linear-gradient(135deg, rgba(10,40,80,0.92), rgba(15,70,130,0.85))",
+  // background: "linear-gradient(135deg, #13325cff, #102e52)",
   padding: "40px 0",
 };
 
@@ -230,7 +451,7 @@ const statCard = {
 const statNumber = {
   fontSize: "32px",
   fontWeight: "700",
-  color: "#4da3ff",
+  color: "#fff",
 };
 
 const statLabel = { color: "#dbeafe", fontSize: "14px" };
@@ -241,25 +462,208 @@ const sectionTitle = {
   color: "#0f2a44",
 };
 
-const productSlider = { display: "flex", gap: "2rem", overflowX: "auto" };
-const productCard = { minWidth: "300px", border: "1px solid #e5e7eb" };
-const productImg = { width: "100%", height: "220px", objectFit: "contain" };
-const productLabel = {
-  padding: "1rem",
-  background: "#0f2a44",
-  color: "white",
+const productTitle = {
   textAlign: "center",
+  fontSize: "2.2rem",
+  marginBottom: "0.4rem",
 };
 
-const testimonialBox = { overflow: "hidden" };
-const testimonialTrack = { display: "flex", transition: "0.6s ease" };
-const testimonialSlide = { minWidth: "100%", display: "flex", justifyContent: "center" };
-const testimonialCard = {
-  background: "white",
-  padding: "2rem",
-  maxWidth: "520px",
+const productSubtitle = {
   textAlign: "center",
-  border: "1px solid #e5e7eb",
+  color: "#6b7280",
+  marginBottom: "2.5rem",
 };
+
+const productGrid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+  gap: "2rem",
+};
+
+const rangeCard = {
+  background: "#fff",
+  border: "1px solid #e5e7eb",
+  borderRadius: "8px",
+  padding: "1.5rem",
+  transition: "all 0.35s ease",
+  boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+};
+
+const rangeImg = {
+  width: "100%",
+  height: "180px",
+  objectFit: "contain",
+  marginBottom: "1rem",
+};
+
+const rangeTitle = {
+  fontSize: "1.2rem",
+  marginBottom: "0.6rem",
+};
+
+const rangeDesc = {
+  fontSize: "0.95rem",
+  color: "#4b5563",
+  lineHeight: 1.5,
+  marginBottom: "0.8rem",
+};
+
+
+const rangeBtn = {
+  display: "inline-block",
+  background: "#0f2a44",
+  color: "#fff",
+  padding: "8px 16px",
+  borderRadius: "6px",
+  textDecoration: "none",
+  fontSize: "0.9rem",
+  transition: "all 0.35s ease",
+};
+
+const viewAllBtn = {
+  background: "#120750ff",
+  borderRadius: "6px",
+  border: "2px solid transparent",
+  transition: "all 0.35s ease",
+  color: "#fff",
+  padding: "12px 30px",
+  textDecoration: "none",
+  fontWeight: "600",
+};
+
+const brandSection = {
+  position: "relative",
+  padding: "5rem 1.5rem",
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+};
+
+const brandOverlay = {
+  position: "absolute",
+  inset: 0,
+  background:
+    "linear-gradient(135deg, rgba(10,40,80,0.92), rgba(15,70,130,0.85))",
+};
+
+const brandContainer = {
+  position: "relative",
+  maxWidth: "1200px",
+  margin: "auto",
+  textAlign: "center",
+  color: "#fff",
+};
+
+const brandTitle = {
+  fontSize: "2.3rem",
+  fontWeight: "700",
+  marginBottom: "0.6rem",
+};
+
+const brandSubtitle = {
+  color: "#cfe6ff",
+  marginBottom: "1.2rem",
+};
+
+const brandDivider = {
+  width: "140px",
+  height: "3px",
+  background: "#4da3ff",
+  margin: "0 auto 3rem",
+};
+
+const brandGrid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+  gap: "1.8rem",
+};
+
+const brandCard = {
+  border: "1px solid rgba(255,255,255,0.25)",
+  padding: "1.6rem",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  transition: "all 0.35s ease",
+  background: "rgba(255,255,255,0.03)",
+  backdropFilter: "blur(4px)",
+};
+
+const brandLogo = {
+  maxWidth: "110px",
+  maxHeight: "60px",
+  filter: "brightness(0) invert(1)",
+  opacity: 0.85,
+};
+
+const testimonialSection = {
+  background: "#f8fafc",
+};
+
+const testimonialTitle = {
+  textAlign: "center",
+  marginBottom: "2.5rem",
+  color: "#0f2a44",
+};
+
+const testimonialBox = {
+  overflow: "hidden",
+};
+
+const testimonialTrack = {
+  display: "flex",
+  transition: "0.6s ease",
+};
+
+const testimonialSlide = {
+  minWidth: "100%",
+  display: "flex",
+  justifyContent: "center",
+};
+
+const testimonialCard = {
+  background: "linear-gradient(135deg, #0f2a44, #123b66)",
+  padding: "2.5rem 2rem",
+  maxWidth: "560px",
+  textAlign: "center",
+  borderRadius: "14px",
+  color: "#fff",
+  position: "relative",
+  boxShadow: "0 15px 40px rgba(15,42,68,0.35)",
+};
+
+const testimonialStars = {
+  color: "#facc15",
+  marginBottom: "1rem",
+};
+
+const testimonialText = {
+  color: "#e0f2fe",
+  lineHeight: 1.6,
+  fontSize: "1rem",
+  marginBottom: "1.4rem",
+};
+
+const testimonialUser = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "0.5rem",
+  fontWeight: "600",
+};
+
+const userIcon = {
+  fontSize: "28px",
+  color: "#4da3ff",
+};
+
+const quoteIcon = {
+  position: "absolute",
+  top: "18px",
+  left: "18px",
+  fontSize: "28px",
+  color: "rgba(77,163,255,0.25)",
+};
+
+
 
 export default HomePage;

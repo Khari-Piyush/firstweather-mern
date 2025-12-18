@@ -1,4 +1,11 @@
 import { Link } from "react-router-dom";
+import {
+  FaMapMarkerAlt,
+  FaPhoneAlt,
+  FaWhatsapp,
+  FaInstagram,
+  FaFacebookF,
+} from "react-icons/fa";
 import "./Footer.css";
 
 const Footer = () => {
@@ -8,11 +15,28 @@ const Footer = () => {
 
         {/* BRAND */}
         <div className="footer-col">
-          <h3 className="footer-brand">First Weather Store</h3>
+          <h3 className="footer-brand">First Weather</h3>
           <p className="footer-text">
-            Trusted supplier of wiper systems, power window parts and
-            auto spare components across India.
+            Leading manufacturer & supplier of car wiper blades, wiper arms,
+            wiper motor gears and auto electrical spare parts across India.
           </p>
+
+          {/* SOCIAL ICONS */}
+          <div className="footer-socials">
+            <a href="https://www.instagram.com/" target="_blank" rel="noreferrer">
+              <FaInstagram />
+            </a>
+            <a href="https://www.facebook.com/" target="_blank" rel="noreferrer">
+              <FaFacebookF />
+            </a>
+            <a
+              href="https://wa.me/917428088039"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <FaWhatsapp />
+            </a>
+          </div>
         </div>
 
         {/* QUICK LINKS */}
@@ -20,40 +44,33 @@ const Footer = () => {
           <h4 className="footer-heading">Quick Links</h4>
           <ul className="footer-links">
             <li><Link to="/products">Products</Link></li>
-            <li><Link to="/cart">Cart</Link></li>
             <li><Link to="/login">Login</Link></li>
           </ul>
         </div>
 
         {/* CONTACT */}
         <div className="footer-col">
-          <h4 className="footer-heading">Contact</h4>
-          <p>📍 Delhi, India</p>
-          <p>📞 +91 7428088039</p>
+          <h4 className="footer-heading">Contact Us</h4>
+          <p><FaMapMarkerAlt /> Delhi, India</p>
+          <p><FaPhoneAlt /> +91 7428088039</p>
+
           <a
             href="https://wa.me/917428088039"
             target="_blank"
             rel="noreferrer"
             className="footer-whatsapp"
           >
-            WhatsApp Enquiry
+            <FaWhatsapp /> WhatsApp Enquiry
           </a>
         </div>
-
       </div>
 
-      {/* ================= FOOTER ================= */}
-      <footer style={footer}>
-        © {new Date().getFullYear()} First Weather. All Rights Reserved.
-      </footer>
+      {/* BOTTOM BAR */}
+      <div className="footer-bottom">
+        © {new Date().getFullYear()} <strong>First Weather</strong>. All Rights Reserved.
+      </div>
     </footer>
   );
 };
 
-const footer = {
-  background: "#020617",
-  color: "white",
-  textAlign: "center",
-  padding: "1.5rem",
-};
 export default Footer;
