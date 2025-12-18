@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext.jsx";
-import logo from "../assets/fw-logo-blue.png";
+import logo from "../../public//fw-logo-blue.png";
 import { useContext, useState, useEffect } from "react";
 
 // Icons

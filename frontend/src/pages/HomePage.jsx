@@ -2,26 +2,27 @@ import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { FaStar, FaUserCircle, FaQuoteLeft } from "react-icons/fa";
 import { FaCalendarAlt, FaBriefcase, FaUserCheck } from "react-icons/fa";
+import bgImage from "../../public/bg-image.png";
 
-import wiperArm from "../assets/fw-wiper-arm.png";
-import wiperBlade from "../assets/fw-wiper-blade.png";
-import wiperLinkage from "../assets/fw-wiper-linkage.png";
-import wiperGear from "../assets/fw-gear.png";
+import wiperArm from "../../public/fw-wiper-arm.png";
+import wiperBlade from "../../public//fw-wiper-blade.png";
+import wiperLinkage from "../../public/fw-wiper-linkage.png";
+import wiperGear from "../../public/fw-gear.png";
 import testimonials from "../data/testimonial";
-import heroImage from "../assets/hero-wiper-collage.png";
+import heroImage from "../../public/hero-wiper-collage.png";
 
-import tata from "../assets/brands/tata.png";
-import hyundai from "../assets/brands/hyundai.png";
-import mahindra from "../assets/brands/mahindra.png";
-import ashoka from "../assets/brands/ashok-leyland.png";
-import ford from "../assets/brands/ford.png";
-import eicher from "../assets/brands/eicher.png";
-import volvo from "../assets/brands/volvo.png"
-import toyota from "../assets/brands/toyota.png";
-import maruti from "../assets/brands/maruti.png";
-import force from "../assets/brands/force.png";
-import piaggio from "../assets/brands/piaggo.png";
-import sml from "../assets/brands/sml.png";
+import tata from "../../public/brands/tata.png";
+import hyundai from "../../public/brands/hyundai.png";
+import mahindra from "../../public/brands/mahindra.png";
+import ashoka from "../../public/brands/ashok-leyland.png";
+import ford from "../../public/brands/ford.png";
+import eicher from "../../public/brands/eicher.png";
+import volvo from "../../public/brands/volvo.png"
+import toyota from "../../public/brands/toyota.png";
+import maruti from "../../public/brands/maruti.png";
+import force from "../../public/brands/force.png";
+import piaggio from "../../public/brands/piaggo.png";
+import sml from "../../public/brands/sml.png";
 
 
 const brands = [
@@ -535,6 +536,7 @@ const brandSection = {
   position: "relative",
   padding: "5rem 1.5rem",
   backgroundSize: "cover",
+  backgroundImage: `url(${bgImage})`,
   backgroundPosition: "center",
 };
 
