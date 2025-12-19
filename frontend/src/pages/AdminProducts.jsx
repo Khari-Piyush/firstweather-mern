@@ -6,10 +6,10 @@ const AdminProducts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // form state
   const [form, setForm] = useState({
     productName: "",
     productId: "",
+    description: "",
     slug: "",
     price: "",
     category: "",
@@ -19,6 +19,7 @@ const AdminProducts = () => {
 
   const fetchProducts = async () => {
     try {
+      setLoading(true);
       const res = await api.get("/products");
       setProducts(res.data);
     } catch {
@@ -33,19 +34,18 @@ const AdminProducts = () => {
   }, []);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
     try {
-      await api.post("/products", {
-        ...form,
-        price: Number(form.price),
-      });
+      await api.post("/products", { ...form, price: Number(form.price) });
       setForm({
         productName: "",
         productId: "",
+        description: "",
         slug: "",
         price: "",
         category: "",
@@ -68,55 +68,154 @@ const AdminProducts = () => {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p style={{ padding: "1rem" }}>Loading...</p>;
 
   return (
-    <div style={{ padding: "1.5rem" }}>
-      <h2>Admin Products</h2>
+    <div
+      style={{
+        padding: "1.5rem",
+        minHeight: "100vh",
+        background: "linear-gradient(180deg, #f0f7ff 0%, #ffffff 60%)",
+      }}
+    >
+      <h2 style={{ marginBottom: "0.25rem" }}>Admin Products</h2>
+      <p style={{ color: "#555", marginBottom: "1.5rem" }}>
+        Manage First Weather product listings
+      </p>
 
       {/* ADD PRODUCT FORM */}
-      <form onSubmit={handleAddProduct} style={{ marginBottom: "2rem" }}>
-        <h3>Add New Product</h3>
+      <form
+        onSubmit={handleAddProduct}
+        style={{
+          background: "rgba(255,255,255,0.9)",
+          backdropFilter: "blur(8px)",
+          borderRadius: "14px",
+          padding: "1.2rem",
+          marginBottom: "2rem",
+          boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
+        }}
+      >
+        <h3 style={{ marginBottom: "1rem" }}>➕ Add New Product</h3>
 
-        <input name="productName" placeholder="Product Name" value={form.productName} onChange={handleChange} required />
-        <input name="productId" placeholder="Product ID" value={form.productId} onChange={handleChange} required />
-        <input name="slug" placeholder="Slug" value={form.slug} onChange={handleChange} required />
-        <input name="price" placeholder="Price" value={form.price} onChange={handleChange} required />
-        <input name="category" placeholder="Category" value={form.category} onChange={handleChange} />
-        <input name="carModel" placeholder="Car Model" value={form.carModel} onChange={handleChange} />
-        <input name="imageUrl" placeholder="Image URL" value={form.imageUrl} onChange={handleChange} />
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gap: "0.75rem",
+          }}
+        >
+          {[
+            ["productName", "Product Name"],
+            ["productId", "Product ID"],
+            ["slug", "Slug"],
+            ["price", "Price"],
+            ["category", "Category"],
+            ["carModel", "Car Model"],
+            ["imageUrl", "Image URL"],
+          ].map(([name, placeholder]) => (
+            <input
+              key={name}
+              name={name}
+              placeholder={placeholder}
+              value={form[name]}
+              onChange={handleChange}
+              required={["productName", "productId", "slug", "price"].includes(name)}
+              style={inputStyle}
+            />
+          ))}
 
-        <button type="submit">Add Product</button>
+          <textarea
+            name="description"
+            placeholder="Product Description"
+            value={form.description}
+            onChange={handleChange}
+            required
+            rows={3}
+            style={{ ...inputStyle, gridColumn: "1 / -1", resize: "vertical" }}
+          />
+        </div>
+
+        <button type="submit" style={primaryBtn}>
+          Add Product
+        </button>
       </form>
 
-      {/* PRODUCT LIST */}
-      <table border="1" cellPadding="8" width="100%">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Product ID</th>
-            <th>Price</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {products.map((p) => (
-            <tr key={p._id}>
-              <td>{p.productName}</td>
-              <td>{p.productId}</td>
-              <td>₹{p.price}</td>
-              <td>
-                <button onClick={() => handleDelete(p._id)}>Delete</button>
-              </td>
+      {/* PRODUCT TABLE */}
+      <div
+        style={{
+          background: "#fff",
+          borderRadius: "14px",
+          boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
+          overflowX: "auto",
+        }}
+      >
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ background: "#eff6ff" }}>
+              <th style={th}>Name</th>
+              <th style={th}>Product ID</th>
+              <th style={th}>Price</th>
+              <th style={th}>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {products.map((p) => (
+              <tr key={p._id} style={{ borderBottom: "1px solid #eee" }}>
+                <td style={td}>{p.productName}</td>
+                <td style={td}>{p.productId}</td>
+                <td style={td}>₹{p.price}</td>
+                <td style={td}>
+                  <button
+                    onClick={() => handleDelete(p._id)}
+                    style={{
+                      background: "#fee2e2",
+                      color: "#b91c1c",
+                      border: "1px solid #fecaca",
+                      padding: "0.3rem 0.6rem",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
   );
+};
+
+const inputStyle = {
+  padding: "0.5rem 0.6rem",
+  borderRadius: "8px",
+  border: "1px solid #c7d2fe",
+  fontSize: "0.9rem",
+};
+
+const primaryBtn = {
+  marginTop: "1rem",
+  background: "linear-gradient(135deg, #2563eb, #1e40af)",
+  color: "#fff",
+  padding: "0.45rem 1.2rem",
+  borderRadius: "8px",
+  border: "none",
+  cursor: "pointer",
+};
+
+const th = {
+  textAlign: "left",
+  padding: "0.75rem",
+  fontSize: "0.85rem",
+};
+
+const td = {
+  padding: "0.7rem",
+  fontSize: "0.85rem",
 };
 
 export default AdminProducts;

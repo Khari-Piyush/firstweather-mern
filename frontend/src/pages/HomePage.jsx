@@ -2,27 +2,27 @@ import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { FaStar, FaUserCircle, FaQuoteLeft } from "react-icons/fa";
 import { FaCalendarAlt, FaBriefcase, FaUserCheck } from "react-icons/fa";
-import bgImage from "../../public/bg-image.png";
+import bgImage from "/bg-image.png";
 
-import wiperArm from "../../public/fw-wiper-arm.png";
-import wiperBlade from "../../public//fw-wiper-blade.png";
-import wiperLinkage from "../../public/fw-wiper-linkage.png";
-import wiperGear from "../../public/fw-gear.png";
+import wiperArm from "/fw-wiper-arm.png";
+import wiperBlade from "/fw-wiper-blade.png";
+import wiperLinkage from "/fw-wiper-linkage.png";
+import wiperGear from "/fw-gear.png";
 import testimonials from "../data/testimonial";
-import heroImage from "../../public/hero-wiper-collage.png";
+import heroImage from "/hero-wiper-collage.png";
 
-import tata from "../../public/brands/tata.png";
-import hyundai from "../../public/brands/hyundai.png";
-import mahindra from "../../public/brands/mahindra.png";
-import ashoka from "../../public/brands/ashok-leyland.png";
-import ford from "../../public/brands/ford.png";
-import eicher from "../../public/brands/eicher.png";
-import volvo from "../../public/brands/volvo.png"
-import toyota from "../../public/brands/toyota.png";
-import maruti from "../../public/brands/maruti.png";
-import force from "../../public/brands/force.png";
-import piaggio from "../../public/brands/piaggo.png";
-import sml from "../../public/brands/sml.png";
+import tata from "/brands/tata.png";
+import hyundai from "/brands/hyundai.png";
+import mahindra from "/brands/mahindra.png";
+import ashoka from "/brands/ashok-leyland.png";
+import ford from "/brands/ford.png";
+import eicher from "/brands/eicher.png";
+import volvo from "/brands/volvo.png"
+import toyota from "/brands/toyota.png";
+import maruti from "/brands/maruti.png";
+import force from "/brands/force.png";
+import piaggio from "/brands/piaggo.png";
+import sml from "/brands/sml.png";
 
 
 const brands = [
