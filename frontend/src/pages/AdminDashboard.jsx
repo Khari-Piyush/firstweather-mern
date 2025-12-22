@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api";
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
+
   const [stats, setStats] = useState({
     totalProducts: 0,
     totalOrders: 0,
-    pendingOrders: 0,
+    pendingOrders: 0, // enquiries count
   });
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -36,7 +40,7 @@ const AdminDashboard = () => {
         background: "linear-gradient(180deg, #f0f7ff 0%, #ffffff 65%)",
       }}
     >
-      <h2 style={{ marginBottom: "0.25rem" }}>Admin Dashboard</h2>
+      <h2>Admin Dashboard</h2>
       <p style={{ color: "#555", marginBottom: "1.5rem" }}>
         Overview of First Weather system
       </p>
@@ -52,29 +56,34 @@ const AdminDashboard = () => {
           title="Total Products"
           value={stats.totalProducts}
           gradient="linear-gradient(135deg, #2563eb, #1e40af)"
+          onClick={() => navigate("/admin/products")}
         />
 
         <DashboardCard
           title="Total Orders"
           value={stats.totalOrders}
           gradient="linear-gradient(135deg, #0ea5e9, #0369a1)"
+          onClick={() => navigate("/admin/orders")}
         />
 
         <DashboardCard
           title="Pending Enquiries"
           value={stats.pendingOrders}
           gradient="linear-gradient(135deg, #f59e0b, #b45309)"
+          onClick={() => navigate("/admin/enquiries")}
         />
       </div>
     </div>
   );
 };
 
-/* 🔹 REUSABLE CARD */
-const DashboardCard = ({ title, value, gradient }) => {
+/* 🔹 CARD COMPONENT */
+const DashboardCard = ({ title, value, gradient, onClick }) => {
   return (
     <div
+      onClick={onClick}
       style={{
+        cursor: "pointer",
         background: "rgba(255,255,255,0.9)",
         backdropFilter: "blur(8px)",
         borderRadius: "16px",
@@ -96,7 +105,6 @@ const DashboardCard = ({ title, value, gradient }) => {
           "0 14px 35px rgba(0,0,0,0.08)";
       }}
     >
-      {/* TOP GRADIENT STRIP */}
       <div
         style={{
           position: "absolute",
@@ -108,9 +116,7 @@ const DashboardCard = ({ title, value, gradient }) => {
         }}
       />
 
-      <h3 style={{ fontSize: "1rem", color: "#444", marginBottom: "0.4rem" }}>
-        {title}
-      </h3>
+      <h3 style={{ fontSize: "1rem", color: "#444" }}>{title}</h3>
 
       <p
         style={{

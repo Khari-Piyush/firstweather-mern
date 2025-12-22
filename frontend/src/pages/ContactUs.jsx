@@ -1,5 +1,8 @@
 import { useState } from "react";
 import api from "../api";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 const ContactUs = () => {
   const [form, setForm] = useState({
@@ -15,9 +18,22 @@ const ContactUs = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await api.post("/enquiry", form);
-    alert("Thank you! We will contact you shortly.");
-    setForm({ name: "", phone: "", email: "", message: "" });
+
+    try {
+      const res = await api.post("/enquiry", form);
+
+      toast.success("Enquiry sent successfully! 🚀");
+
+      setForm({
+        name: "",
+        phone: "",
+        email: "",
+        message: "",
+      });
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to send enquiry. Please try again.");
+    }
   };
 
   return (
@@ -53,7 +69,7 @@ const ContactUs = () => {
 
           <p><b>Business Name:</b> First Weather</p>
           <p><b>Phone:</b> +91 7428088039</p>
-          <p><b>Email:</b> connect@firstweather.in</p>
+          <p><b>Email:</b>firstweather16@gmail.com</p>
 
           <p style={{ marginTop: "0.5rem" }}>
             <b>Address:</b><br />
@@ -63,7 +79,7 @@ const ContactUs = () => {
 
           <p style={{ marginTop: "0.5rem" }}>
             ⏰ <b>Timings:</b><br />
-            Mon–Sat: 9:30 AM – 8:00 PM<br />
+            Mon–Sat: 9:00 AM – 6:00 PM<br />
             Sunday: Closed
           </p>
 

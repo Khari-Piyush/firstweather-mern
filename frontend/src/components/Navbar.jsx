@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext.jsx";
-import logo from "../../public//fw-logo-blue.png";
+import logo from "../../public/fw-logo-blue.png";
 import { useContext, useState, useEffect } from "react";
 
 // Icons
@@ -12,6 +12,9 @@ import {
   FiLogOut,
   FiHome,
   FiPhone,
+  FiGrid,
+  FiClipboard,
+  FiInbox,
 } from "react-icons/fi";
 
 const Navbar = () => {
@@ -30,21 +33,27 @@ const Navbar = () => {
   const handleLogout = () => {
     logout();
     setMenuOpen(false);
-    navigate("/");
+    navigate("/login");
   };
+
+  const isAdmin =
+  user?.role === "admin" ||
+  user?.role === "ADMIN" ||
+  user?.isAdmin === true;
+
 
   return (
     <>
       {/* ================= NAVBAR ================= */}
       <nav style={navOuter}>
         <div style={navInner}>
-          {/* LEFT : LOGO + TEXT */}
+          {/* LOGO */}
           <Link to="/" style={logoWrap} onClick={() => setMenuOpen(false)}>
             <img src={logo} alt="First Weather Logo" style={logoStyle} />
             <span style={logoText}>FIRST WEATHER</span>
           </Link>
 
-          {/* CENTER : SEARCH BAR (DESKTOP ONLY) */}
+          {/* SEARCH (DESKTOP) */}
           {!isMobile && (
             <input
               type="text"
@@ -53,12 +62,22 @@ const Navbar = () => {
             />
           )}
 
-          {/* RIGHT : LINKS / HAMBURGER */}
+          {/* LINKS */}
           {!isMobile ? (
             <div style={linksWrap}>
               <NavLink to="/" label="Home" />
               <NavLink to="/products" label="Products" />
               <NavLink to="/contact" label="Contact Us" />
+
+              {/* ===== ADMIN LINKS ===== */}
+              {isAdmin && (
+                <>
+                  <NavLink to="/admin/dashboard" label="Dashboard" />
+                  <NavLink to="/admin/products" label="Admin Products" />
+                  <NavLink to="/admin/orders" label="Orders" />
+                  <NavLink to="/admin/enquiries" label="Enquiries" />
+                </>
+              )}
 
               {!user ? (
                 <NavLink to="/login" label="Login" />
@@ -103,6 +122,36 @@ const Navbar = () => {
             label="Contact Us"
             setMenuOpen={setMenuOpen}
           />
+
+          {/* ===== ADMIN LINKS (MOBILE) ===== */}
+          {isAdmin && (
+            <>
+              <MobileLink
+                to="/admin/dashboard"
+                icon={<FiGrid />}
+                label="Dashboard"
+                setMenuOpen={setMenuOpen}
+              />
+              <MobileLink
+                to="/admin/products"
+                icon={<FiBox />}
+                label="Admin Products"
+                setMenuOpen={setMenuOpen}
+              />
+              <MobileLink
+                to="/admin/orders"
+                icon={<FiClipboard />}
+                label="Orders"
+                setMenuOpen={setMenuOpen}
+              />
+              <MobileLink
+                to="/admin/enquiries"
+                icon={<FiInbox />}
+                label="Enquiries"
+                setMenuOpen={setMenuOpen}
+              />
+            </>
+          )}
 
           {!user ? (
             <MobileLink
@@ -160,9 +209,7 @@ const logoWrap = {
   textDecoration: "none",
 };
 
-const logoStyle = {
-  height: "44px",
-};
+const logoStyle = { height: "44px" };
 
 const logoText = {
   marginLeft: "10px",

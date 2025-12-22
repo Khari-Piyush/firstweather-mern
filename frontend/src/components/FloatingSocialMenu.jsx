@@ -39,7 +39,7 @@ const FloatingSocialMenu = () => {
         </a>
 
         <a
-          href="https://www.instagram.com/"
+          href="https://www.instagram.com/firstweatherwipers/"
           target="_blank"
           rel="noreferrer"
           style={{
@@ -53,7 +53,7 @@ const FloatingSocialMenu = () => {
         </a>
 
         <a
-          href="https://www.facebook.com/"
+          href="https://www.facebook.com/firstweatherwipers"
           target="_blank"
           rel="noreferrer"
           style={{ ...childBtn, background: "#1877F2" }}

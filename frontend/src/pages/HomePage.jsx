@@ -84,10 +84,10 @@ const HomePage = () => {
 
   return (
     <div style={{
-    opacity: pageLoaded ? 1 : 0,
-    transform: pageLoaded ? "translateY(0)" : "translateY(20px)",
-    transition: "all 0.6s ease",
-  }}>
+      opacity: pageLoaded ? 1 : 0,
+      transform: pageLoaded ? "translateY(0)" : "translateY(20px)",
+      transition: "all 0.6s ease",
+    }}>
       {/* ================= HERO ================= */}
       <section style={heroSection}>
         <div style={overlay}></div>
@@ -190,36 +190,37 @@ const HomePage = () => {
             <ProductRangeCard
               img={wiperArm}
               title="Wiper Arm"
+              category="wiper-arm"
               desc="We sell a wide range of Wiper Arms like Bayonet, Hook Type, Double Pipe and many more."
-              loading="lazy"
             />
 
             <ProductRangeCard
               img={wiperBlade}
               title="Wiper Blade"
+              category="wiper-blade"
               desc="Our range of Wiper Blades includes imported U-Hook, Soft ( Frameless Blades) and Hybrid Blades."
-              loading="lazy"
             />
 
             <ProductRangeCard
               img={wiperLinkage}
               title="Wiper Linkage Assembly"
+              category="wiper-linkage"
               desc="We offer a comprehensive solution for Wiper Linkage Assembly used in the automobile industry."
-              loading="lazy"
             />
 
             <ProductRangeCard
               img={wiperGear}
               title="Wiper Motor Gear"
+              category="wiper-motor-gear"
               desc="We offer wide variety of wiper motor gear with best quality."
-              loading="lazy"
             />
+
           </div>
 
           <div style={{ textAlign: "center", marginTop: "2.5rem" }}>
-            <Link to="/products" 
-            style={viewAllBtn}
-            onMouseEnter={(e) => {
+            <Link to="/products"
+              style={viewAllBtn}
+              onMouseEnter={(e) => {
                 e.currentTarget.style.background = "#1e88e5";
                 e.currentTarget.style.color = "#ffffff";
                 e.currentTarget.style.transform = "translateY(-3px)";
@@ -341,7 +342,7 @@ const StatBox = ({ value, label, icon, isMobile }) => {
   );
 };
 
-const ProductRangeCard = ({ img, title, desc, brand }) => {
+const ProductRangeCard = ({ img, title, desc, category }) => {
   return (
     <div
       style={rangeCard}
@@ -357,15 +358,19 @@ const ProductRangeCard = ({ img, title, desc, brand }) => {
       <img src={img} alt={title} style={rangeImg} loading="lazy" />
 
       <h3 style={rangeTitle}>{title}</h3>
-
       <p style={rangeDesc}>{desc}</p>
 
-      <Link to="/products" style={rangeBtn}>
+      {/* ✅ CATEGORY BASED REDIRECT */}
+      <Link
+        to={`/products?category=${category}`}
+        style={rangeBtn}
+      >
         View Product
       </Link>
     </div>
   );
 };
+
 
 
 /* ================= STYLES ================= */

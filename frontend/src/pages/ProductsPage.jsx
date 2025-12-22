@@ -1,174 +1,125 @@
-import { useEffect, useLayoutEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import api from "../api";
+
+const CATEGORY_MAP = {
+  "wiper-arm": "F.W Wiper Arm",
+  "wiper-blade": "F.W Wiper Blade",
+  "wiper-linkage": "F.W Wiper Linkage",
+  "wiper-motor-gear": "F.W Wiper Motor Gear",
+  "wiper-wheel-box" : "F.W Wiper Wheel Box",
+  "wiper-rod": "F.W Wiper Rod",
+  "wiper-power-window" : "F.W Power Window Accessories",
+  "wiper-acc": "F.W Wiper Accessories",
+};
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
 
-  // 👇 animation state
-  const [mounted, setMounted] = useState(false);
+  const [searchParams] = useSearchParams();
+  const urlCategory = searchParams.get("category");
 
-  // 🔥 THIS IS THE KEY FIX
-  useLayoutEffect(() => {
-    requestAnimationFrame(() => {
-      setMounted(true);
-    });
-  }, []);
-
+  /* ================= FETCH PRODUCTS ================= */
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        setLoading(true);
         const res = await api.get("/products");
         setProducts(res.data);
+
+        if (urlCategory && CATEGORY_MAP[urlCategory]) {
+          setSelectedCategory(CATEGORY_MAP[urlCategory]);
+        } else {
+          setSelectedCategory("All");
+        }
       } catch {
         setError("Failed to load products");
       } finally {
         setLoading(false);
       }
     };
+
     fetchProducts();
-  }, []);
+  }, [urlCategory]);
 
-  const categories = [
-    "All",
-    ...new Set(products.map((p) => p.category).filter(Boolean)),
-  ];
-
+  /* ================= FILTER ================= */
   const filteredProducts =
     selectedCategory === "All"
       ? products
       : products.filter((p) => p.category === selectedCategory);
 
   if (loading) return <p style={{ padding: "1rem" }}>Loading products...</p>;
-  if (error) return <p style={{ padding: "1rem", color: "red" }}>{error}</p>;
+  if (error) return <p style={{ color: "red", padding: "1rem" }}>{error}</p>;
 
   return (
-    <div
-      style={{
-        padding: "1.5rem",
-        minHeight: "100vh",
-        background: "linear-gradient(180deg, #f0f7ff 0%, #ffffff 60%)",
+    <div style={{ padding: "2rem" }}>
+      <h2 style={{ marginBottom: "1rem" }}>
+        {selectedCategory === "All" ? "All Products" : selectedCategory}
+      </h2>
 
-        /* 🔥 REAL SMOOTH ANIMATION */
-        opacity: mounted ? 1 : 0,
-        transform: mounted ? "translateY(0)" : "translateY(30px)",
-        transition: "opacity 0.6s ease, transform 0.6s ease",
-        willChange: "opacity, transform",
-      }}
-    >
-      <h2 style={{ marginBottom: "0.4rem" }}>Products</h2>
-      <p style={{ color: "#555", marginBottom: "1rem" }}>
-        Premium windshield wiper parts by <b>First Weather</b>
-      </p>
-
-      {/* CATEGORY FILTER */}
-      <div
-        style={{
-          display: "flex",
-          gap: "0.5rem",
-          flexWrap: "wrap",
-          marginBottom: "1.5rem",
-        }}
-      >
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setSelectedCategory(cat)}
-            style={{
-              padding: "0.45rem 0.9rem",
-              borderRadius: "999px",
-              border: "1px solid #2563eb",
-              background:
-                selectedCategory === cat
-                  ? "linear-gradient(135deg, #2563eb, #1e40af)"
-                  : "#fff",
-              color: selectedCategory === cat ? "#fff" : "#2563eb",
-              cursor: "pointer",
-              fontSize: "0.85rem",
-            }}
-          >
-            {cat}
-          </button>
-        ))}
+      {/* ================= CATEGORY FILTER ================= */}
+      <div style={filterWrap}>
+        <CategoryBtn
+          label="All"
+          active={selectedCategory === "All"}
+          onClick={() => setSelectedCategory("All")}
+        />
+        <CategoryBtn
+          label="F.W Wiper Arm"
+          active={selectedCategory === CATEGORY_MAP["wiper-arm"]}
+          onClick={() => setSelectedCategory(CATEGORY_MAP["wiper-arm"])}
+        />
+        <CategoryBtn
+          label="F.W Wiper Blade"
+          active={selectedCategory === CATEGORY_MAP["wiper-blade"]}
+          onClick={() => setSelectedCategory(CATEGORY_MAP["wiper-blade"])}
+        />
+        <CategoryBtn
+          label="F.W Wiper Linkage"
+          active={selectedCategory === CATEGORY_MAP["wiper-linkage"]}
+          onClick={() => setSelectedCategory(CATEGORY_MAP["wiper-linkage"])}
+        />
+        <CategoryBtn
+          label="F.W Wiper Wheel Box"
+          active={selectedCategory === CATEGORY_MAP["wiper-wheel-box"]}
+          onClick={() => setSelectedCategory(CATEGORY_MAP["wiper-wheel-box"])}
+        />
+        <CategoryBtn
+          label="F.W Wiper Motor Gear"
+          active={selectedCategory === CATEGORY_MAP["wiper-motor-gear"]}
+          onClick={() => setSelectedCategory(CATEGORY_MAP["wiper-motor-gear"])}
+        />
+        <CategoryBtn
+          label="F.W Wiper Rod"
+          active={selectedCategory === CATEGORY_MAP["wiper-rod"]}
+          onClick={() => setSelectedCategory(CATEGORY_MAP["wiper-rod"])}
+        />
+        <CategoryBtn
+          label="F.W Power Window Accessories"
+          active={selectedCategory === CATEGORY_MAP["wiper-power-window"]}
+          onClick={() => setSelectedCategory(CATEGORY_MAP["wiper-power-window"])}
+        />
+        <CategoryBtn
+          label="F.W Wiper Accessories"
+          active={selectedCategory === CATEGORY_MAP["wiper-acc"]}
+          onClick={() => setSelectedCategory(CATEGORY_MAP["wiper-acc"])}
+        />
       </div>
 
-      {/* PRODUCTS GRID */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
-          gap: "1.25rem",
-        }}
-      >
+      {/* ================= PRODUCT GRID ================= */}
+      <div style={grid}>
         {filteredProducts.map((p) => (
-          <div
-            key={p._id}
-            style={{
-              borderRadius: "14px",
-              background: "#fff",
-              border: "1px solid #e0ecff",
-              boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
-              transition: "transform 0.25s ease, box-shadow 0.25s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-6px)";
-              e.currentTarget.style.boxShadow =
-                "0 18px 40px rgba(37,99,235,0.18)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow =
-                "0 10px 30px rgba(0,0,0,0.06)";
-            }}
-          >
-            {p.imageUrl && (
-              <div
-                style={{
-                  background: "linear-gradient(180deg, #e0f2fe, #ffffff)",
-                  borderRadius: "14px 14px 0 0",
-                  padding: "0.75rem",
-                }}
-              >
-                <img
-                  src={p.imageUrl}
-                  alt={p.productName}
-                  style={{
-                    width: "100%",
-                    height: "150px",
-                    objectFit: "contain",
-                  }}
-                />
-              </div>
-            )}
+          <div key={p._id} style={card}>
+            <img src={p.imageUrl} alt={p.productName} style={img} />
+            <h4>{p.productName}</h4>
+            <p>₹{p.price}</p>
 
-            <div style={{ padding: "0.9rem" }}>
-              <h3 style={{ fontSize: "1rem", marginBottom: "0.25rem" }}>
-                {p.productName}
-              </h3>
-
-              <p style={{ fontWeight: "bold", fontSize: "1.05rem" }}>
-                ₹{p.price}
-              </p>
-
-              <Link
-                to={`/products/${p._id}`}
-                style={{
-                  display: "inline-block",
-                  marginTop: "0.4rem",
-                  textDecoration: "none",
-                  color: "#fff",
-                  background: "linear-gradient(135deg, #2563eb, #1e40af)",
-                  padding: "0.4rem 0.9rem",
-                  borderRadius: "6px",
-                  fontSize: "0.85rem",
-                }}
-              >
-                View Details
-              </Link>
-            </div>
+            <Link to={`/products/${p._id}`} style={viewBtn}>
+              View Details
+            </Link>
           </div>
         ))}
       </div>
@@ -177,3 +128,61 @@ const ProductsPage = () => {
 };
 
 export default ProductsPage;
+
+/* ================= COMPONENT ================= */
+
+const CategoryBtn = ({ label, active, onClick }) => (
+  <button
+    onClick={onClick}
+    style={{
+      padding: "8px 16px",
+      borderRadius: "20px",
+      border: "1px solid #1e3a8a",
+      background: active ? "#1e3a8a" : "#fff",
+      color: active ? "#fff" : "#1e3a8a",
+      cursor: "pointer",
+      fontWeight: "500",
+    }}
+  >
+    {label}
+  </button>
+);
+
+/* ================= STYLES ================= */
+
+const filterWrap = {
+  display: "flex",
+  gap: "0.75rem",
+  marginBottom: "1.5rem",
+  flexWrap: "wrap",
+};
+
+const grid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+  gap: "1.5rem",
+};
+
+const card = {
+  background: "#fff",
+  padding: "1rem",
+  borderRadius: "10px",
+  boxShadow: "0 8px 25px rgba(0,0,0,0.08)",
+  textAlign: "center",
+};
+
+const img = {
+  width: "100%",
+  height: "180px",
+  objectFit: "contain",
+};
+
+const viewBtn = {
+  display: "inline-block",
+  marginTop: "0.5rem",
+  textDecoration: "none",
+  background: "#0f172a",
+  color: "#fff",
+  padding: "6px 14px",
+  borderRadius: "6px",
+};
