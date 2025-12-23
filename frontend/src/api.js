@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://first-weather-webapp-h05a.onrender.com/",
+  baseURL: "https://first-weather-webapp-h05a.onrender.com/api",
   withCredentials: true,
 });
 // attach token on startup (for page refresh)
