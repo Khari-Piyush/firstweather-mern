@@ -1,9 +1,9 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:4000/api",
+  baseURL: "http://first-weather-webapp-h05a.onrender.com/",
+  withCredentials: true,
 });
-
 // attach token on startup (for page refresh)
 const tokenOnLoad = localStorage.getItem("token");
 if (tokenOnLoad) api.defaults.headers.common.Authorization = `Bearer ${tokenOnLoad}`;
