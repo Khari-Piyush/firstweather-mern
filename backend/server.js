@@ -26,7 +26,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",              // local dev
-      "https://first-weather.vercel.app"    // vercel frontend
+      "https://firstweather.vercel.app"    // vercel frontend
     ],
     credentials: true,
   })
