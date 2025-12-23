@@ -14,7 +14,7 @@ const AdminProducts = () => {
     price: "",
     category: "",
     carModel: "",
-    imageUrl: "",
+    imageFile: null, // ✅ IMPORTANT
   });
 
   const fetchProducts = async () => {
@@ -111,7 +111,6 @@ const AdminProducts = () => {
             ["price", "Price"],
             ["category", "Category"],
             ["carModel", "Car Model"],
-            ["imageUrl", "Image URL"],
           ].map(([name, placeholder]) => (
             <input
               key={name}
@@ -133,6 +132,22 @@ const AdminProducts = () => {
             rows={3}
             style={{ ...inputStyle, gridColumn: "1 / -1", resize: "vertical" }}
           />
+          {/* IMAGE UPLOAD */}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) =>
+              setForm((prev) => ({
+                ...prev,
+                imageFile: e.target.files[0],
+              }))
+            }
+            style={{
+              marginTop: "0.8rem",
+              fontSize: "0.85rem",
+            }}
+          />
+
         </div>
 
         <button type="submit" style={primaryBtn}>

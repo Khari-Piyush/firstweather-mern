@@ -50,11 +50,12 @@ router.post(
         compatibleYears,
         category,
         inStock,
+        imageUrl,
       } = req.body;
 
-      if (!productId || !productName || !slug || !price) {
+      if (!productId || !productName || !slug || !price || ! imageUrl) {
         return res.status(400).json({
-          message: "productId, productName, slug and price are required",
+          message: "productId, productName, slug, price, imageUrl are required",
         });
       }
 

@@ -29,18 +29,21 @@ const productSchema = new mongoose.Schema(
         carModel: {
             type: String
         },
-        compatibleYears: [{type: Number}],
+        compatibleYears: [{ type: Number }],
 
-        category: {type: String},
-        imageUrl: {type: String},
-        videoUrl: {type: String},
+        category: { type: String },
+        imageUrl: {
+            type: String,
+            required: true,
+        },
+        videoUrl: { type: String },
 
         inStock: {
             type: Boolean,
             default: true,
         },
     },
-    {timestamps: true}
+    { timestamps: true }
 );
 
 const Product = mongoose.model("Product", productSchema);
