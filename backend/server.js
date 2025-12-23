@@ -23,11 +23,15 @@ connectDB();
 // MIDDLE-WARE
 app.use(express.json());
 app.use(
-    cors({
-		origin:"http://localhost:5173",
-		credentials:true,
-	})
+  cors({
+    origin: [
+      "http://localhost:5173",              // local dev
+      "https://first-weather.vercel.app"    // vercel frontend
+    ],
+    credentials: true,
+  })
 );
+
 
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
@@ -40,6 +44,11 @@ app.use("/api", enquiryRoutes);
 app.get("/api/health", (req, res) => {
   res.json({ message: "OK" });
 });
+
+app.get("/", (req, res) => {
+  res.send("First Weather Backend Live 🚀");
+});
+
 
 // Start Server
 app.listen(PORT, () => {
