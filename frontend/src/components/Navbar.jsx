@@ -98,11 +98,11 @@ const Navbar = () => {
       {/* ================= MOBILE MENU ================= */}
       {menuOpen && isMobile && (
         <div style={mobileMenu}>
-          <input
+          {/* <input
             type="text"
             placeholder="Search products..."
             style={mobileSearch}
-          />
+          /> */}
 
           <MobileLink
             to="/"
