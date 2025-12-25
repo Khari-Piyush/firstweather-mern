@@ -219,13 +219,13 @@ const logoText = {
   letterSpacing: "1px",
 };
 
-const searchInput = {
-  padding: "7px 16px",
-  borderRadius: "20px",
-  border: "1px solid #cbd5e1",
-  outline: "none",
-  width: "240px",
-};
+// const searchInput = {
+//   padding: "7px 16px",
+//   borderRadius: "20px",
+//   border: "1px solid #cbd5e1",
+//   outline: "none",
+//   width: "240px",
+// };
 
 const linksWrap = {
   display: "flex",
