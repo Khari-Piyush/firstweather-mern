@@ -131,7 +131,7 @@ const ProductDetailPage = () => {
             >
               <h3 style={{ marginBottom: "0.6rem" }}>🔧 Product Highlights</h3>
               <ul style={{ paddingLeft: "1.2rem", lineHeight: "1.7", color: "#1e3a8a" }}>
-                <li>OEM-quality wiper rod for Ashok Leyland Captain</li>
+                <li>OEM-quality </li>
                 <li>Smooth & synchronized windshield wiping</li>
                 <li>Heavy-duty build for commercial vehicles</li>
                 <li>Corrosion-resistant & weatherproof finish</li>
@@ -184,7 +184,7 @@ const ProductDetailPage = () => {
             >
               <h3 style={{ marginBottom: "0.5rem" }}>🚛 Applications</h3>
               <p style={{ color: "#374151", fontSize: "0.95rem" }}>
-                Suitable for Ashok Leyland Captain trucks and commercial vehicles
+                Suitable for {product.productName} and commercial vehicles
                 requiring reliable windshield wiper linkage systems.
               </p>
             </div>
