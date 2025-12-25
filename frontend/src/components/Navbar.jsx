@@ -53,14 +53,14 @@ const Navbar = () => {
             <span style={logoText}>FIRST WEATHER</span>
           </Link>
 
-          {/* SEARCH (DESKTOP) */}
+          {/* SEARCH (DESKTOP)
           {!isMobile && (
             <input
               type="text"
               placeholder="Search products..."
               style={searchInput}
             />
-          )}
+          )} */}
 
           {/* LINKS */}
           {!isMobile ? (
