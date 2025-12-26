@@ -11,7 +11,7 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     const products = await Product.find()
-      .sort({ createdAt: -1 })
+      .sort({ productName: 1 }) // 🔥 A → Z order
       .lean(); // fast
 
     res.json(products);
@@ -20,6 +20,7 @@ router.get("/", async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 });
+
 
 /* ================= GET PRODUCT BY ID ================= */
 router.get("/:id", async (req, res) => {
