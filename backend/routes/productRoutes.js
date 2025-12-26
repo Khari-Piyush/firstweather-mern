@@ -11,6 +11,7 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     const products = await Product.find()
+      .collation({ locale: "en", strength: 2 })
       .sort({ productName: 1 }) // 🔥 A → Z order
       .lean(); // fast
 
