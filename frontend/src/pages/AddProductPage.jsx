@@ -14,49 +14,44 @@ const AddProductPage = () => {
 
   const [image, setImage] = useState(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    // 🔴 BASIC VALIDATION
-    if (!image) {
-      alert("Please select an image");
-      return;
-    }
+  if (!image) {
+    alert("Please select an image");
+    return;
+  }
 
-    const formData = new FormData();
+  const formData = new FormData();
 
-    Object.keys(form).forEach((key) => {
-      formData.append(key, form[key]);
+  Object.keys(form).forEach((key) => {
+    formData.append(key, form[key]);
+  });
+
+  formData.append("image", image);
+
+  try {
+    await api.post("/products", formData); // ✅ NO HEADERS
+
+    alert("✅ Product added successfully");
+
+    setForm({
+      productName: "",
+      productId: "",
+      slug: "",
+      description: "",
+      price: "",
+      category: "",
+      carModel: "",
     });
+    setImage(null);
+  } catch (err) {
+    console.error(err.response?.data);
+    alert(err.response?.data?.message || "❌ Failed to add product");
+  }
+};
 
-    // 👇 VERY IMPORTANT (must match upload.single("image"))
-    formData.append("image", image);
 
-    try {
-      await api.post("/products", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      alert("✅ Product added successfully");
-
-      // RESET FORM
-      setForm({
-        productName: "",
-        productId: "",
-        slug: "",
-        description: "",
-        price: "",
-        category: "",
-        carModel: "",
-      });
-      setImage(null);
-    } catch (err) {
-      console.error(err);
-      alert("❌ Failed to add product");
-    }
-  };
 
   return (
     <form
@@ -120,17 +115,19 @@ const AddProductPage = () => {
         placeholder="Category"
         value={form.category}
         onChange={(e) =>
-          setForm({ ...form, category: e.target.value })}
+          setForm({ ...form, category: e.target.value })
+        }
       />
 
       <input
         placeholder="Car Model"
         value={form.carModel}
         onChange={(e) =>
-          setForm({ ...form, carModel: e.target.value })}
+          setForm({ ...form, carModel: e.target.value })
+        }
       />
 
-      {/* ✅ IMAGE INPUT */}
+      {/* ✅ IMAGE FROM PC */}
       <input
         type="file"
         accept="image/*"

@@ -1,14 +1,19 @@
 import express from "express";
 import Product from "../models/Product.js";
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
-import upload from "../middleware/upload.js"; // 👈 multer + cloudinary
+import upload from "../middleware/upload.js"; // multer LOCAL
+import cloudinary from "../config/cloudinary.js";
+import fs from "fs";
 
 const router = express.Router();
 
 /* ================= GET ALL PRODUCTS ================= */
 router.get("/", async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 });
+    const products = await Product.find()
+      .sort({ createdAt: -1 })
+      .lean(); // fast
+
     res.json(products);
   } catch (err) {
     console.error("Get Products Error:", err);
@@ -32,12 +37,12 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-/* ================= CREATE PRODUCT (WITH IMAGE) ================= */
+/* ================= CREATE PRODUCT ================= */
 router.post(
   "/",
   protect,
   adminOnly,
-  upload.single("image"), // 👈 image upload
+  upload.single("image"),
   async (req, res) => {
     try {
       const {
@@ -46,38 +51,56 @@ router.post(
         slug,
         description,
         price,
-        carModel,
-        compatibleYears,
         category,
-        inStock,
-        imageUrl,
+        carModel,
       } = req.body;
 
-      if (!productId || !productName || !slug || !price || ! imageUrl) {
+      // 🔐 VALIDATION
+      if (!productId || !productName || !slug || !price) {
         return res.status(400).json({
-          message: "productId, productName, slug, price, imageUrl are required",
+          message: "productId, productName, slug, price are required",
         });
       }
 
-      // Ensure unique productId & slug
-      if (await Product.findOne({ productId })) {
-        return res.status(400).json({ message: "productId already exists" });
-      }
-      if (await Product.findOne({ slug })) {
-        return res.status(400).json({ message: "slug already exists" });
+      if (!req.file) {
+        return res.status(400).json({
+          message: "Product image is required",
+        });
       }
 
+      // 🔁 DUPLICATE CHECK
+      if (await Product.findOne({ productId })) {
+        return res.status(400).json({ message: "Product ID already exists" });
+      }
+
+      if (await Product.findOne({ slug })) {
+        return res.status(400).json({ message: "Slug already exists" });
+      }
+
+      // ☁️ UPLOAD TO CLOUDINARY
+      const result = await cloudinary.uploader.upload(
+        req.file.path,
+        {
+          folder: "fwproducts",
+        }
+      );
+
+      // 🧹 DELETE LOCAL FILE
+      fs.unlinkSync(req.file.path);
+
+      // 🌐 CLOUDINARY URL
+      const imageUrl = result.secure_url;
+
+      // 💾 SAVE PRODUCT
       const product = await Product.create({
         productId,
         productName,
         slug,
         description,
         price,
-        carModel,
-        compatibleYears,
         category,
-        inStock: inStock !== undefined ? inStock : true,
-        imageUrl: req.file?.path || "", // 👈 CLOUDINARY URL
+        carModel,
+        imageUrl,
       });
 
       res.status(201).json(product);
@@ -88,18 +111,25 @@ router.post(
   }
 );
 
-/* ================= UPDATE PRODUCT (OPTIONAL IMAGE) ================= */
+/* ================= UPDATE PRODUCT ================= */
 router.put(
   "/:id",
   protect,
   adminOnly,
-  upload.single("image"), // 👈 optional new image
+  upload.single("image"),
   async (req, res) => {
     try {
       const updates = { ...req.body };
 
       if (req.file) {
-        updates.imageUrl = req.file.path; // 👈 new Cloudinary URL
+        const result = await cloudinary.uploader.upload(
+          req.file.path,
+          { folder: "fwproducts" }
+        );
+
+        fs.unlinkSync(req.file.path);
+
+        updates.imageUrl = result.secure_url;
       }
 
       const product = await Product.findByIdAndUpdate(
