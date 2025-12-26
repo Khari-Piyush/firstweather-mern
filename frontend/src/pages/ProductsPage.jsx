@@ -115,7 +115,8 @@ const ProductsPage = () => {
           <div key={p._id} style={card}>
             <img src={p.imageUrl} alt={p.productName} style={img} />
             <h4>{p.productName}</h4>
-            <p>₹{p.price}</p>
+            <p>₹{p.price}  <span> / {p.unit}</span> </p>
+            
 
             <Link to={`/products/${p._id}`} style={viewBtn}>
               View Details

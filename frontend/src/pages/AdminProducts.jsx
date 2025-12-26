@@ -14,6 +14,7 @@ const AdminProducts = () => {
     price: "",
     category: "",
     carModel: "",
+    unit: "",
     imageFile: null, // ✅ IMPORTANT
   });
 
@@ -39,42 +40,42 @@ const AdminProducts = () => {
   };
 
   const handleAddProduct = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const formData = new FormData();
+    try {
+      const formData = new FormData();
 
-    formData.append("productName", form.productName);
-    formData.append("productId", form.productId);
-    formData.append("slug", form.slug);
-    formData.append("description", form.description);
-    formData.append("price", Number(form.price));
-    formData.append("category", form.category);
-    formData.append("carModel", form.carModel);
+      formData.append("productName", form.productName);
+      formData.append("productId", form.productId);
+      formData.append("slug", form.slug);
+      formData.append("description", form.description);
+      formData.append("price", Number(form.price));
+      formData.append("category", form.category);
+      formData.append("carModel", form.carModel);
 
-    // 🔥 EXACT KEY
-    formData.append("image", form.imageFile);
+      // 🔥 EXACT KEY
+      formData.append("image", form.imageFile);
 
-    // 🚫 DO NOT SET HEADERS HERE
-    await api.post("/products", formData);
+      // 🚫 DO NOT SET HEADERS HERE
+      await api.post("/products", formData);
 
-    setForm({
-      productName: "",
-      productId: "",
-      description: "",
-      slug: "",
-      price: "",
-      category: "",
-      carModel: "",
-      imageFile: null,
-    });
+      setForm({
+        productName: "",
+        productId: "",
+        description: "",
+        slug: "",
+        price: "",
+        category: "",
+        carModel: "",
+        imageFile: null,
+      });
 
-    fetchProducts();
-  } catch (err) {
-    console.error(err);
-    alert("Failed to add product");
-  }
-};
+      fetchProducts();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add product");
+    }
+  };
 
 
 
@@ -152,6 +153,20 @@ const AdminProducts = () => {
             rows={3}
             style={{ ...inputStyle, gridColumn: "1 / -1", resize: "vertical" }}
           />
+          <select
+            value={form.unit}
+            onChange={(e) =>
+              setForm({ ...form, unit: e.target.value })
+            }
+            style={inputStyle}
+          >
+            <option value="">Select Unit</option>
+            <option value="pc">Per Piece</option>
+            <option value="set">Per Set</option>
+            <option value="pair">Per Pair</option>
+          </select>
+
+
           {/* IMAGE UPLOAD */}
           <input
             type="file"
