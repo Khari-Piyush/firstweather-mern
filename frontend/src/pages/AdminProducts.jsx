@@ -39,24 +39,44 @@ const AdminProducts = () => {
   };
 
   const handleAddProduct = async (e) => {
-    e.preventDefault();
-    try {
-      await api.post("/products", { ...form, price: Number(form.price) });
-      setForm({
-        productName: "",
-        productId: "",
-        description: "",
-        slug: "",
-        price: "",
-        category: "",
-        carModel: "",
-        imageUrl: "",
-      });
-      fetchProducts();
-    } catch {
-      alert("Failed to add product");
-    }
-  };
+  e.preventDefault();
+
+  try {
+    const formData = new FormData();
+
+    formData.append("productName", form.productName);
+    formData.append("productId", form.productId);
+    formData.append("slug", form.slug);
+    formData.append("description", form.description);
+    formData.append("price", Number(form.price));
+    formData.append("category", form.category);
+    formData.append("carModel", form.carModel);
+
+    // 🔥 EXACT KEY
+    formData.append("image", form.imageFile);
+
+    // 🚫 DO NOT SET HEADERS HERE
+    await api.post("/products", formData);
+
+    setForm({
+      productName: "",
+      productId: "",
+      description: "",
+      slug: "",
+      price: "",
+      category: "",
+      carModel: "",
+      imageFile: null,
+    });
+
+    fetchProducts();
+  } catch (err) {
+    console.error(err);
+    alert("Failed to add product");
+  }
+};
+
+
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this product?")) return;

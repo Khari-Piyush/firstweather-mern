@@ -54,6 +54,8 @@ router.post(
         category,
         carModel,
       } = req.body;
+      console.log("FILE:", req.file);
+
 
       // 🔐 VALIDATION
       if (!productId || !productName || !slug || !price) {
@@ -86,7 +88,10 @@ router.post(
       );
 
       // 🧹 DELETE LOCAL FILE
-      fs.unlinkSync(req.file.path);
+      fs.unlink(req.file.path, (err) => {
+        if (err) console.warn("File delete warning:", err.message);
+      });
+
 
       // 🌐 CLOUDINARY URL
       const imageUrl = result.secure_url;
@@ -110,6 +115,8 @@ router.post(
     }
   }
 );
+
+
 
 /* ================= UPDATE PRODUCT ================= */
 router.put(
