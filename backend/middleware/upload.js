@@ -4,9 +4,8 @@ import fs from "fs";
 
 const uploadDir = "uploads";
 
-// 🔥 ensure uploads folder exists
 if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
+  fs.mkdirSync(uploadDir, { recursive: true });
 }
 
 const storage = multer.diskStorage({
@@ -14,18 +13,32 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    cb(
-      null,
-      Date.now() + path.extname(file.originalname)
-    );
+    cb(null, Date.now() + "-" + file.originalname);
   },
 });
 
+// ✅ ALLOW images + csv + zip
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith("image/")) {
+  const allowedTypes = [
+    "image/",
+    "text/csv",
+    "application/zip",
+    "application/x-zip-compressed",
+  ];
+
+  if (
+    allowedTypes.some((type) =>
+      file.mimetype.startsWith(type)
+    )
+  ) {
     cb(null, true);
   } else {
-    cb(new Error("Only image files allowed"), false);
+    cb(
+      new Error(
+        "Only images, CSV, and ZIP files are allowed"
+      ),
+      false
+    );
   }
 };
 

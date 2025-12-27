@@ -50,55 +50,67 @@ router.post(
   ]),
   async (req, res) => {
     try {
+      console.log("FILES:", req.files);
+
+      if (!req.files?.csv || !req.files?.zip) {
+        return res.status(400).json({ message: "CSV and ZIP both required" });
+      }
+
       const csvFile = req.files.csv[0];
       const zipFile = req.files.zip[0];
+      
+      console.log("CSV PATH:", csvFile?.path);
+      
 
       const extractPath = `uploads/extracted-${Date.now()}`;
       fs.mkdirSync(extractPath);
 
-      // unzip images
       await fs
         .createReadStream(zipFile.path)
         .pipe(unzipper.Extract({ path: extractPath }))
         .promise();
 
       const products = await csv().fromFile(csvFile.path);
-
+      console.log("CSV DATA:", products);
       const finalProducts = [];
 
       for (let p of products) {
         const imagePath = path.join(extractPath, p.image);
 
-        let imageUrl = "";
-        if (fs.existsSync(imagePath)) {
-          const uploadRes = await cloudinary.uploader.upload(imagePath, {
-            folder: "products",
-          });
-          imageUrl = uploadRes.secure_url;
+        if (!fs.existsSync(imagePath)) {
+          console.warn(`Image not found for ${p.productName}`);
+          continue; // ❗ skip invalid product
         }
+
+        const uploadRes = await cloudinary.uploader.upload(imagePath, {
+          folder: "fwproducts",
+        });
 
         finalProducts.push({
           productName: p.productName,
           productId: p.productId,
           slug: p.slug,
-          price: p.price,
+          description: p.description,
+          price: Number(p.price),
           category: p.category,
           carModel: p.carModel,
-          description: p.description,
-          unit: p.unit,
-          image: imageUrl,
+          imageUrl: uploadRes.secure_url, // ✅ CORRECT
         });
+      }
+
+      if (!finalProducts.length) {
+        return res.status(400).json({ message: "No valid products found" });
       }
 
       await Product.insertMany(finalProducts);
 
       res.json({
-        message: "Bulk products + images uploaded successfully",
+        message: "Bulk upload successful",
         count: finalProducts.length,
       });
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Bulk upload failed" });
+      console.error("Bulk upload error:", err);
+      res.status(500).json({ message: err.message });
     }
   }
 );
