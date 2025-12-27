@@ -3,8 +3,7 @@ import api from "../api";
 
 const AdminProducts = () => {
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [editingId, setEditingId] = useState(null);
 
   const [form, setForm] = useState({
     productName: "",
@@ -15,116 +14,76 @@ const AdminProducts = () => {
     category: "",
     carModel: "",
     unit: "",
-    imageFile: null, // ✅ IMPORTANT
+    imageFile: null,
   });
 
   const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      const res = await api.get("/products");
-      setProducts(res.data);
-    } catch {
-      setError("Failed to load products");
-    } finally {
-      setLoading(false);
-    }
+    const res = await api.get("/products");
+    setProducts(res.data);
   };
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleAddProduct = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const fd = new FormData();
 
-    try {
-      const formData = new FormData();
+    Object.keys(form).forEach((k) => {
+      if (k !== "imageFile") fd.append(k, form[k]);
+    });
+    if (form.imageFile) fd.append("image", form.imageFile);
 
-      formData.append("productName", form.productName);
-      formData.append("productId", form.productId);
-      formData.append("slug", form.slug);
-      formData.append("description", form.description);
-      formData.append("price", Number(form.price));
-      formData.append("category", form.category);
-      formData.append("carModel", form.carModel);
-
-      // 🔥 EXACT KEY
-      formData.append("image", form.imageFile);
-
-      // 🚫 DO NOT SET HEADERS HERE
-      await api.post("/products", formData);
-
-      setForm({
-        productName: "",
-        productId: "",
-        description: "",
-        slug: "",
-        price: "",
-        category: "",
-        carModel: "",
-        imageFile: null,
-      });
-
-      fetchProducts();
-    } catch (err) {
-      console.error(err);
-      alert("Failed to add product");
+    if (editingId) {
+      await api.put(`/products/${editingId}`, fd);
+    } else {
+      await api.post("/products", fd);
     }
+
+    setEditingId(null);
+    setForm({
+      productName: "",
+      productId: "",
+      description: "",
+      slug: "",
+      price: "",
+      category: "",
+      carModel: "",
+      unit: "",
+      imageFile: null,
+    });
+
+    fetchProducts();
   };
 
-
+  const handleEdit = (p) => {
+    setEditingId(p._id);
+    setForm({ ...p, imageFile: null });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this product?")) return;
-    try {
+    if (window.confirm("Delete product?")) {
       await api.delete(`/products/${id}`);
       fetchProducts();
-    } catch {
-      alert("Delete failed");
     }
   };
 
-  if (loading) return <p style={{ padding: "1rem" }}>Loading...</p>;
-
   return (
-    <div
-      style={{
-        padding: "1.5rem",
-        minHeight: "100vh",
-        background: "linear-gradient(180deg, #f0f7ff 0%, #ffffff 60%)",
-      }}
-    >
-      <h2 style={{ marginBottom: "0.25rem" }}>Admin Products</h2>
-      <p style={{ color: "#555", marginBottom: "1.5rem" }}>
-        Manage First Weather product listings
-      </p>
+    <div style={page}>
+      <h2 style={heading}>Admin Products</h2>
 
-      {/* ADD PRODUCT FORM */}
-      <form
-        onSubmit={handleAddProduct}
-        style={{
-          background: "rgba(255,255,255,0.9)",
-          backdropFilter: "blur(8px)",
-          borderRadius: "14px",
-          padding: "1.2rem",
-          marginBottom: "2rem",
-          boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
-        }}
-      >
-        <h3 style={{ marginBottom: "1rem" }}>➕ Add New Product</h3>
+      {/* FORM */}
+      <form style={card} onSubmit={handleSubmit}>
+        <h3 style={{ marginBottom: "1rem", color: "#1e3a8a" }}>
+          {editingId ? "✏️ Update Product" : "➕ Add New Product"}
+        </h3>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: "0.75rem",
-          }}
-        >
+        <div style={grid}>
           {[
             ["productName", "Product Name"],
             ["productId", "Product ID"],
@@ -132,15 +91,15 @@ const AdminProducts = () => {
             ["price", "Price"],
             ["category", "Category"],
             ["carModel", "Car Model"],
-          ].map(([name, placeholder]) => (
+          ].map(([n, p]) => (
             <input
-              key={name}
-              name={name}
-              placeholder={placeholder}
-              value={form[name]}
+              key={n}
+              name={n}
+              placeholder={p}
+              value={form[n]}
               onChange={handleChange}
-              required={["productName", "productId", "slug", "price"].includes(name)}
-              style={inputStyle}
+              required
+              style={input}
             />
           ))}
 
@@ -149,16 +108,16 @@ const AdminProducts = () => {
             placeholder="Product Description"
             value={form.description}
             onChange={handleChange}
-            required
             rows={3}
-            style={{ ...inputStyle, gridColumn: "1 / -1", resize: "vertical" }}
+            style={{ ...input, gridColumn: "1 / -1" }}
           />
+
           <select
             value={form.unit}
             onChange={(e) =>
               setForm({ ...form, unit: e.target.value })
             }
-            style={inputStyle}
+            style={input}
           >
             <option value="">Select Unit</option>
             <option value="pc">Per Piece</option>
@@ -166,65 +125,46 @@ const AdminProducts = () => {
             <option value="pair">Per Pair</option>
           </select>
 
-
-          {/* IMAGE UPLOAD */}
           <input
             type="file"
-            accept="image/*"
             onChange={(e) =>
-              setForm((prev) => ({
-                ...prev,
-                imageFile: e.target.files[0],
-              }))
+              setForm({ ...form, imageFile: e.target.files[0] })
             }
-            style={{
-              marginTop: "0.8rem",
-              fontSize: "0.85rem",
-            }}
           />
-
         </div>
 
-        <button type="submit" style={primaryBtn}>
-          Add Product
+        <button style={primaryBtn}>
+          {editingId ? "Update Product" : "Add Product"}
         </button>
       </form>
 
-      {/* PRODUCT TABLE */}
-      <div
-        style={{
-          background: "#fff",
-          borderRadius: "14px",
-          boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
-          overflowX: "auto",
-        }}
-      >
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      {/* TABLE */}
+      <div style={card}>
+        <table style={table}>
           <thead>
-            <tr style={{ background: "#eff6ff" }}>
-              <th style={th}>Name</th>
-              <th style={th}>Product ID</th>
-              <th style={th}>Price</th>
-              <th style={th}>Actions</th>
+            <tr style={thead}>
+              <th>Name</th>
+              <th>ID</th>
+              <th>Price</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {products.map((p) => (
-              <tr key={p._id} style={{ borderBottom: "1px solid #eee" }}>
-                <td style={td}>{p.productName}</td>
-                <td style={td}>{p.productId}</td>
-                <td style={td}>₹{p.price}</td>
-                <td style={td}>
+              <tr key={p._id} style={row}>
+                <td>{p.productName}</td>
+                <td>{p.productId}</td>
+                <td>₹{p.price}</td>
+                <td>
                   <button
+                    style={editBtn}
+                    onClick={() => handleEdit(p)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    style={deleteBtn}
                     onClick={() => handleDelete(p._id)}
-                    style={{
-                      background: "#fee2e2",
-                      color: "#b91c1c",
-                      border: "1px solid #fecaca",
-                      padding: "0.3rem 0.6rem",
-                      borderRadius: "6px",
-                      cursor: "pointer",
-                    }}
                   >
                     Delete
                   </button>
@@ -234,38 +174,84 @@ const AdminProducts = () => {
           </tbody>
         </table>
       </div>
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
   );
 };
 
-const inputStyle = {
-  padding: "0.5rem 0.6rem",
+/* ================= STYLES ================= */
+
+const page = {
+  padding: "1.5rem",
+  minHeight: "100vh",
+  background: "linear-gradient(180deg, #eff6ff, #ffffff)",
+};
+
+const heading = {
+  marginBottom: "1rem",
+  color: "#1e40af",
+};
+
+const card = {
+  background: "#fff",
+  borderRadius: "14px",
+  padding: "1.2rem",
+  marginBottom: "2rem",
+  boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
+};
+
+const grid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+  gap: "0.7rem",
+};
+
+const input = {
+  padding: "0.55rem",
   borderRadius: "8px",
   border: "1px solid #c7d2fe",
-  fontSize: "0.9rem",
 };
 
 const primaryBtn = {
   marginTop: "1rem",
   background: "linear-gradient(135deg, #2563eb, #1e40af)",
   color: "#fff",
-  padding: "0.45rem 1.2rem",
+  padding: "0.55rem 1.5rem",
   borderRadius: "8px",
   border: "none",
   cursor: "pointer",
 };
 
-const th = {
-  textAlign: "left",
-  padding: "0.75rem",
-  fontSize: "0.85rem",
+const table = {
+  width: "100%",
+  borderCollapse: "collapse",
 };
 
-const td = {
-  padding: "0.7rem",
-  fontSize: "0.85rem",
+const thead = {
+  background: "#eff6ff",
+  textAlign: "left",
+};
+
+const row = {
+  borderBottom: "1px solid #e5e7eb",
+};
+
+const editBtn = {
+  background: "#dbeafe",
+  color: "#1e40af",
+  border: "1px solid #93c5fd",
+  padding: "0.3rem 0.6rem",
+  borderRadius: "6px",
+  marginRight: "6px",
+  cursor: "pointer",
+};
+
+const deleteBtn = {
+  background: "#fee2e2",
+  color: "#b91c1c",
+  border: "1px solid #fecaca",
+  padding: "0.3rem 0.6rem",
+  borderRadius: "6px",
+  cursor: "pointer",
 };
 
 export default AdminProducts;
