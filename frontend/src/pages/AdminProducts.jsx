@@ -5,6 +5,7 @@ const AdminProducts = () => {
   const [products, setProducts] = useState([]);
   const [editingId, setEditingId] = useState(null);
 
+  // SINGLE PRODUCT FORM
   const [form, setForm] = useState({
     productName: "",
     productId: "",
@@ -17,6 +18,11 @@ const AdminProducts = () => {
     imageFile: null,
   });
 
+  // BULK UPLOAD STATES
+  const [csvFile, setCsvFile] = useState(null);
+  const [zipFile, setZipFile] = useState(null);
+
+  /* ================= FETCH ================= */
   const fetchProducts = async () => {
     const res = await api.get("/products");
     setProducts(res.data);
@@ -26,6 +32,7 @@ const AdminProducts = () => {
     fetchProducts();
   }, []);
 
+  /* ================= SINGLE ADD ================= */
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -73,13 +80,39 @@ const AdminProducts = () => {
     }
   };
 
+  /* ================= BULK UPLOAD ================= */
+  const handleBulkUpload = async () => {
+    if (!csvFile || !zipFile) {
+      alert("Please select BOTH CSV and ZIP files");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("csv", csvFile);
+    formData.append("zip", zipFile);
+
+    try {
+      await api.post("/products/bulk-upload-with-images", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      alert("Bulk upload successful");
+      setCsvFile(null);
+      setZipFile(null);
+      fetchProducts();
+    } catch (err) {
+      console.error(err);
+      alert("Bulk upload failed");
+    }
+  };
+
   return (
     <div style={page}>
       <h2 style={heading}>Admin Products</h2>
 
-      {/* FORM */}
+      {/* ================= SINGLE PRODUCT FORM ================= */}
       <form style={card} onSubmit={handleSubmit}>
-        <h3 style={{ marginBottom: "1rem", color: "#1e3a8a" }}>
+        <h3 style={{ color: "#1e3a8a" }}>
           {editingId ? "✏️ Update Product" : "➕ Add New Product"}
         </h3>
 
@@ -118,6 +151,7 @@ const AdminProducts = () => {
               setForm({ ...form, unit: e.target.value })
             }
             style={input}
+            required
           >
             <option value="">Select Unit</option>
             <option value="pc">Per Piece</option>
@@ -138,7 +172,32 @@ const AdminProducts = () => {
         </button>
       </form>
 
-      {/* TABLE */}
+      {/* ================= BULK UPLOAD ================= */}
+      <div style={card}>
+        <h3 style={{ color: "#1e3a8a" }}>📦 Bulk Upload (CSV + Images ZIP)</h3>
+
+        <input
+          type="file"
+          accept=".csv"
+          onChange={(e) => setCsvFile(e.target.files[0])}
+        />
+
+        <input
+          type="file"
+          accept=".zip"
+          onChange={(e) => setZipFile(e.target.files[0])}
+        />
+
+        <button
+          type="button"
+          style={{ ...primaryBtn, marginTop: "0.8rem" }}
+          onClick={handleBulkUpload}
+        >
+          Upload Bulk Products
+        </button>
+      </div>
+
+      {/* ================= TABLE ================= */}
       <div style={card}>
         <table style={table}>
           <thead>
@@ -156,10 +215,7 @@ const AdminProducts = () => {
                 <td>{p.productId}</td>
                 <td>₹{p.price}</td>
                 <td>
-                  <button
-                    style={editBtn}
-                    onClick={() => handleEdit(p)}
-                  >
+                  <button style={editBtn} onClick={() => handleEdit(p)}>
                     Edit
                   </button>
                   <button
@@ -186,10 +242,7 @@ const page = {
   background: "linear-gradient(180deg, #eff6ff, #ffffff)",
 };
 
-const heading = {
-  marginBottom: "1rem",
-  color: "#1e40af",
-};
+const heading = { marginBottom: "1rem", color: "#1e40af" };
 
 const card = {
   background: "#fff",
@@ -221,19 +274,9 @@ const primaryBtn = {
   cursor: "pointer",
 };
 
-const table = {
-  width: "100%",
-  borderCollapse: "collapse",
-};
-
-const thead = {
-  background: "#eff6ff",
-  textAlign: "left",
-};
-
-const row = {
-  borderBottom: "1px solid #e5e7eb",
-};
+const table = { width: "100%", borderCollapse: "collapse" };
+const thead = { background: "#eff6ff", textAlign: "left" };
+const row = { borderBottom: "1px solid #e5e7eb" };
 
 const editBtn = {
   background: "#dbeafe",

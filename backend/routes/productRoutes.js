@@ -4,6 +4,9 @@ import { protect, adminOnly } from "../middleware/authMiddleware.js";
 import upload from "../middleware/upload.js"; // multer LOCAL
 import cloudinary from "../config/cloudinary.js";
 import fs from "fs";
+import csv from "csvtojson";
+import unzipper from "unzipper";
+import path from "path";
 
 const router = express.Router();
 
@@ -38,6 +41,68 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+router.post(
+  "/bulk-upload-with-images",
+  upload.fields([
+    { name: "csv", maxCount: 1 },
+    { name: "zip", maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      const csvFile = req.files.csv[0];
+      const zipFile = req.files.zip[0];
+
+      const extractPath = `uploads/extracted-${Date.now()}`;
+      fs.mkdirSync(extractPath);
+
+      // unzip images
+      await fs
+        .createReadStream(zipFile.path)
+        .pipe(unzipper.Extract({ path: extractPath }))
+        .promise();
+
+      const products = await csv().fromFile(csvFile.path);
+
+      const finalProducts = [];
+
+      for (let p of products) {
+        const imagePath = path.join(extractPath, p.image);
+
+        let imageUrl = "";
+        if (fs.existsSync(imagePath)) {
+          const uploadRes = await cloudinary.uploader.upload(imagePath, {
+            folder: "products",
+          });
+          imageUrl = uploadRes.secure_url;
+        }
+
+        finalProducts.push({
+          productName: p.productName,
+          productId: p.productId,
+          slug: p.slug,
+          price: p.price,
+          category: p.category,
+          carModel: p.carModel,
+          description: p.description,
+          unit: p.unit,
+          image: imageUrl,
+        });
+      }
+
+      await Product.insertMany(finalProducts);
+
+      res.json({
+        message: "Bulk products + images uploaded successfully",
+        count: finalProducts.length,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Bulk upload failed" });
+    }
+  }
+);
+
 
 /* ================= CREATE PRODUCT ================= */
 router.post(
