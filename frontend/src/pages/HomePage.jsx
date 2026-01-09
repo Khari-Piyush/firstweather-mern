@@ -23,6 +23,8 @@ import maruti from "/brands/maruti.png";
 import force from "/brands/force.png";
 import piaggio from "/brands/piaggo.png";
 import sml from "/brands/sml.png";
+import ImageSearch from "../components/ImageSearch";
+
 
 
 const brands = [
@@ -314,6 +316,9 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
+      {/* <ImageSearch /> */}
+
 
     </div>
   );

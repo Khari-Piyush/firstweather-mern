@@ -10,6 +10,8 @@ import productRoutes from "./routes/productRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import enquiryRoutes from "./routes/enquiryRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
+import testAIRoute from "./routes/testAIRoute.js";
 
 
 dotenv.config();
@@ -38,6 +40,9 @@ app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api", enquiryRoutes);
+app.use("/api/ai", aiRoutes);
+app.use("/api/test", testAIRoute);
+
 
 
 // Test Route

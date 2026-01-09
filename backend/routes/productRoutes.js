@@ -3,6 +3,7 @@ import Product from "../models/Product.js";
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
 import upload from "../middleware/upload.js"; // multer LOCAL
 import cloudinary from "../config/cloudinary.js";
+import getEmbedding from "../utils/getEmbedding.js";
 import fs from "fs";
 import csv from "csvtojson";
 import unzipper from "unzipper";
@@ -85,6 +86,7 @@ router.post(
         const uploadRes = await cloudinary.uploader.upload(imagePath, {
           folder: "fwproducts",
         });
+        const embedding = await getEmbedding(uploadRes.secure_url);
 
         finalProducts.push({
           productName: p.productName,
@@ -94,7 +96,8 @@ router.post(
           price: Number(p.price),
           category: p.category,
           carModel: p.carModel,
-          imageUrl: uploadRes.secure_url, // ✅ CORRECT
+          imageUrl: uploadRes.secure_url,
+          embedding,
         });
       }
 
@@ -135,7 +138,7 @@ router.post(
       } = req.body;
       console.log("FILE:", req.file);
 
-
+      
       // 🔐 VALIDATION
       if (!productId || !productName || !slug || !price) {
         return res.status(400).json({
@@ -165,6 +168,7 @@ router.post(
           folder: "fwproducts",
         }
       );
+      
 
       // 🧹 DELETE LOCAL FILE
       fs.unlink(req.file.path, (err) => {
@@ -174,6 +178,9 @@ router.post(
 
       // 🌐 CLOUDINARY URL
       const imageUrl = result.secure_url;
+      // 🤖 AI EMBEDDING
+      const embedding = await getEmbedding(imageUrl);
+
 
       // 💾 SAVE PRODUCT
       const product = await Product.create({
@@ -185,6 +192,7 @@ router.post(
         category,
         carModel,
         imageUrl,
+        embedding,
       });
 
       res.status(201).json(product);
@@ -194,8 +202,6 @@ router.post(
     }
   }
 );
-
-
 
 /* ================= UPDATE PRODUCT ================= */
 router.put(
@@ -251,5 +257,6 @@ router.delete("/:id", protect, adminOnly, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
 
 export default router;
