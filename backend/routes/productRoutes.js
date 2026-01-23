@@ -11,20 +11,33 @@ import path from "path";
 const router = express.Router();
 
 /* ================= GET ALL PRODUCTS ================= */
+/* ================= GET ALL PRODUCTS (PAGINATED, ARRAY RESPONSE) ================= */
 router.get("/", async (req, res) => {
   try {
-    const products = await Product.find()
-      .collation({ locale: "en", strength: 2 })
-      .sort({ productName: 1 }) // 🔥 A → Z order
-      .lean(); // fast
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 24;
+    const skip = (page - 1) * limit;
 
+    const category = req.query.category;
+
+    const filter =
+      category && category !== "All"
+        ? { category }
+        : {};
+
+    const products = await Product.find(filter)
+      .sort({ productName: 1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    // 🔥 IMPORTANT: ARRAY RESPONSE ONLY
     res.json(products);
   } catch (err) {
-    console.error("Get Products Error:", err);
-    res.status(500).json({ message: "Server Error" });
+    console.error("Get products error:", err);
+    res.status(500).json({ message: "Server error" });
   }
 });
-
 
 /* ================= GET PRODUCT BY ID ================= */
 router.get("/:id", async (req, res) => {
@@ -129,7 +142,6 @@ router.post(
     }
   }
 );
-
 
 /* ================= CREATE PRODUCT ================= */
 router.post(

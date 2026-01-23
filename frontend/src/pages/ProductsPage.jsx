@@ -1,20 +1,24 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import api from "../api";
+import "./ProductsPage.css";
+
 
 const CATEGORY_MAP = {
   "wiper-arm": "F.W Wiper Arm",
   "wiper-blade": "F.W Wiper Blade",
   "wiper-linkage": "F.W Wiper Linkage",
   "wiper-motor-gear": "F.W Wiper Motor Gear",
-  "wiper-wheel-box" : "F.W Wiper Wheel Box",
+  "wiper-wheel-box": "F.W Wiper Wheel Box",
   "wiper-rod": "F.W Wiper Rod",
-  "wiper-power-window" : "F.W Power Window Accessories",
+  "wiper-power-window": "F.W Power Window Accessories",
   "wiper-acc": "F.W Wiper Accessories",
 };
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
+  const [page, setPage] = useState(1);
+
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -22,19 +26,24 @@ const ProductsPage = () => {
   const [searchParams] = useSearchParams();
   const urlCategory = searchParams.get("category");
 
-  /* ================= FETCH PRODUCTS ================= */
+  /* ================= URL CATEGORY (ONLY ONCE) ================= */
+  useEffect(() => {
+    if (urlCategory && CATEGORY_MAP[urlCategory]) {
+      setSelectedCategory(CATEGORY_MAP[urlCategory]);
+    }
+  }, [urlCategory]);
+
+  /* ================= FETCH PRODUCTS (REAL PAGINATION) ================= */
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const res = await api.get("/products");
-        setProducts(res.data);
 
-        if (urlCategory && CATEGORY_MAP[urlCategory]) {
-          setSelectedCategory(CATEGORY_MAP[urlCategory]);
-        } else {
-          setSelectedCategory("All");
-        }
+        // 🔥 IMPORTANT: query string (backend will LIMIT 24)
+        const res = await api.get(`/products?page=${page}&limit=24`);
+
+        // 🔥 REPLACE products (DO NOT APPEND)
+        setProducts(res.data);
       } catch {
         setError("Failed to load products");
       } finally {
@@ -43,9 +52,9 @@ const ProductsPage = () => {
     };
 
     fetchProducts();
-  }, [urlCategory]);
+  }, [page]);
 
-  /* ================= FILTER ================= */
+  /* ================= FILTER (SAME AS YOUR ORIGINAL) ================= */
   const filteredProducts =
     selectedCategory === "All"
       ? products
@@ -65,64 +74,76 @@ const ProductsPage = () => {
         <CategoryBtn
           label="All"
           active={selectedCategory === "All"}
-          onClick={() => setSelectedCategory("All")}
+          onClick={() => {
+            setSelectedCategory("All");
+            setPage(1); // 🔥 reset page on category change
+          }}
         />
-        <CategoryBtn
-          label="F.W Wiper Arm"
-          active={selectedCategory === CATEGORY_MAP["wiper-arm"]}
-          onClick={() => setSelectedCategory(CATEGORY_MAP["wiper-arm"])}
-        />
-        <CategoryBtn
-          label="F.W Wiper Blade"
-          active={selectedCategory === CATEGORY_MAP["wiper-blade"]}
-          onClick={() => setSelectedCategory(CATEGORY_MAP["wiper-blade"])}
-        />
-        <CategoryBtn
-          label="F.W Wiper Linkage"
-          active={selectedCategory === CATEGORY_MAP["wiper-linkage"]}
-          onClick={() => setSelectedCategory(CATEGORY_MAP["wiper-linkage"])}
-        />
-        <CategoryBtn
-          label="F.W Wiper Wheel Box"
-          active={selectedCategory === CATEGORY_MAP["wiper-wheel-box"]}
-          onClick={() => setSelectedCategory(CATEGORY_MAP["wiper-wheel-box"])}
-        />
-        <CategoryBtn
-          label="F.W Wiper Motor Gear"
-          active={selectedCategory === CATEGORY_MAP["wiper-motor-gear"]}
-          onClick={() => setSelectedCategory(CATEGORY_MAP["wiper-motor-gear"])}
-        />
-        <CategoryBtn
-          label="F.W Wiper Rod"
-          active={selectedCategory === CATEGORY_MAP["wiper-rod"]}
-          onClick={() => setSelectedCategory(CATEGORY_MAP["wiper-rod"])}
-        />
-        <CategoryBtn
-          label="F.W Power Window Accessories"
-          active={selectedCategory === CATEGORY_MAP["wiper-power-window"]}
-          onClick={() => setSelectedCategory(CATEGORY_MAP["wiper-power-window"])}
-        />
-        <CategoryBtn
-          label="F.W Wiper Accessories"
-          active={selectedCategory === CATEGORY_MAP["wiper-acc"]}
-          onClick={() => setSelectedCategory(CATEGORY_MAP["wiper-acc"])}
-        />
+
+        {Object.values(CATEGORY_MAP).map((cat) => (
+          <CategoryBtn
+            key={cat}
+            label={cat}
+            active={selectedCategory === cat}
+            onClick={() => {
+              setSelectedCategory(cat);
+              setPage(1); // 🔥 reset page
+            }}
+          />
+        ))}
       </div>
 
       {/* ================= PRODUCT GRID ================= */}
       <div style={grid}>
         {filteredProducts.map((p) => (
           <div key={p._id} style={card}>
-            <img src={p.imageUrl} alt={p.productName} style={img} />
+            <img
+              src={p.imageUrl}
+              alt={p.productName}
+              style={img}
+              loading="lazy"
+            />
             <h4>{p.productName}</h4>
-            <p>₹{p.price}  <span> / {p.unit}</span> </p>
-            
+            <p>
+              ₹{p.price} <span> / {p.unit}</span>
+            </p>
 
             <Link to={`/products/${p._id}`} style={viewBtn}>
               View Details
             </Link>
           </div>
         ))}
+      </div>
+
+      {/* ================= PAGINATION ================= */}
+      <div className="pagination-wrapper">
+        <div className="rain-pagination">
+          <button
+            className="rain-btn"
+            disabled={page === 1}
+            onClick={() => setPage(page - 1)}
+          >
+            ◀ Prev
+          </button>
+
+          <div className="rain-page">
+            <span>Page</span>
+            <strong>{page}</strong>
+          </div>
+
+          <button
+            className="rain-btn"
+            disabled={products.length < 24}
+            onClick={() => setPage(page + 1)}
+          >
+            Next ▶
+          </button>
+
+          {/* droplets */}
+          <span className="drop d1"></span>
+          <span className="drop d2"></span>
+          <span className="drop d3"></span>
+        </div>
       </div>
     </div>
   );
@@ -187,3 +208,5 @@ const viewBtn = {
   padding: "6px 14px",
   borderRadius: "6px",
 };
+
+

@@ -11,6 +11,14 @@ import "./Footer.css";
 const Footer = () => {
   return (
     <footer className="footer">
+      {/* 🌧️ Rain Layer */}
+      <div className="footer-rain">
+        <span className="rain-drop r1"></span>
+        <span className="rain-drop r2"></span>
+        <span className="rain-drop r3"></span>
+        <span className="rain-drop r4"></span>
+        <span className="rain-drop r5"></span>
+      </div>
       <div className="footer-container">
 
         {/* BRAND */}
