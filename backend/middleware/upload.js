@@ -17,29 +17,32 @@ const storage = multer.diskStorage({
   },
 });
 
-// ✅ ALLOW images + csv + zip
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = [
-    "image/",
-    "text/csv",
-    "application/zip",
-    "application/x-zip-compressed",
-  ];
-
-  if (
-    allowedTypes.some((type) =>
-      file.mimetype.startsWith(type)
-    )
-  ) {
-    cb(null, true);
-  } else {
-    cb(
-      new Error(
-        "Only images, CSV, and ZIP files are allowed"
-      ),
-      false
-    );
+  // Images
+  if (file.mimetype.startsWith("image/")) {
+    return cb(null, true);
   }
+
+  // CSV (ALL common cases)
+  if (
+    file.mimetype === "text/csv" ||
+    file.mimetype === "application/csv" ||
+    file.mimetype === "application/vnd.ms-excel" ||
+    file.originalname.endsWith(".csv")
+  ) {
+    return cb(null, true);
+  }
+
+  // ZIP
+  if (
+    file.mimetype === "application/zip" ||
+    file.mimetype === "application/x-zip-compressed" ||
+    file.originalname.endsWith(".zip")
+  ) {
+    return cb(null, true);
+  }
+
+  cb(new Error("Only images, CSV, and ZIP files are allowed"));
 };
 
 const upload = multer({ storage, fileFilter });

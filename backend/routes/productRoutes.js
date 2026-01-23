@@ -3,7 +3,6 @@ import Product from "../models/Product.js";
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
 import upload from "../middleware/upload.js"; // multer LOCAL
 import cloudinary from "../config/cloudinary.js";
-import getEmbedding from "../utils/getEmbedding.js";
 import fs from "fs";
 import csv from "csvtojson";
 import unzipper from "unzipper";
@@ -51,6 +50,7 @@ router.post(
   ]),
   async (req, res) => {
     try {
+      console.log("✅ ROUTE HIT");
       console.log("FILES:", req.files);
 
       if (!req.files?.csv || !req.files?.zip) {
@@ -59,12 +59,13 @@ router.post(
 
       const csvFile = req.files.csv[0];
       const zipFile = req.files.zip[0];
-      
+
       console.log("CSV PATH:", csvFile?.path);
-      
+
 
       const extractPath = `uploads/extracted-${Date.now()}`;
-      fs.mkdirSync(extractPath);
+      fs.mkdirSync(extractPath, { recursive: true });
+
 
       await fs
         .createReadStream(zipFile.path)
@@ -76,7 +77,20 @@ router.post(
       const finalProducts = [];
 
       for (let p of products) {
+        if (!p.image) {
+          console.warn("Missing image column for:", p);
+          continue;
+        }
+
         const imagePath = path.join(extractPath, p.image);
+        const rawPrice = String(p.price || "").replace(/[^\d.]/g, "");
+        const price = Number(rawPrice);
+
+        if (isNaN(price)) {
+          console.warn("Invalid price, skipping:", p.productName, p.price);
+          continue;
+        }
+
 
         if (!fs.existsSync(imagePath)) {
           console.warn(`Image not found for ${p.productName}`);
@@ -86,18 +100,16 @@ router.post(
         const uploadRes = await cloudinary.uploader.upload(imagePath, {
           folder: "fwproducts",
         });
-        const embedding = await getEmbedding(uploadRes.secure_url);
 
         finalProducts.push({
           productName: p.productName,
           productId: p.productId,
           slug: p.slug,
           description: p.description,
-          price: Number(p.price),
+          price,
           category: p.category,
           carModel: p.carModel,
           imageUrl: uploadRes.secure_url,
-          embedding,
         });
       }
 
@@ -138,7 +150,7 @@ router.post(
       } = req.body;
       console.log("FILE:", req.file);
 
-      
+
       // 🔐 VALIDATION
       if (!productId || !productName || !slug || !price) {
         return res.status(400).json({
@@ -168,7 +180,7 @@ router.post(
           folder: "fwproducts",
         }
       );
-      
+
 
       // 🧹 DELETE LOCAL FILE
       fs.unlink(req.file.path, (err) => {
@@ -178,8 +190,6 @@ router.post(
 
       // 🌐 CLOUDINARY URL
       const imageUrl = result.secure_url;
-      // 🤖 AI EMBEDDING
-      const embedding = await getEmbedding(imageUrl);
 
 
       // 💾 SAVE PRODUCT
