@@ -35,24 +35,38 @@ const ProductsPage = () => {
 
   /* ================= FETCH PRODUCTS (REAL PAGINATION) ================= */
   useEffect(() => {
+    let cancelled = false;
+
     const fetchProducts = async () => {
       try {
         setLoading(true);
-
-        // 🔥 IMPORTANT: query string (backend will LIMIT 24)
         const res = await api.get(`/products?page=${page}&limit=24`);
-
-        // 🔥 REPLACE products (DO NOT APPEND)
-        setProducts(res.data);
+        if (!cancelled) {
+          setProducts(res.data);
+        }
       } catch {
-        setError("Failed to load products");
+        if (!cancelled) {
+          setError("Failed to load products");
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
-    fetchProducts();
+    // 🔥 IMPORTANT: delay API until browser is idle
+    if ("requestIdleCallback" in window) {
+      requestIdleCallback(fetchProducts);
+    } else {
+      setTimeout(fetchProducts, 0);
+    }
+
+    return () => {
+      cancelled = true;
+    };
   }, [page]);
+
 
   /* ================= FILTER (SAME AS YOUR ORIGINAL) ================= */
   const filteredProducts =

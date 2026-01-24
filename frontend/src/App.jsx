@@ -1,16 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-
-import HomePage from "./pages/HomePage.jsx";
-import ProductsPage from "./pages/ProductsPage.jsx";
-import ProductDetailPage from "./pages/ProductDetailPage.jsx";
-import LoginPage from "./pages/LoginPage.jsx";
-import RegisterPage from "./pages/RegisterPage.jsx";
-import ContactUs from "./pages/ContactUs.jsx";
-
-import AdminDashboard from "./pages/AdminDashboard.jsx";
-import AdminProducts from "./pages/AdminProducts.jsx";
-import AdminOrders from "./pages/AdminOrders.jsx";
-import AdminEnquiries from "./pages/AdminEnquiries.jsx";
+import { lazy, Suspense } from "react";
 
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
@@ -20,78 +9,91 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+const HomePage = lazy(() => import("./pages/HomePage.jsx"));
+const ProductsPage = lazy(() => import("./pages/ProductsPage.jsx"));
+const ProductDetailPage = lazy(() => import("./pages/ProductDetailPage.jsx"));
+const LoginPage = lazy(() => import("./pages/LoginPage.jsx"));
+const RegisterPage = lazy(() => import("./pages/RegisterPage.jsx"));
+const ContactUs = lazy(() => import("./pages/ContactUs.jsx"));
+
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard.jsx"));
+const AdminProducts = lazy(() => import("./pages/AdminProducts.jsx"));
+const AdminOrders = lazy(() => import("./pages/AdminOrders.jsx"));
+const AdminEnquiries = lazy(() => import("./pages/AdminEnquiries.jsx"));
+
+
+
 const App = () => {
   return (
     <>
       <Navbar />
 
-      <Routes>
-        {/* ================= PUBLIC ROUTES ================= */}
-        <Route path="/" element={<HomePage />} />
-        <Route path="/products" element={<ProductsPage />} />
-        <Route path="/products/:id" element={<ProductDetailPage />} />
-        <Route path="/contact" element={<ContactUs />} />
-        <Route path="/enquire/:productId" element={<ContactUs />} />
+      <Suspense fallback={<div style={{ padding: "2rem" }}>Loading...</div>}>
+        <Routes>
+          {/* PUBLIC */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/products" element={<ProductsPage />} />
+          <Route path="/products/:id" element={<ProductDetailPage />} />
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/enquire/:productId" element={<ContactUs />} />
 
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
 
-        {/* ================= ADMIN ROUTES (PROTECTED) ================= */}
+          {/* ADMIN */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute adminOnly>
+                <Navigate to="/admin/dashboard" replace />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* /admin → /admin/dashboard */}
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute adminOnly>
-              <Navigate to="/admin/dashboard" replace />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/admin/dashboard"
-          element={
-            <ProtectedRoute adminOnly>
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/admin/products"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminProducts />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/admin/products"
-          element={
-            <ProtectedRoute adminOnly>
-              <AdminProducts />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/admin/orders"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminOrders />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/admin/orders"
-          element={
-            <ProtectedRoute adminOnly>
-              <AdminOrders />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/admin/enquiries"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminEnquiries />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/admin/enquiries"
-          element={
-            <ProtectedRoute adminOnly>
-              <AdminEnquiries />
-            </ProtectedRoute>
-          }
-        />
+          {/* 404 */}
+          <Route
+            path="*"
+            element={<div style={{ padding: "1rem" }}>Page not found</div>}
+          />
+        </Routes>
+      </Suspense>
 
-        {/* ================= 404 ================= */}
-        <Route
-          path="*"
-          element={<div style={{ padding: "1rem" }}>Page not found</div>}
-        />
-      </Routes>
-
-      {/* ================= GLOBAL TOAST ================= */}
       <ToastContainer
         position="top-right"
         autoClose={2500}
@@ -105,5 +107,6 @@ const App = () => {
     </>
   );
 };
+
 
 export default App;
