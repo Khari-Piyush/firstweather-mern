@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext.jsx";
-import logo from "../../public/fw-logo-blue.png";
+import logo from "../../public/fwlogoblue.webp";
 import { useContext, useState, useEffect } from "react";
 
 // Icons
@@ -50,7 +50,6 @@ const Navbar = () => {
           {/* LOGO */}
           <Link to="/" style={logoWrap} onClick={() => setMenuOpen(false)}>
             <img src={logo} alt="First Weather Logo" style={logoStyle} />
-            <span style={logoText}>FIRST WEATHER</span>
           </Link>
 
           {/* SEARCH (DESKTOP)
@@ -209,7 +208,7 @@ const logoWrap = {
   textDecoration: "none",
 };
 
-const logoStyle = { height: "44px" };
+const logoStyle = { height: "50px" };
 
 const logoText = {
   marginLeft: "10px",

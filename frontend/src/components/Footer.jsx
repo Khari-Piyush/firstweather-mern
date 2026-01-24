@@ -7,6 +7,7 @@ import {
   FaFacebookF,
 } from "react-icons/fa";
 import "./Footer.css";
+import logo from "../../public/fwlogowhite.webp";
 
 const Footer = () => {
   return (
@@ -23,7 +24,7 @@ const Footer = () => {
 
         {/* BRAND */}
         <div className="footer-col">
-          <h3 className="footer-brand">First Weather</h3>
+          <img src={logo} alt="First Weather Logo" style={logoStyle} />
           <p className="footer-text">
             Leading manufacturer & supplier of car wiper blades, wiper arms,
             wiper motor gears and auto electrical spare parts across India.
@@ -82,3 +83,6 @@ const Footer = () => {
 };
 
 export default Footer;
+
+
+const logoStyle = { height: "50px" };
