@@ -3,7 +3,6 @@ import { Link, useSearchParams } from "react-router-dom";
 import api from "../api";
 import "./ProductsPage.css";
 
-
 const CATEGORY_MAP = {
   "wiper-arm": "F.W Wiper Arm",
   "wiper-blade": "F.W Wiper Blade",
@@ -15,10 +14,11 @@ const CATEGORY_MAP = {
   "wiper-acc": "F.W Wiper Accessories",
 };
 
+const LIMIT = 25;
+
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [page, setPage] = useState(1);
-
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -26,14 +26,15 @@ const ProductsPage = () => {
   const [searchParams] = useSearchParams();
   const urlCategory = searchParams.get("category");
 
-  /* ================= URL CATEGORY (ONLY ONCE) ================= */
+  /* ================= URL CATEGORY ================= */
   useEffect(() => {
     if (urlCategory && CATEGORY_MAP[urlCategory]) {
       setSelectedCategory(CATEGORY_MAP[urlCategory]);
+      setPage(1);
     }
   }, [urlCategory]);
 
-  /* ================= FETCH PRODUCTS (REAL PAGINATION) ================= */
+  /* ================= FETCH PRODUCTS ================= */
   useEffect(() => {
     let cancelled = false;
 
@@ -43,7 +44,7 @@ const ProductsPage = () => {
 
         const params = {
           page,
-          limit: 25,
+          limit: LIMIT,
         };
 
         if (selectedCategory !== "All") {
@@ -55,7 +56,7 @@ const ProductsPage = () => {
         if (!cancelled) {
           setProducts(res.data);
         }
-      } catch {
+      } catch (err) {
         if (!cancelled) {
           setError("Failed to load products");
         }
@@ -66,25 +67,12 @@ const ProductsPage = () => {
       }
     };
 
-    // optional idle delay (ok to keep)
-    if ("requestIdleCallback" in window) {
-      requestIdleCallback(fetchProducts);
-    } else {
-      fetchProducts();
-    }
+    fetchProducts();
 
     return () => {
       cancelled = true;
     };
   }, [page, selectedCategory]);
-
-
-
-  /* ================= FILTER (SAME AS YOUR ORIGINAL) ================= */
-  const filteredProducts =
-    selectedCategory === "All"
-      ? products
-      : products.filter((p) => p.category === selectedCategory);
 
   if (loading) return <p style={{ padding: "1rem" }}>Loading products...</p>;
   if (error) return <p style={{ color: "red", padding: "1rem" }}>{error}</p>;
@@ -102,7 +90,7 @@ const ProductsPage = () => {
           active={selectedCategory === "All"}
           onClick={() => {
             setSelectedCategory("All");
-            setPage(1); // 🔥 reset page on category change
+            setPage(1);
           }}
         />
 
@@ -113,7 +101,7 @@ const ProductsPage = () => {
             active={selectedCategory === cat}
             onClick={() => {
               setSelectedCategory(cat);
-              setPage(1); // 🔥 reset page
+              setPage(1);
             }}
           />
         ))}
@@ -121,7 +109,7 @@ const ProductsPage = () => {
 
       {/* ================= PRODUCT GRID ================= */}
       <div style={grid}>
-        {filteredProducts.map((p) => (
+        {products.map((p) => (
           <div key={p._id} style={card}>
             <img
               src={p.imageUrl}
@@ -159,13 +147,12 @@ const ProductsPage = () => {
 
           <button
             className="rain-btn"
-            disabled={products.length < 24}
+            disabled={products.length < LIMIT}
             onClick={() => setPage(page + 1)}
           >
             Next ▶
           </button>
 
-          {/* droplets */}
           <span className="drop d1"></span>
           <span className="drop d2"></span>
           <span className="drop d3"></span>
@@ -234,5 +221,3 @@ const viewBtn = {
   padding: "6px 14px",
   borderRadius: "6px",
 };
-
-
