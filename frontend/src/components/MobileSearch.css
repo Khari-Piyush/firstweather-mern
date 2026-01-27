@@ -1,0 +1,31 @@
+.mobile-search-box {
+  margin-top: 1.5rem;
+  padding: 14px;
+  border-radius: 12px;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mobile-search-box h4 {
+  margin-bottom: 6px;
+  font-size: 16px;
+  color: #0f2a44;
+}
+
+.mobile-search-box select,
+.mobile-search-box input {
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.mobile-search-box button {
+  padding: 12px;
+  border-radius: 6px;
+  border: none;
+  background: #1e88e5;
+  color: #fff;
+  font-weight: 600;
+}

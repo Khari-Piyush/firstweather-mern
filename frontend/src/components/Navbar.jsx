@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext.jsx";
 import logo from "../../public/fwlogoblue.webp";
 import { useContext, useState, useEffect } from "react";
-
+import "./MobileSearch.css";
 // Icons
 import {
   FiMenu,
@@ -20,9 +20,21 @@ import {
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [searchCategory, setSearchCategory] = useState("");
+  const [vehicleName, setVehicleName] = useState("");
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const handleSearch = () => {
+    if (!searchCategory || !vehicleName) {
+      alert("Please select category and enter vehicle name");
+      return;
+    }
+
+    navigate(
+      `/products?category=${searchCategory}&vehicle=${encodeURIComponent(vehicleName)}`
+    );
+  };
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -37,9 +49,9 @@ const Navbar = () => {
   };
 
   const isAdmin =
-  user?.role === "admin" ||
-  user?.role === "ADMIN" ||
-  user?.isAdmin === true;
+    user?.role === "admin" ||
+    user?.role === "ADMIN" ||
+    user?.isAdmin === true;
 
 
   return (
@@ -102,6 +114,39 @@ const Navbar = () => {
             placeholder="Search products..."
             style={mobileSearch}
           /> */}
+          <div className="mobile-search-box">
+            <h4>Search Vehicle</h4>
+
+            <select
+              value={searchCategory}
+              onChange={(e) => setSearchCategory(e.target.value)}
+            >
+              <option value="">Select Category</option>
+              <option value="wiper-arm">Wiper Arm</option>
+              <option value="wiper-blade">Wiper Blade</option>
+              <option value="wiper-linkage">Wiper Linkage</option>
+              <option value="wiper-wheel-box">Wiper Wheel Box</option>
+              <option value="wiper-rod">Wiper Rod</option>
+              <option value="wiper-motor-gear">Wiper Motor Gear</option>
+              <option value="wiper-power-window">Power Window Accessories</option>
+              <option value="wiper-acc">Wiper Other Accessories</option>
+            </select>
+
+            <input
+              placeholder="Enter Vehicle Name"
+              value={vehicleName}
+              onChange={(e) => setVehicleName(e.target.value)}
+            />
+
+            <button
+              onClick={() => {
+                handleSearch();
+                setMenuOpen(false); // close hamburger
+              }}
+            >
+              Search
+            </button>
+          </div>
 
           <MobileLink
             to="/"
@@ -292,5 +337,6 @@ const mobileLogout = {
   borderRadius: "6px",
   cursor: "pointer",
 };
+
 
 export default Navbar;

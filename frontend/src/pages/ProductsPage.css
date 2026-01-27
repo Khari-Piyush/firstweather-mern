@@ -96,3 +96,112 @@
     opacity: 0;
   }
 }
+/* ================= SEARCH OVERLAY ================= */
+.search-overlay {
+  position: absolute;
+  bottom: 10%;
+  right: 6%;
+  width: 480px;
+  max-width: 92%;
+  padding: 26px;
+  border-radius: 16px;
+  overflow: hidden;
+
+  background: linear-gradient(
+    135deg,
+    rgba(15,42,68,0.85),
+    rgba(18,59,102,0.7)
+  );
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  box-shadow:
+    0 25px 60px rgba(0,0,0,0.45),
+    inset 0 0 0 1px rgba(255,255,255,0.18);
+
+  color: #fff;
+  text-align: center;
+  z-index: 5;
+}
+
+.search-overlay h2 {
+  font-size: 1.8rem;
+  margin-bottom: 6px;
+}
+
+.search-overlay p {
+  font-size: 0.95rem;
+  opacity: 0.85;
+  margin-bottom: 18px;
+}
+
+/* INPUTS */
+.search-box {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.search-box select,
+.search-box input {
+  padding: 14px;
+  border-radius: 8px;
+  border: none;
+  font-size: 15px;
+}
+
+.search-box button {
+  padding: 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+
+  background: linear-gradient(135deg, #4da3ff, #1e88e5);
+  box-shadow: 0 10px 30px rgba(77,163,255,0.45);
+}
+
+/* ================= RAIN INSIDE SEARCH ================= */
+.rain-inside {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.drop-inside {
+  position: absolute;
+  bottom: 100%;
+  width: 1px;
+  height: 80px;
+  background: linear-gradient(
+    transparent,
+    rgba(255,255,255,0.35)
+  );
+  animation: rainInside 0.7s linear infinite;
+  opacity: 0.45;
+}
+
+@keyframes rainInside {
+  to {
+    transform: translateY(120%);
+  }
+}
+
+/* ================= 📱 MOBILE FIX ================= */
+@media (max-width: 768px) {
+  .search-overlay {
+    position: relative;
+    bottom: auto;
+    right: auto;
+    margin: 2rem auto 0;
+    width: 94%;
+  }
+}
+
+

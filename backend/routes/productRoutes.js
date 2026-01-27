@@ -18,9 +18,12 @@ router.get("/", async (req, res) => {
   try {
     const page = Math.max(Number(req.query.page) || 1, 1);
     const limit = Math.min(Number(req.query.limit) || 12, 20);
-    const { category } = req.query;
+    const { category, vehicle } = req.query;
 
-    const cacheKey = `p:${page}:l:${limit}:c:${category || "all"}`;
+    const normalizedVehicle = vehicle?.trim().toLowerCase();
+    
+    const cacheKey = `p:${page}:l:${limit}:c:${category || "all"}:v:${normalizedVehicle || "all"}`;
+
 
     // ⚡ CACHE HIT
     if (productsCache.has(cacheKey)) {
@@ -28,11 +31,23 @@ router.get("/", async (req, res) => {
     }
 
     const filter = {
-      inStock: true,
-      ...(category && category !== "All"
-        ? { category: { $regex: `^${category}$`, $options: "i" } }
-        : {}),
-    };
+  inStock: true,
+
+  ...(category && category !== "All"
+    ? { category: { $regex: `^${category}$`, $options: "i" } }
+    : {}),
+};
+
+if (vehicle) {
+  const v = vehicle.trim();
+
+  filter.$or = [
+    { carModel: { $regex: `^${v}$`, $options: "i" } },
+    { productName: { $regex: v, $options: "i" } },
+  ];
+}
+
+
 
     const products = await Product.find(
       filter,

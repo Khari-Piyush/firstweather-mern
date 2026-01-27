@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { FaStar, FaUserCircle, FaQuoteLeft } from "react-icons/fa";
 import { FaCalendarAlt, FaBriefcase, FaUserCheck } from "react-icons/fa";
 import bgImage from "/bg-image.png";
+import { useNavigate } from "react-router-dom";
+
 
 import wiperArm from "/fw-arm.webp";
 import wiperBlade from "/fw-blade.webp";
@@ -45,6 +47,10 @@ const brands = [
 
 const HomePage = () => {
   const [pageLoaded, setPageLoaded] = useState(false);
+  const navigate = useNavigate();
+  const [searchCategory, setSearchCategory] = useState("");
+  const [vehicleName, setVehicleName] = useState("");
+
 
   useEffect(() => {
     setTimeout(() => setPageLoaded(true), 100);
@@ -53,6 +59,18 @@ const HomePage = () => {
   const sliderRef = useRef(null);
   const [testimonialIndex, setTestimonialIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  const handleSearch = () => {
+    if (!searchCategory || !vehicleName) {
+      alert("Please select category and enter vehicle name");
+      return;
+    }
+
+    navigate(
+      `/products?category=${searchCategory}&vehicle=${encodeURIComponent(vehicleName)}`
+    );
+  };
+
 
   /* RESPONSIVE CHECK */
   useEffect(() => {
@@ -148,7 +166,61 @@ const HomePage = () => {
 
           </div>
         </div>
+
+        {/* ================= VEHICLE SEARCH (DESKTOP ONLY) ================= */}
+        {pageLoaded && !isMobile && (
+          <div className="search-overlay">
+            <div className="rain-inside">
+              {Array.from({ length: 18 }).map((_, i) => (
+                <span
+                  key={i}
+                  className="drop-inside"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    animationDelay: `${Math.random()}s`,
+                    animationDuration: `${0.6 + Math.random()}s`,
+                  }}
+                />
+              ))}
+            </div>
+
+            <h2>Select Your Vehicle</h2>
+            <p>Over 1000+ Vehicle Spare Parts</p>
+
+            <div className="search-box">
+              <select
+                value={searchCategory}
+                onChange={(e) => setSearchCategory(e.target.value)}
+              >
+                <option value="">Select Category</option>
+                <option value="wiper-arm">Wiper Arm</option>
+                <option value="wiper-blade">Wiper Blade</option>
+                <option value="wiper-linkage">Wiper Linkage</option>
+                <option value="wiper-wheel-box">Wiper Wheel Box</option>
+                <option value="wiper-rod">Wiper Rod</option>
+                <option value="wiper-motor-gear">Wiper Motor Gear</option>
+                <option value="wiper-power-window">Power Window Accessories</option>
+                <option value="wiper-acc">Wiper Other Accessories</option>
+              </select>
+
+              <input
+                placeholder="Enter Vehicle Name (e.g. Tata Ace)"
+                value={vehicleName}
+                onChange={(e) => setVehicleName(e.target.value)}
+              />
+
+              <button onClick={handleSearch}>Search</button>
+            </div>
+          </div>
+        )}
+
+
+
+
       </section>
+
+
+
 
       {/* ================= STATS (MINIMAL) ================= */}
       <section style={statsSection}>
@@ -674,6 +746,76 @@ const quoteIcon = {
   left: "18px",
   fontSize: "28px",
   color: "rgba(77,163,255,0.25)",
+};
+const searchOverlay = {
+  position: "absolute",
+  bottom: "10%",
+  right: "6%",
+  width: "480px",
+  maxWidth: "92%",
+  padding: "28px",
+  borderRadius: "16px",
+  overflow: "hidden",
+
+  background:
+    "linear-gradient(135deg, rgba(15,42,68,0.85), rgba(18,59,102,0.7))",
+
+  backdropFilter: "blur(14px)",
+  WebkitBackdropFilter: "blur(14px)",
+
+  boxShadow:
+    "0 25px 60px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.18)",
+
+  color: "#fff",
+  textAlign: "center",
+  zIndex: 5,
+};
+
+
+const searchTitle = {
+  fontSize: "1.9rem",
+  fontWeight: "700",
+  marginBottom: "6px",
+};
+
+const searchSubtitle = {
+  opacity: 0.85,
+  marginBottom: "18px",
+  fontSize: "0.95rem",
+};
+
+const searchBox = {
+  position: "relative",
+  zIndex: 2,
+  display: "flex",
+  flexDirection: "column",
+  gap: "12px",
+};
+
+const searchSelect = {
+  padding: "14px",
+  borderRadius: "8px",
+  border: "none",
+  fontSize: "15px",
+};
+
+const searchInput = {
+  padding: "14px",
+  borderRadius: "8px",
+  border: "none",
+  fontSize: "15px",
+};
+
+const searchBtn = {
+  padding: "14px",
+  borderRadius: "8px",
+  border: "none",
+  cursor: "pointer",
+  fontWeight: "600",
+  fontSize: "16px",
+  color: "#fff",
+  background: "linear-gradient(135deg, #4da3ff, #1e88e5)",
+  boxShadow: "0 10px 30px rgba(77,163,255,0.45)",
 };
 
 

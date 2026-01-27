@@ -22,9 +22,13 @@ const ProductsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  
+
 
   const [searchParams] = useSearchParams();
   const urlCategory = searchParams.get("category");
+  const urlVehicle = searchParams.get("vehicle");
+
 
   /* ================= URL CATEGORY ================= */
   useEffect(() => {
@@ -51,6 +55,10 @@ const ProductsPage = () => {
           params.category = selectedCategory;
         }
 
+        if (urlVehicle) {
+          params.vehicle = urlVehicle;
+        }
+
         const res = await api.get("/products", { params });
 
         if (!cancelled) {
@@ -68,7 +76,7 @@ const ProductsPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [page, selectedCategory]);
+  }, [page, selectedCategory, urlVehicle]);
 
   /* ================= PREFETCH NEXT PAGE ================= */
   useEffect(() => {
@@ -81,7 +89,7 @@ const ProductsPage = () => {
         },
       });
     }
-  }, [products, page, selectedCategory]);
+  }, [products, page, selectedCategory, urlVehicle]);
 
   if (loading)
     return (
@@ -97,7 +105,9 @@ const ProductsPage = () => {
     <div style={{ padding: "2rem" }}>
       <h2 style={{ marginBottom: "1rem" }}>
         {selectedCategory === "All" ? "All Products" : selectedCategory}
+        {urlVehicle && ` for ${urlVehicle}`}
       </h2>
+
 
       {/* ================= CATEGORY FILTER ================= */}
       <div style={filterWrap}>
