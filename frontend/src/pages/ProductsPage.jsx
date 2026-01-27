@@ -22,7 +22,7 @@ const ProductsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  
+
 
 
   const [searchParams] = useSearchParams();
@@ -31,65 +31,65 @@ const ProductsPage = () => {
 
 
   /* ================= URL CATEGORY ================= */
-  useEffect(() => {
-    if (urlCategory && CATEGORY_MAP[urlCategory]) {
-      setSelectedCategory(CATEGORY_MAP[urlCategory]);
-      setPage(1);
-    }
-  }, [urlCategory]);
+ useEffect(() => {
+  setPage(1);
 
-  /* ================= FETCH PRODUCTS ================= */
-  useEffect(() => {
-    let cancelled = false;
+  if (urlCategory && CATEGORY_MAP[urlCategory]) {
+    setSelectedCategory(CATEGORY_MAP[urlCategory]);
+  } else {
+    setSelectedCategory("All");
+  }
+}, [urlCategory, urlVehicle]);
 
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
 
-        const params = {
-          page,
-          limit: LIMIT,
-        };
+ useEffect(() => {
+  let cancelled = false;
 
-        if (selectedCategory !== "All") {
-          params.category = selectedCategory;
-        }
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      setError("");
 
-        if (urlVehicle) {
-          params.vehicle = urlVehicle;
-        }
+      const params = {
+        page,
+        limit: LIMIT,
+        category: selectedCategory !== "All" ? selectedCategory : undefined,
+        vehicle: urlVehicle ? urlVehicle.trim().toLowerCase() : undefined,
+      };
 
-        const res = await api.get("/products", { params });
+      const res = await api.get("/products", { params });
 
-        if (!cancelled) {
-          setProducts(res.data);
-        }
-      } catch (err) {
-        if (!cancelled) setError("Failed to load products");
-      } finally {
-        if (!cancelled) setLoading(false);
+      if (!cancelled) {
+        setProducts(res.data);
       }
-    };
-
-    fetchProducts();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [page, selectedCategory, urlVehicle]);
-
-  /* ================= PREFETCH NEXT PAGE ================= */
-  useEffect(() => {
-    if (products.length === LIMIT) {
-      api.get("/products", {
-        params: {
-          page: page + 1,
-          limit: LIMIT,
-          category: selectedCategory !== "All" ? selectedCategory : undefined,
-        },
-      });
+    } catch (err) {
+      if (!cancelled) setError("Failed to load products");
+    } finally {
+      if (!cancelled) setLoading(false);
     }
-  }, [products, page, selectedCategory, urlVehicle]);
+  };
+
+  fetchProducts();
+  return () => {
+    cancelled = true;
+  };
+}, [page, selectedCategory, urlVehicle]);
+
+
+ /* ================= PREFETCH NEXT PAGE ================= */
+useEffect(() => {
+  if (products.length === LIMIT) {
+    api.get("/products", {
+      params: {
+        page: page + 1,
+        limit: LIMIT,
+        category: selectedCategory !== "All" ? selectedCategory : undefined,
+        vehicle: urlVehicle ? urlVehicle.trim().toLowerCase() : undefined,
+      },
+    });
+  }
+}, [products, page, selectedCategory, urlVehicle]);
+
 
   if (loading)
     return (

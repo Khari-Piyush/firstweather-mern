@@ -47,6 +47,11 @@ const brands = [
 
 const HomePage = () => {
   const [pageLoaded, setPageLoaded] = useState(false);
+
+useEffect(() => {
+  setTimeout(() => setPageLoaded(true), 100);
+}, []);
+
   const navigate = useNavigate();
   const [searchCategory, setSearchCategory] = useState("");
   const [vehicleName, setVehicleName] = useState("");
@@ -58,7 +63,15 @@ const HomePage = () => {
 
   const sliderRef = useRef(null);
   const [testimonialIndex, setTestimonialIndex] = useState(0);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(false);
+
+useEffect(() => {
+  const resize = () => setIsMobile(window.innerWidth < 768);
+  resize(); // 🔥 run once on mount
+  window.addEventListener("resize", resize);
+  return () => window.removeEventListener("resize", resize);
+}, []);
+
 
   const handleSearch = () => {
     if (!searchCategory || !vehicleName) {
@@ -168,7 +181,7 @@ const HomePage = () => {
         </div>
 
         {/* ================= VEHICLE SEARCH (DESKTOP ONLY) ================= */}
-        {pageLoaded && !isMobile && (
+        {!isMobile && (
           <div className="search-overlay">
             <div className="rain-inside">
               {Array.from({ length: 18 }).map((_, i) => (

@@ -21,7 +21,7 @@ router.get("/", async (req, res) => {
     const { category, vehicle } = req.query;
 
     const normalizedVehicle = vehicle?.trim().toLowerCase();
-    
+
     const cacheKey = `p:${page}:l:${limit}:c:${category || "all"}:v:${normalizedVehicle || "all"}`;
 
 
@@ -31,21 +31,21 @@ router.get("/", async (req, res) => {
     }
 
     const filter = {
-  inStock: true,
+      inStock: true,
 
-  ...(category && category !== "All"
-    ? { category: { $regex: `^${category}$`, $options: "i" } }
-    : {}),
-};
+      ...(category && category !== "All"
+        ? { category: { $regex: `^${category}$`, $options: "i" } }
+        : {}),
+    };
 
-if (vehicle) {
-  const v = vehicle.trim();
+    if (vehicle) {
+      const v = vehicle.trim();
 
-  filter.$or = [
-    { carModel: { $regex: `^${v}$`, $options: "i" } },
-    { productName: { $regex: v, $options: "i" } },
-  ];
-}
+      filter.$or = [
+        { carModel: { $regex: `^${v}$`, $options: "i" } },
+        { productName: { $regex: v, $options: "i" } },
+      ];
+    }
 
 
 
