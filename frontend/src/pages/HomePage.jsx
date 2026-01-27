@@ -4,12 +4,12 @@ import { FaStar, FaUserCircle, FaQuoteLeft } from "react-icons/fa";
 import { FaCalendarAlt, FaBriefcase, FaUserCheck } from "react-icons/fa";
 import bgImage from "/bg-image.png";
 
-import wiperArm from "/fw-wiper-arm.png";
-import wiperBlade from "/fw-wiper-blade.png";
-import wiperLinkage from "/fw-wiper-linkage.png";
-import wiperGear from "/fw-gear.png";
+import wiperArm from "/fw-arm.webp";
+import wiperBlade from "/fw-blade.webp";
+import wiperLinkage from "/fw-linkage.webp";
+import wiperWheelBox from "/fw-wheelbox.webp";
 import testimonials from "../data/testimonial";
-import heroImage from "/hero-wiper-collage.png";
+import heroImage from "/hero-wiper-collage.webp";
 
 import tata from "/brands/tata.png";
 import hyundai from "/brands/hyundai.png";
@@ -211,10 +211,10 @@ const HomePage = () => {
             />
 
             <ProductRangeCard
-              img={wiperGear}
-              title="Wiper Motor Gear"
-              category="wiper-motor-gear"
-              desc="We offer wide variety of wiper motor gear with best quality."
+              img={wiperWheelBox}
+              title="Wiper Wheel Box"
+              category="wiper-wheel-box"
+              desc="We offer wide variety of wiper wheel box with best quality."
             />
 
           </div>

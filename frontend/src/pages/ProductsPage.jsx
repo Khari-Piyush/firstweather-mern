@@ -40,7 +40,18 @@ const ProductsPage = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const res = await api.get(`/products?page=${page}&limit=24`);
+
+        const params = {
+          page,
+          limit: 25,
+        };
+
+        if (selectedCategory !== "All") {
+          params.category = selectedCategory;
+        }
+
+        const res = await api.get("/products", { params });
+
         if (!cancelled) {
           setProducts(res.data);
         }
@@ -55,17 +66,18 @@ const ProductsPage = () => {
       }
     };
 
-    // 🔥 IMPORTANT: delay API until browser is idle
+    // optional idle delay (ok to keep)
     if ("requestIdleCallback" in window) {
       requestIdleCallback(fetchProducts);
     } else {
-      setTimeout(fetchProducts, 0);
+      fetchProducts();
     }
 
     return () => {
       cancelled = true;
     };
-  }, [page]);
+  }, [page, selectedCategory]);
+
 
 
   /* ================= FILTER (SAME AS YOUR ORIGINAL) ================= */
