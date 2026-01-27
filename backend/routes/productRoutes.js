@@ -8,36 +8,52 @@ import csv from "csvtojson";
 import unzipper from "unzipper";
 import path from "path";
 
+
 const router = express.Router();
+const productsCache = new Map();
+
 
 /* ================= GET ALL PRODUCTS ================= */
-/* ================= GET ALL PRODUCTS (PAGINATED, ARRAY RESPONSE) ================= */
 router.get("/", async (req, res) => {
   try {
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
-    const limit = Math.min(parseInt(req.query.limit) || 24, 50);
-    const skip = (page - 1) * limit;
-
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const limit = Math.min(Number(req.query.limit) || 12, 20);
     const { category } = req.query;
 
-    const filter =
-      category && category !== "All"
-        ? { category: { $regex: `^${category}$`, $options: "i" } }
-        : {};
+    const cacheKey = `p:${page}:l:${limit}:c:${category || "all"}`;
 
-    const products = await Product.find(filter)
-      .sort({ productName: 1 })
-      .skip(skip)
+    // ⚡ CACHE HIT
+    if (productsCache.has(cacheKey)) {
+      return res.json(productsCache.get(cacheKey));
+    }
+
+    const filter = {
+      inStock: true,
+      ...(category && category !== "All"
+        ? { category: { $regex: `^${category}$`, $options: "i" } }
+        : {}),
+    };
+
+    const products = await Product.find(
+      filter,
+      "productName price imageUrl slug productId category"
+    )
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
       .limit(limit)
       .lean();
 
+    productsCache.set(cacheKey, products);
+
+    // ⏱ auto clear cache after 60 sec
+    setTimeout(() => productsCache.delete(cacheKey), 60000);
+
     res.json(products);
   } catch (err) {
-    console.error("Get products error:", err);
+    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 });
-
 
 /* ================= GET PRODUCT BY ID ================= */
 router.get("/:id", async (req, res) => {

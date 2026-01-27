@@ -5,17 +5,12 @@ dotenv.config();
 
 const connectDB = async () => {
   try {
-    console.log("MONGO_URI from env ->", JSON.stringify(process.env.MONGO_URI));
-    await mongoose.connect(process.env.MONGO_URI);
     await mongoose.connect(process.env.MONGO_URI, {
-      // These options are optional in newer mongoose but safe:
-      // useNewUrlParser: true,
-      // useUnifiedTopology: true,
+      maxPoolSize: 10,
     });
     console.log("MongoDB Connected Successfully");
   } catch (error) {
-    console.log("DB Connection Failed");
-    console.error(error);
+    console.error("DB Connection Failed", error);
     process.exit(1);
   }
 };

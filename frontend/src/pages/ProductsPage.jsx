@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import api from "../api";
 import "./ProductsPage.css";
@@ -14,7 +14,7 @@ const CATEGORY_MAP = {
   "wiper-acc": "F.W Wiper Accessories",
 };
 
-const LIMIT = 25;
+const LIMIT = 12;
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
@@ -57,13 +57,9 @@ const ProductsPage = () => {
           setProducts(res.data);
         }
       } catch (err) {
-        if (!cancelled) {
-          setError("Failed to load products");
-        }
+        if (!cancelled) setError("Failed to load products");
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        if (!cancelled) setLoading(false);
       }
     };
 
@@ -74,8 +70,28 @@ const ProductsPage = () => {
     };
   }, [page, selectedCategory]);
 
-  if (loading) return <p style={{ padding: "1rem" }}>Loading products...</p>;
-  if (error) return <p style={{ color: "red", padding: "1rem" }}>{error}</p>;
+  /* ================= PREFETCH NEXT PAGE ================= */
+  useEffect(() => {
+    if (products.length === LIMIT) {
+      api.get("/products", {
+        params: {
+          page: page + 1,
+          limit: LIMIT,
+          category: selectedCategory !== "All" ? selectedCategory : undefined,
+        },
+      });
+    }
+  }, [products, page, selectedCategory]);
+
+  if (loading)
+    return (
+      <div style={{ padding: "2rem" }}>
+        <ProductSkeleton />
+      </div>
+    );
+
+  if (error)
+    return <p style={{ color: "red", padding: "1rem" }}>{error}</p>;
 
   return (
     <div style={{ padding: "2rem" }}>
@@ -110,22 +126,7 @@ const ProductsPage = () => {
       {/* ================= PRODUCT GRID ================= */}
       <div style={grid}>
         {products.map((p) => (
-          <div key={p._id} style={card}>
-            <img
-              src={p.imageUrl}
-              alt={p.productName}
-              style={img}
-              loading="lazy"
-            />
-            <h4>{p.productName}</h4>
-            <p>
-              ₹{p.price} <span> / {p.unit}</span>
-            </p>
-
-            <Link to={`/products/${p._id}`} style={viewBtn}>
-              View Details
-            </Link>
-          </div>
+          <ProductCard key={p._id} p={p} />
         ))}
       </div>
 
@@ -164,7 +165,28 @@ const ProductsPage = () => {
 
 export default ProductsPage;
 
-/* ================= COMPONENT ================= */
+/* ================= MEMO PRODUCT CARD ================= */
+
+const ProductCard = memo(({ p }) => (
+  <div style={card}>
+    <img
+      src={p.imageUrl.replace(
+        "/upload/",
+        "/upload/w_400,f_auto,q_auto/"
+      )}
+      alt={p.productName}
+      style={img}
+      loading="lazy"
+    />
+    <h4>{p.productName}</h4>
+    <p>₹{p.price}</p>
+    <Link to={`/products/${p._id}`} style={viewBtn}>
+      View Details
+    </Link>
+  </div>
+));
+
+/* ================= COMPONENTS ================= */
 
 const CategoryBtn = ({ label, active, onClick }) => (
   <button
@@ -181,6 +203,18 @@ const CategoryBtn = ({ label, active, onClick }) => (
   >
     {label}
   </button>
+);
+
+const ProductSkeleton = () => (
+  <div style={grid}>
+    {Array.from({ length: 8 }).map((_, i) => (
+      <div key={i} style={{ ...card, opacity: 0.5 }}>
+        <div style={{ height: 180, background: "#e5e7eb", borderRadius: 8 }} />
+        <div style={{ height: 14, background: "#e5e7eb", marginTop: 10 }} />
+        <div style={{ height: 14, background: "#e5e7eb", marginTop: 6 }} />
+      </div>
+    ))}
+  </div>
 );
 
 /* ================= STYLES ================= */
