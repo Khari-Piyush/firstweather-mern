@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useLayoutEffect } from "react";
 import { FaStar, FaUserCircle, FaQuoteLeft } from "react-icons/fa";
 import { FaCalendarAlt, FaBriefcase, FaUserCheck } from "react-icons/fa";
 import bgImage from "/bg-image.png";
@@ -47,30 +47,36 @@ const brands = [
 
 const HomePage = () => {
   const [pageLoaded, setPageLoaded] = useState(false);
+  const [drops, setDrops] = useState([]);
+  useEffect(() => {
+    const d = Array.from({ length: 18 }).map(() => ({
+      left: Math.random() * 100,
+      delay: Math.random(),
+      duration: 0.6 + Math.random(),
+    }));
+    setDrops(d);
+  }, []);
 
-useEffect(() => {
-  setTimeout(() => setPageLoaded(true), 100);
-}, []);
 
   const navigate = useNavigate();
   const [searchCategory, setSearchCategory] = useState("");
   const [vehicleName, setVehicleName] = useState("");
 
 
-  useEffect(() => {
-    setTimeout(() => setPageLoaded(true), 100);
+  useLayoutEffect(() => {
+    setPageLoaded(true);
   }, []);
 
   const sliderRef = useRef(null);
   const [testimonialIndex, setTestimonialIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
-useEffect(() => {
-  const resize = () => setIsMobile(window.innerWidth < 768);
-  resize(); // 🔥 run once on mount
-  window.addEventListener("resize", resize);
-  return () => window.removeEventListener("resize", resize);
-}, []);
+  useEffect(() => {
+    const resize = () => setIsMobile(window.innerWidth < 768);
+    resize(); // 🔥 run once on mount
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
+  }, []);
 
 
   const handleSearch = () => {
@@ -84,13 +90,6 @@ useEffect(() => {
     );
   };
 
-
-  /* RESPONSIVE CHECK */
-  useEffect(() => {
-    const resize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", resize);
-    return () => window.removeEventListener("resize", resize);
-  }, []);
 
   /* PRODUCT SLIDER */
   useEffect(() => {
@@ -181,27 +180,29 @@ useEffect(() => {
         </div>
 
         {/* ================= VEHICLE SEARCH (DESKTOP ONLY) ================= */}
-        {!isMobile && (
-          <div className="search-overlay">
+        {pageLoaded && !isMobile && (
+          <div className="search-overlay" style={searchOverlay}>
             <div className="rain-inside">
-              {Array.from({ length: 18 }).map((_, i) => (
+              {drops.map((d, i) => (
                 <span
                   key={i}
                   className="drop-inside"
                   style={{
-                    left: `${Math.random() * 100}%`,
-                    animationDelay: `${Math.random()}s`,
-                    animationDuration: `${0.6 + Math.random()}s`,
+                    left: `${d.left}%`,
+                    animationDelay: `${d.delay}s`,
+                    animationDuration: `${d.duration}s`,
                   }}
                 />
               ))}
             </div>
 
+
             <h2>Select Your Vehicle</h2>
             <p>Over 1000+ Vehicle Spare Parts</p>
 
-            <div className="search-box">
+            <div style={searchBox}>
               <select
+                style={searchSelect}
                 value={searchCategory}
                 onChange={(e) => setSearchCategory(e.target.value)}
               >
@@ -217,23 +218,18 @@ useEffect(() => {
               </select>
 
               <input
-                placeholder="Enter Vehicle Name (e.g. Tata Ace)"
+                style={searchInput}
+                placeholder="Enter Brand Name (e.g. Tata, Mahindra)"
                 value={vehicleName}
                 onChange={(e) => setVehicleName(e.target.value)}
               />
 
-              <button onClick={handleSearch}>Search</button>
+              <button style={searchBtn} onClick={handleSearch}>Search</button>
             </div>
           </div>
         )}
 
-
-
-
       </section>
-
-
-
 
       {/* ================= STATS (MINIMAL) ================= */}
       <section style={statsSection}>
@@ -469,7 +465,8 @@ const container = { maxWidth: "1200px", margin: "auto", padding: "3rem 1.5rem" }
 
 const heroSection = {
   position: "relative",
-  minHeight: "85vh",
+  minHeight: "650px",
+  height: "85vh",
   backgroundImage: `url(${heroImage})`,
   backgroundSize: "cover",
   backgroundPosition: "center",
@@ -769,6 +766,7 @@ const searchOverlay = {
   padding: "28px",
   borderRadius: "16px",
   overflow: "hidden",
+  
 
   background:
     "linear-gradient(135deg, rgba(15,42,68,0.85), rgba(18,59,102,0.7))",
@@ -785,6 +783,7 @@ const searchOverlay = {
 };
 
 
+
 const searchTitle = {
   fontSize: "1.9rem",
   fontWeight: "700",
@@ -798,29 +797,30 @@ const searchSubtitle = {
 };
 
 const searchBox = {
-  position: "relative",
-  zIndex: 2,
   display: "flex",
   flexDirection: "column",
-  gap: "12px",
+  gap: "14px",
+  marginTop: "18px",
 };
 
 const searchSelect = {
-  padding: "14px",
+  height: "48px",
+  padding: "0 14px",
   borderRadius: "8px",
   border: "none",
   fontSize: "15px",
 };
 
 const searchInput = {
-  padding: "14px",
+  height: "48px",
+  padding: "0 14px",
   borderRadius: "8px",
   border: "none",
   fontSize: "15px",
 };
 
 const searchBtn = {
-  padding: "14px",
+  height: "48px",
   borderRadius: "8px",
   border: "none",
   cursor: "pointer",
@@ -830,6 +830,7 @@ const searchBtn = {
   background: "linear-gradient(135deg, #4da3ff, #1e88e5)",
   boxShadow: "0 10px 30px rgba(77,163,255,0.45)",
 };
+
 
 
 
