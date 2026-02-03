@@ -72,7 +72,12 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ message: "Email & password required" });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email })
+    .select(
+      "_id firstName lastName email password isAdmin"
+    )
+    .lean();
+
     if (!user) {
       return res.status(400).json({ message: "Invalid email or password" });
     }

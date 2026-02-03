@@ -55,3 +55,11 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
+
+if (process.env.NODE_ENV === "production") {
+  setInterval(() => {
+    fetch("https://firstweather-backend-url/api/health")
+      .then(() => console.log("Server kept alive"))
+      .catch(() => {});
+  }, 5 * 60 * 1000);
+}
