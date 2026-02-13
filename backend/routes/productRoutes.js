@@ -245,7 +245,6 @@ router.post(
         category,
         carModel,
         imageUrl,
-        embedding,
       });
 
       res.status(201).json(product);

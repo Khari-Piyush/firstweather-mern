@@ -42,10 +42,6 @@ const productSchema = new mongoose.Schema(
             type: Boolean,
             default: true,
         },
-        embedding: {
-            type: [Number],
-            default: [],
-        },
     },
     { timestamps: true }
     

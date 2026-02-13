@@ -3,7 +3,6 @@ import api from "../api";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
 const ContactUs = () => {
   const [form, setForm] = useState({
     name: "",
@@ -12,6 +11,8 @@ const ContactUs = () => {
     message: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -19,11 +20,16 @@ const ContactUs = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (loading) return;
+
+    setLoading(true);
+
     try {
-      const res = await api.post("/enquiry", form);
+      await api.post("/enquiry", form);
 
       toast.success("Enquiry sent successfully! 🚀");
 
+      // Clear form after success
       setForm({
         name: "",
         phone: "",
@@ -34,6 +40,8 @@ const ContactUs = () => {
       console.error(err);
       toast.error("Failed to send enquiry. Please try again.");
     }
+
+    setLoading(false);
   };
 
   return (
@@ -53,7 +61,7 @@ const ContactUs = () => {
           gap: "2rem",
         }}
       >
-        {/* LEFT – CONTACT INFO */}
+        {/* LEFT */}
         <div
           style={{
             background: "rgba(255,255,255,0.9)",
@@ -62,34 +70,25 @@ const ContactUs = () => {
             boxShadow: "0 16px 40px rgba(0,0,0,0.08)",
           }}
         >
-          <h2 style={{ marginBottom: "0.5rem" }}>Get in Touch</h2>
-          <p style={{ color: "#555", marginBottom: "1rem" }}>
-            We’d love to hear from you
-          </p>
+          <h2>Get in Touch</h2>
+          <p>We’d love to hear from you</p>
 
-          <p><b>Business Name:</b> First Weather</p>
+          <p><b>Business:</b> First Weather</p>
           <p><b>Phone:</b> +91 7428088039</p>
-          <p><b>Email:</b>firstweather16@gmail.com</p>
+          <p><b>Email:</b> firstweather16@gmail.com</p>
 
-          <p style={{ marginTop: "0.5rem" }}>
+          <p>
             <b>Address:</b><br />
             WP-406 B, Wazirpur Village,<br />
             Ashok Vihar, Delhi – 110052
           </p>
 
-          <p style={{ marginTop: "0.5rem" }}>
+          <p>
             ⏰ <b>Timings:</b><br />
-            Mon–Sat: 9:00 AM – 6:00 PM<br />
+            Mon–Sat: 9AM – 6PM<br />
             Sunday: Closed
           </p>
 
-          {/* SOCIAL LINKS */}
-          <div style={{ marginTop: "1rem", display: "flex", gap: "0.75rem" }}>
-            <a href="#" style={socialBtn}>Instagram</a>
-            <a href="#" style={socialBtn}>Facebook</a>
-          </div>
-
-          {/* MAP */}
           <div style={{ marginTop: "1rem" }}>
             <iframe
               title="Office Location"
@@ -102,7 +101,7 @@ const ContactUs = () => {
           </div>
         </div>
 
-        {/* RIGHT – FORM */}
+        {/* RIGHT FORM */}
         <form
           onSubmit={handleSubmit}
           style={{
@@ -112,10 +111,8 @@ const ContactUs = () => {
             boxShadow: "0 16px 40px rgba(0,0,0,0.08)",
           }}
         >
-          <h2 style={{ marginBottom: "0.5rem" }}>Drop Us a Line</h2>
-          <p style={{ color: "#555", marginBottom: "1rem" }}>
-            Fill the form and our team will contact you
-          </p>
+          <h2>Drop Us a Line</h2>
+          <p>Fill the form and our team will contact you</p>
 
           <input
             name="name"
@@ -152,8 +149,16 @@ const ContactUs = () => {
             style={{ ...input, resize: "vertical" }}
           />
 
-          <button type="submit" style={submitBtn}>
-            Submit Enquiry
+          <button
+            type="submit"
+            style={{
+              ...submitBtn,
+              opacity: loading ? 0.7 : 1,
+              cursor: loading ? "not-allowed" : "pointer",
+            }}
+            disabled={loading}
+          >
+            {loading ? "Sending..." : "Submit Enquiry"}
           </button>
         </form>
       </div>
@@ -162,6 +167,7 @@ const ContactUs = () => {
 };
 
 /* STYLES */
+
 const input = {
   width: "100%",
   padding: "0.6rem",
@@ -179,17 +185,6 @@ const submitBtn = {
   border: "none",
   borderRadius: "10px",
   fontSize: "1rem",
-  cursor: "pointer",
-};
-
-const socialBtn = {
-  padding: "0.4rem 0.8rem",
-  borderRadius: "999px",
-  background: "#eff6ff",
-  border: "1px solid #bfdbfe",
-  textDecoration: "none",
-  fontSize: "0.85rem",
-  color: "#1e40af",
 };
 
 export default ContactUs;
