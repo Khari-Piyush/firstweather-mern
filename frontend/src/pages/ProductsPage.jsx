@@ -11,7 +11,7 @@ const CATEGORY_MAP = {
   "wiper-wheel-box": "F.W Wiper Wheel Box",
   "wiper-rod": "F.W Wiper Rod",
   "wiper-power-window": "F.W Power Window Accessories",
-  "wiper-acc": "F.W Wiper Accessories",
+  "wiper-kit": "F.W Wiper Kit",
 };
 
 const LIMIT = 12;
