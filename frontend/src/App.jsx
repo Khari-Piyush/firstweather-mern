@@ -29,6 +29,7 @@ const App = () => {
       <Navbar />
 
       <Suspense fallback={<div style={{ padding: "2rem" }}>Loading...</div>}>
+       <ScrollToTop />
         <Routes>
           {/* PUBLIC */}
           <Route path="/" element={<HomePage />} />
