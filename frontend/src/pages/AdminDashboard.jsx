@@ -44,13 +44,23 @@ const AdminDashboard = () => {
     fetchStats();
   }, []);
   useEffect(() => {
-    // dummy data (baad me GA se replace karenge)
-    setAnalytics({
-      visitors: 1200,
-      enquiryClicks: 300,
-      enquirySubmit: 80,
+  fetch("http://localhost:4000/analytics")
+    .then((res) => res.json())
+    .then((data) => {
+      console.log("🔥 GA DATA:", data);
+
+      const visitors =
+        data.rows?.[0]?.metricValues?.[0]?.value || 0;
+
+      setAnalytics((prev) => ({
+        ...prev,
+        visitors: Number(visitors),
+      }));
+    })
+    .catch((err) => {
+      console.error("❌ GA ERROR:", err);
     });
-  }, []);
+}, []);
 
   const conversionRate =
     analytics.visitors > 0
