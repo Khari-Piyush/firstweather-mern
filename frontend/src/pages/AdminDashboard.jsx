@@ -14,6 +14,10 @@ ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const [chart, setChart] = useState({
+    labels: [],
+    data: [],
+  });
 
   const [stats, setStats] = useState({
     totalProducts: 0,
@@ -43,24 +47,55 @@ const AdminDashboard = () => {
     };
     fetchStats();
   }, []);
+
   useEffect(() => {
-  fetch("http://localhost:4000/analytics")
-    .then((res) => res.json())
-    .then((data) => {
-      console.log("🔥 GA DATA:", data);
+    fetch("http://localhost:4000/analytics-chart")
+      .then(res => res.json())
+      .then(data => {
+        console.log("📊 CHART DATA:", data);
 
-      const visitors =
-        data.rows?.[0]?.metricValues?.[0]?.value || 0;
+        const labels = data.rows?.map(row =>
+          row.dimensionValues[0].value
+        );
+        const formattedLabels = labels.map(d => {
+          const date = new Date(
+            d.slice(0, 4),
+            d.slice(4, 6) - 1,
+            d.slice(6, 8)
+          );
+          return date.toLocaleDateString("en-IN", { weekday: "short" });
+        });
 
-      setAnalytics((prev) => ({
-        ...prev,
-        visitors: Number(visitors),
-      }));
-    })
-    .catch((err) => {
-      console.error("❌ GA ERROR:", err);
-    });
-}, []);
+        const values = data.rows?.map(row =>
+          Number(row.metricValues[0].value)
+        );
+
+        setChart({
+          labels: formattedLabels,
+          data: values,
+        });
+      })
+      .catch(err => console.error(err));
+  }, []);
+
+  useEffect(() => {
+    fetch("http://localhost:4000/analytics")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("🔥 GA DATA:", data);
+
+        const visitors =
+          data.rows?.[0]?.metricValues?.[0]?.value || 0;
+
+        setAnalytics((prev) => ({
+          ...prev,
+          visitors: Number(visitors),
+        }));
+      })
+      .catch((err) => {
+        console.error("❌ GA ERROR:", err);
+      });
+  }, []);
 
   const conversionRate =
     analytics.visitors > 0
@@ -72,21 +107,35 @@ const AdminDashboard = () => {
   if (error) return <p style={{ color: "red", padding: "1rem" }}>{error}</p>;
 
   const chartData = {
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    labels: chart.labels,
     datasets: [
       {
         label: "Visitors",
-        data: [120, 200, 150, 300, 250, 400, 350],
+        data: chart.data,
         borderColor: "#2563eb",
-        tension: 0.4,
-      },
-      {
-        label: "Enquiries",
-        data: [30, 80, 60, 100, 90, 120, 110],
-        borderColor: "#f59e0b",
+        backgroundColor: "rgba(37,99,235,0.1)",
+        fill: true,
         tension: 0.4,
       },
     ],
+  };
+
+  const chartOptions = {
+    maintainAspectRatio: false,
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top",
+      },
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+      },
+      y: {
+        beginAtZero: true,
+      },
+    },
   };
 
   return (
@@ -94,7 +143,7 @@ const AdminDashboard = () => {
       style={{
         padding: "1.5rem",
         minHeight: "100vh",
-        background: "linear-gradient(180deg, #f0f7ff 0%, #ffffff 65%)",
+        background: "linear-gradient(135deg, #eef5ff, #ffffff)",
       }}
     >
       <h2>Admin Dashboard</h2>
@@ -152,34 +201,50 @@ const AdminDashboard = () => {
       <div
         style={{
           marginTop: "2rem",
-          background: "#fff",
-          padding: "1.5rem",
-          borderRadius: "16px",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+          display: "grid",
+          gridTemplateColumns: "2fr 1fr",
+          gap: "1.5rem",
         }}
       >
-        <h3 style={{ marginBottom: "1rem" }}>📈 Traffic Overview</h3>
-        <Line data={chartData} />
-      </div>
+        {/* 📈 GRAPH */}
+        <div
+          style={{
+            background: "rgba(255,255,255,0.7)",
+            backdropFilter: "blur(12px)",
+            padding: "1.5rem",
+            borderRadius: "16px",
+            boxShadow: "0 10px 25px rgba(0,0,0,0.06)",
+          }}
+        >
+          <h3>📈 Traffic Overview</h3>
 
-      <div
-        style={{
-          marginTop: "2rem",
-          background: "#fff",
-          padding: "1.5rem",
-          borderRadius: "16px",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-        }}
-      >
-        <h3>🎯 Conversion Funnel</h3>
+          <div style={{ height: "300px" }}>
+            <Line data={chartData} options={chartOptions} />
+          </div>
+        </div>
 
-        <p>Visitors: {analytics.visitors}</p>
-        <p>Enquiry Clicks: {analytics.enquiryClicks}</p>
-        <p>Form Submit: {analytics.enquirySubmit}</p>
+        {/* 🎯 FUNNEL */}
+        <div
+          style={{
+            background: "rgba(255,255,255,0.7)",
+            backdropFilter: "blur(12px)",
+            padding: "1.5rem",
+            borderRadius: "16px",
+            boxShadow: "0 10px 25px rgba(0,0,0,0.06)",
+          }}
+        >
+          <h3>🎯 Conversion Funnel</h3>
 
-        <p style={{ marginTop: "1rem", fontWeight: "bold" }}>
-          {analytics.visitors} → {analytics.enquiryClicks} → {analytics.enquirySubmit}
-        </p>
+          <div style={{ marginTop: "1rem", lineHeight: "2" }}>
+            <div>👤 Visitors: {analytics.visitors}</div>
+            <div>👉 Clicks: {analytics.enquiryClicks}</div>
+            <div>📩 Submit: {analytics.enquirySubmit}</div>
+          </div>
+
+          <div style={{ marginTop: "1rem", fontWeight: "bold" }}>
+            {analytics.visitors} → {analytics.enquiryClicks} → {analytics.enquirySubmit}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -192,12 +257,12 @@ const DashboardCard = ({ title, value, gradient, onClick }) => {
       onClick={onClick}
       style={{
         cursor: "pointer",
-        background: "rgba(255,255,255,0.9)",
+        background: "linear-gradient(135deg, #ffffff, #f8fbff)",
+        border: "1px solid rgba(37,99,235,0.1)",
+        boxShadow: "0 10px 25px rgba(0,0,0,0.06)",
         backdropFilter: "blur(8px)",
         borderRadius: "16px",
         padding: "1.2rem",
-        boxShadow: "0 14px 35px rgba(0,0,0,0.08)",
-        border: "1px solid #e0ecff",
         position: "relative",
         overflow: "hidden",
         transition: "transform 0.3s ease, box-shadow 0.3s ease",
@@ -240,9 +305,5 @@ const DashboardCard = ({ title, value, gradient, onClick }) => {
     </div>
   );
 };
-
-
-
-
 
 export default AdminDashboard;

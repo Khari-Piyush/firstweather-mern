@@ -4,10 +4,10 @@ import dotenv from "dotenv";
 // I want my backend to entertain the frontend ki request
 import cors from "cors";
 import connectDB from "./config/database.js";
-
+import fs from "fs";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
-
-
+import path from "path";
+console.log("FILE EXISTS:", fs.existsSync("service-account.json"));
 import authRoutes from "./routes/authRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
@@ -19,8 +19,10 @@ import recommendRoute from "./routes/recommend.js"
 dotenv.config();
 const PORT = process.env.PORT || 4000;
 const app = express();
+
+
 const analyticsDataClient = new BetaAnalyticsDataClient({
-  keyFilename: "service-account.json",
+  keyFilename: path.join(process.cwd(), "service-account.json"),
 });
 
 // DB CONNECT
@@ -89,5 +91,21 @@ app.get('/analytics', async (req, res) => {
   } catch (error) {
     console.error("❌ ERROR:", error);
     res.status(500).send("Error fetching analytics");
+  }
+});
+
+app.get('/analytics-chart', async (req, res) => {
+  try {
+    const [response] = await analyticsDataClient.runReport({
+      property: `properties/492464995`,
+      dateRanges: [{ startDate: '7daysAgo', endDate: 'today' }],
+      dimensions: [{ name: 'date' }],
+      metrics: [{ name: 'activeUsers' }],
+    });
+
+    res.json(response);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error");
   }
 });
