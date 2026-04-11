@@ -29,6 +29,7 @@ const ContactUs = () => {
     setLoading(true);
 
     try {
+      setLoading(true);
       await api.post("/enquiry", form);
 
       toast.success("Enquiry sent successfully! 🚀");
