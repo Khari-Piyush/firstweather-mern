@@ -79,7 +79,7 @@ const AdminDashboard = () => {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:4000/analytics")
+    fetch("https://first-weather-webapp-h05a.onrender.com/analytics")
       .then((res) => res.json())
       .then((data) => {
         console.log("🔥 GA DATA:", data);

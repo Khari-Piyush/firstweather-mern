@@ -4,10 +4,8 @@ import dotenv from "dotenv";
 // I want my backend to entertain the frontend ki request
 import cors from "cors";
 import connectDB from "./config/database.js";
-import fs from "fs";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import path from "path";
-console.log("FILE EXISTS:", fs.existsSync("service-account.json"));
 import authRoutes from "./routes/authRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
@@ -22,7 +20,7 @@ const app = express();
 
 
 const analyticsDataClient = new BetaAnalyticsDataClient({
-  keyFilename: path.join(process.cwd(), "service-account.json"),
+  credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT),
 });
 
 // DB CONNECT
