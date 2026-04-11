@@ -107,3 +107,21 @@ app.get('/analytics-chart', async (req, res) => {
     res.status(500).send("Error");
   }
 });
+
+app.get('/analytics-events', async (req, res) => {
+  try {
+    const [response] = await analyticsDataClient.runReport({
+      property: `properties/492464995`,
+      dateRanges: [{ startDate: '7daysAgo', endDate: 'today' }],
+      dimensions: [{ name: 'eventName' }],
+      metrics: [{ name: 'eventCount' }],
+    });
+
+    console.log("🔥 EVENTS:", JSON.stringify(response.rows, null, 2));
+
+    res.json(response);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error");
+  }
+});

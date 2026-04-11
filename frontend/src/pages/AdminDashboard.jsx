@@ -79,6 +79,31 @@ const AdminDashboard = () => {
   }, []);
 
   useEffect(() => {
+  fetch("https://first-weather-webapp-h05a.onrender.com/analytics-events")
+    .then(res => res.json())
+    .then(data => {
+      console.log("🔥 EVENTS:", data);
+
+      let clicks = 0;
+      let submit = 0;
+
+      data.rows?.forEach(row => {
+        const name = row.dimensionValues[0].value;
+        const value = Number(row.metricValues[0].value);
+
+        if (name === "enquiry_click") clicks += value;
+        if (name === "enquiry_submit") submit += value;
+      });
+
+      setAnalytics(prev => ({
+        ...prev,
+        enquiryClicks: clicks,
+        enquirySubmit: submit,
+      }));
+    });
+}, []);
+
+  useEffect(() => {
     fetch("https://first-weather-webapp-h05a.onrender.com/analytics")
       .then((res) => res.json())
       .then((data) => {

@@ -20,7 +20,7 @@ const ContactUs = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     window.gtag('event', 'enquiry_submit', {
-      event_category: 'conversion',
+      event_category: 'engagement',
       event_label: 'form_submit',
     });
 
