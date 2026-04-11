@@ -79,7 +79,7 @@ app.get('/analytics', async (req, res) => {
 
     const [response] = await analyticsDataClient.runReport({
       property: `properties/492464995`,
-      dateRanges: [{ startDate: 'today', endDate: 'today' }],
+      dateRanges: [{ startDate: '7daysAgo', endDate: 'today' }],
       metrics: [{ name: 'screenPageViews' }],
     });
 
