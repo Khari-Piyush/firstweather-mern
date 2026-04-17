@@ -26,7 +26,6 @@ import force from "/brands/force.png";
 import piaggio from "/brands/piaggo.png";
 import sml from "/brands/sml.png";
 import ImageSearch from "../components/ImageSearch";
-import { color } from "framer-motion";
 
 
 
@@ -497,7 +496,6 @@ const overlay = {
 const heroContent = {
   position: "relative",
   maxWidth: "600px",
-  padding: "4rem 1.5rem",
   color: "#fff",
   padding: "2.5rem",
   borderRadius: "12px",
@@ -513,7 +511,7 @@ const heroTitle = {
   WebkitTextFillColor: "transparent",
 };
 const heroText = { margin: "1.2rem 0 2.2rem", maxWidth: "520px" };
-const heroBtns = { display: "flex", gap: "1rem", flexWrap: "wrap", gap: "1.2rem", };
+const heroBtns = { display: "flex", flexWrap: "wrap", gap: "1.2rem", };
 
 const primaryBtn = {
   background: "#ffffff",
