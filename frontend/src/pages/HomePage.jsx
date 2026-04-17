@@ -26,6 +26,7 @@ import force from "/brands/force.png";
 import piaggio from "/brands/piaggo.png";
 import sml from "/brands/sml.png";
 import ImageSearch from "../components/ImageSearch";
+import { color } from "framer-motion";
 
 
 
@@ -126,14 +127,20 @@ const HomePage = () => {
 
         <div style={heroContent}>
           <h1 style={heroTitle}>
-            First Weather – Auto Electrical <br />
-            & Wiper Parts in India
+            India’s Leading Aftermarket Wiper Parts Manufacturer<br />
           </h1>
+          
 
-          <p style={heroText}>
-            Leading manufacturer & supplier of auto electrical and wiper spare
-            parts across India.
-          </p>
+          <ul style={{
+            marginBottom: "2rem",
+            paddingLeft: "0",
+            listStyle: "none",
+            lineHeight: "1.8"
+          }}>
+            <li>✔ Premium Car Wiper Blades</li>
+            <li>✔ Heavy Duty Truck & Bus Systems</li>
+            <li>✔ OEM Compatible Linkage & Arms</li>
+          </ul>
 
           <div style={heroBtns}>
             <Link
@@ -228,8 +235,13 @@ const HomePage = () => {
             </div>
           </div>
         )}
-
       </section>
+
+       <div style={dealerSection}>
+          <p style={{ opacity: 0.7, marginBottom: "1rem" }}>
+            Trusted by Dealers Across India
+          </p>
+        </div>
 
       {/* ================= STATS (MINIMAL) ================= */}
       <section style={statsSection}>
@@ -484,14 +496,24 @@ const overlay = {
 
 const heroContent = {
   position: "relative",
-  maxWidth: "1200px",
+  maxWidth: "600px",
   padding: "4rem 1.5rem",
   color: "#fff",
+  padding: "2.5rem",
+  borderRadius: "12px",
 };
 
-const heroTitle = { fontSize: "2.6rem", lineHeight: 1.2, maxWidth: "650px" };
+const heroTitle = {
+  fontSize: "2.8rem",
+  fontWeight: "800",
+  lineHeight: 1.2,
+  marginBottom: "1.5rem",
+  background: "linear-gradient(90deg, #ffffff, #cfe6ff)",
+  WebkitBackgroundClip: "text",
+  WebkitTextFillColor: "transparent",
+};
 const heroText = { margin: "1.2rem 0 2.2rem", maxWidth: "520px" };
-const heroBtns = { display: "flex", gap: "1rem", flexWrap: "wrap" };
+const heroBtns = { display: "flex", gap: "1rem", flexWrap: "wrap", gap: "1.2rem", };
 
 const primaryBtn = {
   background: "#ffffff",
@@ -759,14 +781,14 @@ const quoteIcon = {
 };
 const searchOverlay = {
   position: "absolute",
-  bottom: "10%",
-  right: "6%",
-  width: "480px",
+  bottom: "22%",
+  right: "4%",
+  width: "420px",
   maxWidth: "92%",
   padding: "28px",
   borderRadius: "16px",
   overflow: "hidden",
-  
+
 
   background:
     "linear-gradient(135deg, rgba(15,42,68,0.85), rgba(18,59,102,0.7))",
@@ -810,6 +832,19 @@ const searchSelect = {
   border: "none",
   fontSize: "15px",
 };
+const dealerSection = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background:
+    "linear-gradient(135deg, rgba(15,42,68,0.85), rgba(18,59,102,0.7))",
+
+  backdropFilter: "blur(14px)",
+  WebkitBackdropFilter: "blur(14px)",
+  color: "#f6ff00",
+  fontSize: "25px",
+  fontWeight: "bold",
+}
 
 const searchInput = {
   height: "48px",
