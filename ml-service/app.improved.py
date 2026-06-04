@@ -112,7 +112,8 @@ def health():
         count = len(_model["products"]) if _model["products"] is not None and not _model["products"].empty else 0
     return jsonify({"status": "ok", "products_loaded": count})
 
-# 🔥 RELOAD ROUTE — call after product create/update/delete
+# 🔥 SHARED SECRETS
+ML_SECRET = os.environ.get("ML_SECRET", "")
 ML_RELOAD_SECRET = os.environ.get("ML_RELOAD_SECRET", "")
 
 @app.route("/reload", methods=["POST"])
@@ -136,6 +137,9 @@ def reload_model():
 # 🔥 RECOMMEND API
 @app.route("/recommend/<product_id>")
 def recommend_api(product_id):
+    if ML_SECRET and request.headers.get("X-ML-Secret", "") != ML_SECRET:
+        return jsonify({"error": "Unauthorized"}), 401
+
     cached = cache.get(product_id)
     if cached is not None:
         return jsonify(cached)

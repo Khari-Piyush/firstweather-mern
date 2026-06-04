@@ -5,30 +5,37 @@ import Product from "../models/Product.js";
 
 const router = express.Router();
 
-router.get("/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
+const ML_URL = process.env.ML_URL || "https://firstweather-ml.onrender.com";
+const ML_SECRET = process.env.ML_SECRET || "";
 
-    const response = await axios.get(
-      `https://firstweather-ml.onrender.com/recommend/${id}`
-    );
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const response = await axios.get(`${ML_URL}/recommend/${id}`, {
+      timeout: 5000,
+      headers: ML_SECRET ? { "X-ML-Secret": ML_SECRET } : {},
+    });
 
     const recommendedIds = response.data;
 
-    // 🔥 FIX HERE
-    const objectIds = recommendedIds.map(
-      id => new mongoose.Types.ObjectId(id)
-    );
+    if (!Array.isArray(recommendedIds) || recommendedIds.length === 0) {
+      return res.json([]);
+    }
 
-    const products = await Product.find({
-      _id: { $in: objectIds  }
-    });
+    const objectIds = recommendedIds
+      .filter((rid) => mongoose.Types.ObjectId.isValid(rid))
+      .map((rid) => new mongoose.Types.ObjectId(rid));
 
+    if (!objectIds.length) {
+      return res.json([]);
+    }
+
+    const products = await Product.find({ _id: { $in: objectIds } }).lean();
     res.json(products);
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Recommendation failed" });
+    console.error("Recommend route error:", err.message);
+    res.json([]);
   }
 });
 
