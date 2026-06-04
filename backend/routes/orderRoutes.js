@@ -142,10 +142,28 @@ router.get("/:id", protect, async (req, res) => {
 });
 
 router.put("/:id/status", protect, adminOnly, async (req, res) => {
-  const order = await Order.findById(req.params.id);
-  order.status = req.body.status;
-  await order.save();
-  res.json(order);
+  const VALID_STATUSES = ["enquiry", "confirmed", "shipped", "delivered", "cancelled"];
+  try {
+    const { status } = req.body;
+
+    if (!status || !VALID_STATUSES.includes(status)) {
+      return res.status(400).json({
+        message: `Invalid status. Allowed values: ${VALID_STATUSES.join(", ")}`,
+      });
+    }
+
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    order.status = status;
+    await order.save();
+    res.json(order);
+  } catch (err) {
+    console.error("Update order status error:", err);
+    res.status(500).json({ message: "Server error updating order status" });
+  }
 });
 
 

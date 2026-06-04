@@ -39,7 +39,8 @@ const orderSchema = new mongoose.Schema(
 
         status: {
             type: String,
-            default: "enquiry", // enquiry | confirmed | shipped | delivered | cancelled
+            enum: ["enquiry", "confirmed", "shipped", "delivered", "cancelled"],
+            default: "enquiry",
         },
         customerName: {
             type:String,
