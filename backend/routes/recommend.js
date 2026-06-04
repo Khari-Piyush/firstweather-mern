@@ -12,11 +12,12 @@ router.get("/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const response = await axios.get(`${ML_URL}/recommend/${id}`, {
-      timeout: 5000,
+      timeout: 20000,
       headers: ML_SECRET ? { "X-ML-Secret": ML_SECRET } : {},
     });
 
     const recommendedIds = response.data;
+    console.log("ML response for", id, "→", JSON.stringify(recommendedIds));
 
     if (!Array.isArray(recommendedIds) || recommendedIds.length === 0) {
       return res.json([]);
@@ -34,7 +35,9 @@ router.get("/:id", async (req, res) => {
     res.json(products);
 
   } catch (err) {
-    console.error("Recommend route error:", err.message);
+    const status = err.response?.status;
+    const data   = err.response?.data;
+    console.error(`Recommend route error [${status || err.code}]:`, err.message, data || "");
     res.json([]);
   }
 });
