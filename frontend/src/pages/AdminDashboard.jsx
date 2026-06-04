@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api";
+import api from "../api.improved";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,

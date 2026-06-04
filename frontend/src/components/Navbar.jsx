@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { AuthContext } from "../contexts/AuthContext.jsx";
+import { AuthContext } from "../contexts/AuthContext.improved.jsx";
 import logo from "../../public/fwlogoblue.webp";
 import { useContext, useState, useEffect } from "react";
 import "./MobileSearch.css";

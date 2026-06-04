@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api";
-import { AuthContext } from "../contexts/AuthContext.jsx";
+import api from "../api.improved";
+import { AuthContext } from "../contexts/AuthContext.improved.jsx";
 
 const RegisterPage = () => {
   const { login } = useContext(AuthContext);
@@ -22,7 +22,7 @@ const RegisterPage = () => {
       setLoading(true);
       const res = await api.post("/auth/register", { firstName,lastName, email, password });
       // res.data contains token and user
-      login({ token: res.data.token, user: res.data.user });
+      login({ user: res.data.user });
       navigate("/products");
     } catch (err) {
       console.error(err);

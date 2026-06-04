@@ -1,6 +1,6 @@
 import { useEffect, useState, memo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import api from "../api";
+import api from "../api.improved";
 import "./ProductsPage.css";
 
 const CATEGORY_MAP = {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import api from "../api";
+import api from "../api.improved";
 
 const AddProductPage = () => {
   const [form, setForm] = useState({

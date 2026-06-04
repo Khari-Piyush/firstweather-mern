@@ -1,7 +1,7 @@
 import { useContext, useLayoutEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api";
-import { AuthContext } from "../contexts/AuthContext.jsx";
+import api from "../api.improved";
+import { AuthContext } from "../contexts/AuthContext.improved.jsx";
 
 const LoginPage = () => {
   const { login } = useContext(AuthContext);
@@ -30,7 +30,7 @@ const LoginPage = () => {
     try {
       setLoading(true);
       const res = await api.post("/auth/login", { email, password });
-      login({ token: res.data.token, user: res.data.user });
+      login({ user: res.data.user });
       navigate("/products");
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");

@@ -8,7 +8,8 @@ import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import path from "path";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import authRoutes from "./routes/authRoutes.js";
+import cookieParser from "cookie-parser";
+import authRoutes from "./routes/authRoutes.improved.js";
 import productRoutes from "./routes/productRoutes.improved.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
@@ -53,6 +54,7 @@ connectDB();
 const propertyId = '492464995'; // GA se milega
 
 // MIDDLE-WARE
+app.use(cookieParser());
 app.use(express.json());
 app.use(cors({
   origin: [
@@ -62,7 +64,7 @@ app.use(cors({
   ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"]
 }));
 
 

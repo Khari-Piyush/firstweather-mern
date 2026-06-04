@@ -1,5 +1,5 @@
 import { useState } from "react";
-import api from "../api";
+import api from "../api.improved";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
