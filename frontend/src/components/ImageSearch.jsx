@@ -35,10 +35,10 @@ const ImageSearch = () => {
       // 🔥 TOP MATCH
       const topProduct = res.data[0];
 
-      toast.success(`Product detected: ${category}`);
+      toast.success(`Product detected: ${topProduct.category}`);
 
       setTimeout(() => {
-        navigate(`/products?category=${encodeURIComponent(category)}`);
+        navigate(`/products?category=${encodeURIComponent(topProduct.category)}`);
       }, 1500);
     } catch (err) {
       toast.error("AI search failed. Try again.");

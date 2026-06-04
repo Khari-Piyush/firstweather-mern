@@ -47,10 +47,11 @@ const productSchema = new mongoose.Schema(
     
 );
 
-const Product = mongoose.model("Product", productSchema);
 productSchema.index({ createdAt: -1 });
 productSchema.index({ category: 1 });
 productSchema.index({ inStock: 1 });
+
+const Product = mongoose.model("Product", productSchema);
 
 
 export default Product;

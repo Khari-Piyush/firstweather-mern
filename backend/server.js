@@ -6,6 +6,8 @@ import cors from "cors";
 import connectDB from "./config/database.js";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import path from "path";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import authRoutes from "./routes/authRoutes.js";
 import productRoutes from "./routes/productRoutes.improved.js";
 import orderRoutes from "./routes/orderRoutes.js";
@@ -17,6 +19,24 @@ import recommendRoute from "./routes/recommend.js"
 dotenv.config();
 const PORT = process.env.PORT || 4000;
 const app = express();
+
+app.use(helmet());
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many requests, please try again later" },
+});
+
+const enquiryLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many enquiries submitted, please try again later" },
+});
 
 
 let analyticsDataClient = null;
@@ -46,10 +66,11 @@ app.use(cors({
 }));
 
 
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/enquiry", enquiryLimiter);
 app.use("/api", enquiryRoutes);
 app.use("/api/recommend", recommendRoute)
 
@@ -132,4 +153,12 @@ app.get('/analytics-events', async (req, res) => {
     console.error(error);
     res.status(500).send("Error");
   }
+});
+
+// Global error handler — must be last, after all routes
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  console.error("Unhandled error:", err);
+  const status = err.status || err.statusCode || 500;
+  res.status(status).json({ message: "An unexpected error occurred" });
 });

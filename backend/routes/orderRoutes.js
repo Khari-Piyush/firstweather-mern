@@ -99,7 +99,7 @@ router.post("/", protect, async (req, res) => {
     return res.status(201).json({ message: "Enquiry created successfully", order });
   } catch (err) {
     console.error("Create order error (stack):", err && err.stack ? err.stack : err);
-    return res.status(500).json({ message: "Server error creating order", error: err.message });
+    return res.status(500).json({ message: "Server error creating order" });
   }
 });
 

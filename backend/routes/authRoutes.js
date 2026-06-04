@@ -54,7 +54,7 @@ router.post("/register", async (req, res) => {
     if (err && err.code === 11000) {
       return res.status(409).json({ message: "Duplicate key", detail: err.keyValue });
     }
-    return res.status(500).json({ message: "Server error during registration", error: err.message });
+    return res.status(500).json({ message: "Server error during registration" });
   }
 });
 
@@ -101,7 +101,7 @@ router.post("/login", async (req, res) => {
     });
   } catch (err) {
     console.error("Login handler error:", err);
-    return res.status(500).json({ message: "Server error during login", error: err.message });
+    return res.status(500).json({ message: "Server error during login" });
   }
 });
 

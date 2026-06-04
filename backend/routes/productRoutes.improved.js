@@ -11,6 +11,8 @@ import path from "path";
 
 const router = express.Router();
 const productsCache = new Map();
+const MAX_SEARCH_LEN = 100;
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 
 /* ================= GET ALL PRODUCTS ================= */
@@ -30,20 +32,21 @@ router.get("/", async (req, res) => {
       return res.json(productsCache.get(cacheKey));
     }
 
+    const safeCat = category ? escapeRegex(category.slice(0, MAX_SEARCH_LEN)) : null;
+    const safeVehicle = vehicle ? escapeRegex(vehicle.trim().slice(0, MAX_SEARCH_LEN)) : null;
+
     const filter = {
       inStock: true,
 
-      ...(category && category !== "All"
-        ? { category: { $regex: `^${category}$`, $options: "i" } }
+      ...(safeCat && safeCat !== "All"
+        ? { category: { $regex: `^${safeCat}$`, $options: "i" } }
         : {}),
     };
 
-    if (vehicle) {
-      const v = vehicle.trim();
-
+    if (safeVehicle) {
       filter.$or = [
-        { carModel: { $regex: `^${v}$`, $options: "i" } },
-        { productName: { $regex: v, $options: "i" } },
+        { carModel: { $regex: `^${safeVehicle}$`, $options: "i" } },
+        { productName: { $regex: safeVehicle, $options: "i" } },
       ];
     }
 
