@@ -12,4 +12,5 @@ yarn-error.log*
 # OS files
 .DS_Store
 Thumbs.db
-backend/service-account.json
+*service-account*.json
+first-weather-analytics-*.json
