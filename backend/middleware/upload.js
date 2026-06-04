@@ -45,6 +45,6 @@ const fileFilter = (req, file, cb) => {
   cb(new Error("Only images, CSV, and ZIP files are allowed"));
 };
 
-const upload = multer({ storage, fileFilter });
+const upload = multer({ storage, fileFilter, limits: { fileSize: 50 * 1024 * 1024 } });
 
 export default upload;

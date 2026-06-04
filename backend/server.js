@@ -7,7 +7,7 @@ import connectDB from "./config/database.js";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import path from "path";
 import authRoutes from "./routes/authRoutes.js";
-import productRoutes from "./routes/productRoutes.js";
+import productRoutes from "./routes/productRoutes.improved.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import enquiryRoutes from "./routes/enquiryRoutes.js";
@@ -19,9 +19,14 @@ const PORT = process.env.PORT || 4000;
 const app = express();
 
 
-const analyticsDataClient = new BetaAnalyticsDataClient({
-  credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT),
-});
+let analyticsDataClient = null;
+try {
+  analyticsDataClient = new BetaAnalyticsDataClient({
+    credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT),
+  });
+} catch (e) {
+  console.warn("Analytics client init failed — analytics routes will be unavailable:", e.message);
+}
 
 // DB CONNECT
 connectDB();
@@ -69,11 +74,12 @@ if (process.env.NODE_ENV === "production") {
   setInterval(() => {
     fetch("https://firstweather-backend-url/api/health")
       .then(() => console.log("Server kept alive"))
-      .catch(() => {});
+      .catch(() => { });
   }, 5 * 60 * 1000);
 }
 
 app.get('/analytics', async (req, res) => {
+  if (!analyticsDataClient) return res.status(503).json({ message: "Analytics unavailable" });
   try {
     console.log("🔥 API HIT");
 
@@ -93,6 +99,7 @@ app.get('/analytics', async (req, res) => {
 });
 
 app.get('/analytics-chart', async (req, res) => {
+  if (!analyticsDataClient) return res.status(503).json({ message: "Analytics unavailable" });
   try {
     const [response] = await analyticsDataClient.runReport({
       property: `properties/492464995`,
@@ -109,6 +116,7 @@ app.get('/analytics-chart', async (req, res) => {
 });
 
 app.get('/analytics-events', async (req, res) => {
+  if (!analyticsDataClient) return res.status(503).json({ message: "Analytics unavailable" });
   try {
     const [response] = await analyticsDataClient.runReport({
       property: `properties/492464995`,
