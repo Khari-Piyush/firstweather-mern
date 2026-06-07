@@ -180,10 +180,10 @@ export default ProductsPage;
 const ProductCard = memo(({ p }) => (
   <div style={card}>
     <img
-      src={p.imageUrl.replace(
-        "/upload/",
-        "/upload/w_400,f_auto,q_auto/"
-      )}
+      src={p.imageUrl
+        ? p.imageUrl.replace("/upload/", "/upload/w_400,f_auto,q_auto/")
+        : "/fw-logo-blue.webp"
+      }
       alt={p.productName}
       style={img}
       loading="lazy"
