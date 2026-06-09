@@ -10,7 +10,6 @@ import path from "path";
 
 
 const router = express.Router();
-const productsCache = new Map();
 const MAX_SEARCH_LEN = 100;
 const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -21,16 +20,6 @@ router.get("/", async (req, res) => {
     const page = Math.max(Number(req.query.page) || 1, 1);
     const limit = Math.min(Number(req.query.limit) || 12, 20);
     const { category, vehicle } = req.query;
-
-    const normalizedVehicle = vehicle?.trim().toLowerCase();
-
-    const cacheKey = `p:${page}:l:${limit}:c:${category || "all"}:v:${normalizedVehicle || "all"}`;
-
-
-    // ⚡ CACHE HIT
-    if (productsCache.has(cacheKey)) {
-      return res.json(productsCache.get(cacheKey));
-    }
 
     const safeCat = category ? escapeRegex(category.slice(0, MAX_SEARCH_LEN)) : null;
     const safeVehicle = vehicle ? escapeRegex(vehicle.trim().slice(0, MAX_SEARCH_LEN)) : null;
@@ -50,8 +39,6 @@ router.get("/", async (req, res) => {
       ];
     }
 
-
-
     const products = await Product.find(
       filter,
       "productName price imageUrl slug productId category"
@@ -61,11 +48,7 @@ router.get("/", async (req, res) => {
       .limit(limit)
       .lean();
 
-    productsCache.set(cacheKey, products);
-
-    // ⏱ auto clear cache after 60 sec
-    setTimeout(() => productsCache.delete(cacheKey), 60000);
-
+    res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
     res.json(products);
   } catch (err) {
     console.error(err);
@@ -82,6 +65,7 @@ router.get("/:id", async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
+    res.set("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
     res.json(product);
   } catch (err) {
     console.error("Get product by ID error:", err);

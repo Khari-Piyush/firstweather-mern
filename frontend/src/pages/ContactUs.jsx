@@ -19,10 +19,12 @@ const ContactUs = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    window.gtag('event', 'enquiry_submit', {
-      event_category: 'engagement',
-      event_label: 'form_submit',
-    });
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'enquiry_submit', {
+        event_category: 'engagement',
+        event_label: 'form_submit',
+      });
+    }
 
     if (loading) return;
 

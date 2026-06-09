@@ -92,12 +92,16 @@ def _build_model():
     sim = cosine_similarity(vectors)
     return df, sim
 
-# Build model at startup
-_df, _sim = _build_model()
-with _model_lock:
-    _model["products"] = _df
-    _model["similarity"] = _sim
-print("Model built at startup. Products loaded:", len(_df))
+# Build model at startup — wrapped so a bad MONGO_URI doesn't crash the service
+try:
+    _df, _sim = _build_model()
+    with _model_lock:
+        _model["products"] = _df
+        _model["similarity"] = _sim
+    print("Model built at startup. Products loaded:", len(_df))
+except Exception as _startup_err:
+    print("WARNING: Model build failed at startup:", _startup_err)
+    print("Service started without recommendations. Fix MONGO_URI then call POST /reload.")
 
 # 🔥 HEALTH ROUTES
 @app.route("/")

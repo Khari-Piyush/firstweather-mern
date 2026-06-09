@@ -99,9 +99,7 @@ const AdminProducts = () => {
     formData.append("zip", zipFile);
 
     try {
-      await api.post("/products/bulk-upload-with-images", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await api.post("/products/bulk-upload-with-images", formData);
 
       alert("Bulk upload successful");
       setCsvFile(null);
@@ -216,7 +214,7 @@ const AdminProducts = () => {
             minWidth: "200px",
           }}
         >
-          <option value="All">All Categories</option>
+          <option value="all">All Categories</option>
           <option value="F.W Wiper Blade">Wiper Blades</option>
           <option value="F.W Wiper Arm">Wiper Arm</option>
           <option value="F.W Wiper Linkage ">Wiper Linkage Assembly</option>

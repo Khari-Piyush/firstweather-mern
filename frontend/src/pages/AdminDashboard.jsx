@@ -49,7 +49,7 @@ const AdminDashboard = () => {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:4000/analytics-chart")
+    fetch("https://first-weather-webapp-h05a.onrender.com/analytics-chart")
       .then(res => res.json())
       .then(data => {
         console.log("📊 CHART DATA:", data);

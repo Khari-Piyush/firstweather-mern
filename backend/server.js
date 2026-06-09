@@ -5,7 +5,6 @@ import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/database.js";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
-import path from "path";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
@@ -95,7 +94,7 @@ app.listen(PORT, () => {
 
 if (process.env.NODE_ENV === "production") {
   setInterval(() => {
-    fetch("https://firstweather-backend-url/api/health")
+    fetch("https://first-weather-webapp-h05a.onrender.com/api/health")
       .then(() => console.log("Server kept alive"))
       .catch(() => { });
   }, 5 * 60 * 1000);

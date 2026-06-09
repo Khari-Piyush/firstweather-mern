@@ -15,20 +15,22 @@ const ProductDetailPage = () => {
   useEffect(() => {
     if (!product) return;
 
-    window.gtag('event', 'view_product', {
-      event_category: 'engagement',
-      event_label: product.productName,
-    });
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'view_product', {
+        event_category: 'engagement',
+        event_label: product.productName,
+      });
+    }
 
   }, [product]);
   const handleEnquiryClick = () => {
-    // Google Analytics event
-    window.gtag('event', 'enquiry_click', {
-      event_category: 'engagement',
-      event_label: 'product_enquiry',
-    });
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'enquiry_click', {
+        event_category: 'engagement',
+        event_label: 'product_enquiry',
+      });
+    }
 
-    // redirect to form
     navigate(`/enquire/${product._id}`);
   };
 
@@ -281,11 +283,12 @@ const ProductDetailPage = () => {
           <div
             key={item._id}
             onClick={() => {
-              window.gtag('event', 'recommendation_click', {
-                event_category: 'engagement',
-                event_label: item.productName,
-              });
-
+              if (typeof window.gtag === 'function') {
+                window.gtag('event', 'recommendation_click', {
+                  event_category: 'engagement',
+                  event_label: item.productName,
+                });
+              }
               navigate(`/products/${item._id}`);
             }}
             style={{
@@ -300,7 +303,7 @@ const ProductDetailPage = () => {
             onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
           >
             <img
-              src={item.imageUrl}
+              src={item.imageUrl || "/fw-logo-blue.webp"}
               alt={item.productName}
               style={{
                 width: "100%",
