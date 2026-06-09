@@ -52,17 +52,17 @@ try {
 const propertyId = '492464995'; // GA se milega
 
 // MIDDLE-WARE
+const allowedOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(",").map((o) => o.trim()).filter(Boolean)
+  : ["http://localhost:5173"];
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://firstweatherwipers.com",
-    "https://www.firstweatherwipers.com"
-  ],
+  origin: allowedOrigins,
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"]
+  allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
 }));
 
 

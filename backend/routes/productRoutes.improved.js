@@ -25,13 +25,11 @@ router.get("/", async (req, res) => {
     const safeCat = category ? escapeRegex(category.slice(0, MAX_SEARCH_LEN)) : null;
     const safeVehicle = vehicle ? escapeRegex(vehicle.trim().slice(0, MAX_SEARCH_LEN)) : null;
 
-    const filter = {
-      inStock: { $ne: false },
+    const filter = { inStock: { $ne: false } };
 
-      ...(safeCat && safeCat !== "All"
-        ? { category: { $regex: `^${safeCat}$`, $options: "i" } }
-        : {}),
-    };
+    if (safeCat && safeCat !== "All") {
+      filter.category = { $regex: `^${safeCat}$`, $options: "i" };
+    }
 
     if (safeVehicle) {
       filter.$or = [
