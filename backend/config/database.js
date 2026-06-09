@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import logger from "./logger.js";
 
 dotenv.config();
 
@@ -13,20 +14,17 @@ const connectDB = async () => {
       socketTimeoutMS: 45000,
     });
 
-    console.log(
-      `MongoDB Connected Successfully (${Date.now() - start}ms)`
-    );
+    logger.info({ ms: Date.now() - start }, "MongoDB connected");
 
-    // DB warm-up
     await mongoose.connection.db.command({ ping: 1 });
-    console.log("MongoDB pinged & warmed");
+    logger.info("MongoDB pinged & warmed");
 
     await mongoose.connection.syncIndexes();
-    console.log("MongoDB indexes synced");
+    logger.info("MongoDB indexes synced");
 
   } catch (error) {
-    console.error("DB Connection Failed", error);
-    throw error;  // let caller handle — don't crash the process
+    logger.error({ err: error }, "DB connection failed");
+    throw error;
   }
 };
 

@@ -6,8 +6,12 @@ from sklearn.metrics.pairwise import cosine_similarity
 import os
 import threading
 import time
+import logging
 from collections import OrderedDict
 from dotenv import load_dotenv
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+log = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -82,8 +86,12 @@ def _build_model():
     df['productName'] = df['productName'].apply(clean_text)
     df['carModel'] = df['carModel'].apply(clean_text)
     df['category'] = df['category'].apply(clean_text)
+    # Tag weighting: carModel repeated twice so it contributes 2× to cosine
+    # similarity vs. category (1×) and productName (1×).
+    # Effect: products for the same vehicle rank higher than same-category
+    # products on a different vehicle, which matches buyer intent.
     df['tags'] = (
-        df['carModel'] + " " + df['carModel'] + " " +  # weight
+        df['carModel'] + " " + df['carModel'] + " " +
         df['category'] + " " +
         df['productName']
     )
@@ -98,10 +106,10 @@ try:
     with _model_lock:
         _model["products"] = _df
         _model["similarity"] = _sim
-    print("Model built at startup. Products loaded:", len(_df))
+    log.info("Model built at startup. Products loaded: %d", len(_df))
 except Exception as _startup_err:
-    print("WARNING: Model build failed at startup:", _startup_err)
-    print("Service started without recommendations. Fix MONGO_URI then call POST /reload.")
+    log.warning("Model build failed at startup: %s", _startup_err)
+    log.warning("Service started without recommendations. Fix MONGO_URI then call POST /reload.")
 
 # 🔥 HEALTH ROUTES
 @app.route("/")
@@ -132,10 +140,10 @@ def reload_model():
             _model["products"] = new_df
             _model["similarity"] = new_sim
             cache.clear()
-        print("Model reloaded. Products loaded:", len(new_df))
+        log.info("Model reloaded. Products loaded: %d", len(new_df))
         return jsonify({"message": "Model reloaded", "count": len(new_df)})
     except Exception as e:
-        print("Reload error:", e)
+        log.error("Reload error: %s", e)
         return jsonify({"error": "Reload failed"}), 500
 
 # 🔥 RECOMMEND API
@@ -206,10 +214,10 @@ def recommend_api(product_id):
         return jsonify(result)
 
     except Exception as e:
-        print("Recommend error:", e)
+        log.error("Recommend error: %s", e)
         return jsonify({"error": "Recommendation failed"}), 500
 
 # Run server
 if __name__ == "__main__":
-    print("Total products:", collection.count_documents({}))
+    log.info("Total products: %d", collection.count_documents({}))
     app.run(host="0.0.0.0", port=port)

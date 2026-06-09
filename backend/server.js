@@ -106,20 +106,15 @@ if (process.env.NODE_ENV === "production") {
 app.get('/analytics', async (req, res) => {
   if (!analyticsDataClient) return res.status(503).json({ message: "Analytics unavailable" });
   try {
-    console.log("🔥 API HIT");
-
     const [response] = await analyticsDataClient.runReport({
       property: `properties/492464995`,
       dateRanges: [{ startDate: '7daysAgo', endDate: 'today' }],
       metrics: [{ name: 'screenPageViews' }],
     });
-
-    console.log("✅ RESPONSE:", JSON.stringify(response, null, 2));
-
     res.json(response);
   } catch (error) {
-    console.error("❌ ERROR:", error);
-    res.status(500).send("Error fetching analytics");
+    logger.error({ err: error.message }, "analytics page-views error");
+    res.status(500).json({ message: "Error fetching analytics" });
   }
 });
 
@@ -132,11 +127,10 @@ app.get('/analytics-chart', async (req, res) => {
       dimensions: [{ name: 'date' }],
       metrics: [{ name: 'activeUsers' }],
     });
-
     res.json(response);
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Error");
+    logger.error({ err: error.message }, "analytics chart error");
+    res.status(500).json({ message: "Error fetching analytics" });
   }
 });
 
@@ -149,13 +143,10 @@ app.get('/analytics-events', async (req, res) => {
       dimensions: [{ name: 'eventName' }],
       metrics: [{ name: 'eventCount' }],
     });
-
-    console.log("🔥 EVENTS:", JSON.stringify(response.rows, null, 2));
-
     res.json(response);
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Error");
+    logger.error({ err: error.message }, "analytics events error");
+    res.status(500).json({ message: "Error fetching analytics" });
   }
 });
 

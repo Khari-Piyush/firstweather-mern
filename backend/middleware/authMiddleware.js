@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import logger from "../config/logger.js";
 
 export const protect = (req, res, next) => {
   let token = null;
@@ -37,7 +38,7 @@ export const protect = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (err) {
-    console.error("Token verification failed:", err);
+    logger.warn({ err: err.message }, "token verification failed");
     return res.status(401).json({ message: "Not Authorized, token failed" });
   }
 };

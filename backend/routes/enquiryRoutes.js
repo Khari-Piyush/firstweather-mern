@@ -2,6 +2,7 @@ import express from "express";
 import nodemailer from "nodemailer";
 import Enquiry from "../models/Enquiry.js";
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
+import logger from "../config/logger.js";
 
 const router = express.Router();
 
@@ -47,7 +48,7 @@ router.post("/enquiry", async (req, res) => {
       message: "Enquiry sent successfully",
     });
   } catch (error) {
-    console.error("Enquiry Error:", error);
+    logger.error({ err: error }, "enquiry error");
     res.status(500).json({
       success: false,
       message: "Failed to submit enquiry",

@@ -2,6 +2,7 @@ import express from "express";
 import axios from "axios";
 import mongoose from "mongoose";
 import Product from "../models/Product.js";
+import logger from "../config/logger.js";
 
 const router = express.Router();
 
@@ -17,7 +18,7 @@ router.get("/:id", async (req, res) => {
     });
 
     const recommendedIds = response.data;
-    console.log("ML response for", id, "→", JSON.stringify(recommendedIds));
+    logger.debug({ id, count: recommendedIds.length }, "ML response received");
 
     if (!Array.isArray(recommendedIds) || recommendedIds.length === 0) {
       return res.json([]);
@@ -37,7 +38,7 @@ router.get("/:id", async (req, res) => {
   } catch (err) {
     const status = err.response?.status;
     const data   = err.response?.data;
-    console.error(`Recommend route error [${status || err.code}]:`, err.message, data || "");
+    logger.error({ status: status || err.code, data, msg: err.message }, "recommend route error");
     res.json([]);
   }
 });
