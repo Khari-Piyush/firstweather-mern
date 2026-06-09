@@ -6,6 +6,7 @@ import cors from "cors";
 import connectDB from "./config/database.js";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import helmet from "helmet";
+import logger from "./config/logger.js";
 import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.improved.js";
@@ -45,11 +46,9 @@ try {
     credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT),
   });
 } catch (e) {
-  console.warn("Analytics client init failed — analytics routes will be unavailable:", e.message);
+  logger.warn({ err: e.message }, "analytics client init failed — routes unavailable");
 }
 
-// DB CONNECT
-connectDB();
 const propertyId = '492464995'; // GA se milega
 
 // MIDDLE-WARE
@@ -77,7 +76,7 @@ app.use("/api/recommend", recommendRoute)
 
 
 
-// Test Route
+// Health check — must respond before DB is ready so Render doesn't time out
 app.get("/api/health", (req, res) => {
   res.json({ message: "OK" });
 });
@@ -87,16 +86,20 @@ app.get("/", (req, res) => {
 });
 
 
-// Start Server
+// Start Server FIRST, then connect DB (so health check responds immediately)
 app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+  logger.info({ port: PORT }, "server started");
+
+  // DB CONNECT — after server is listening
+  connectDB().catch((err) => {
+    logger.error({ err: err.message }, "DB connection failed on startup");
+  });
 });
 
 if (process.env.NODE_ENV === "production") {
   setInterval(() => {
     fetch("https://first-weather-webapp-h05a.onrender.com/api/health")
-      .then(() => console.log("Server kept alive"))
-      .catch(() => { });
+      .catch((err) => logger.warn({ err: err.message }, "keep-alive ping failed"));
   }, 5 * 60 * 1000);
 }
 
@@ -159,7 +162,7 @@ app.get('/analytics-events', async (req, res) => {
 // Global error handler — must be last, after all routes
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
-  console.error("Unhandled error:", err);
+  logger.error({ err, method: req.method, url: req.originalUrl }, "unhandled error");
   const status = err.status || err.statusCode || 500;
   res.status(status).json({ message: "An unexpected error occurred" });
 });

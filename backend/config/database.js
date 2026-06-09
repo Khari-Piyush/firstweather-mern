@@ -26,7 +26,7 @@ const connectDB = async () => {
 
   } catch (error) {
     console.error("DB Connection Failed", error);
-    process.exit(1);
+    throw error;  // let caller handle — don't crash the process
   }
 };
 

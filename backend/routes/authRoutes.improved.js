@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import User from "../models/User.js";
+import logger from "../config/logger.js";
 
 const router = express.Router();
 
@@ -43,8 +44,6 @@ const setAuthCookies = (res, token) => {
  */
 router.post("/register", async (req, res) => {
   try {
-    console.log(">>> POST /api/auth/register - body:", JSON.stringify(req.body));
-
     const { firstName, lastName, email, password, isAdmin } = req.body || {};
 
     if (!firstName || !lastName || !email || !password) {
@@ -75,7 +74,7 @@ router.post("/register", async (req, res) => {
       user: userPayload,
     });
   } catch (err) {
-    console.error("Register handler error:", err);
+    logger.error({ err }, "register error");
     if (err && err.code === 11000) {
       return res.status(409).json({ message: "Duplicate key", detail: err.keyValue });
     }
@@ -121,7 +120,7 @@ router.post("/login", async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("Login handler error:", err);
+    logger.error({ err }, "login error");
     return res.status(500).json({ message: "Server error during login" });
   }
 });

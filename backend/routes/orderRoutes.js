@@ -1,20 +1,11 @@
-// backend/routes/orderRoutes.js
 import express from "express";
 import mongoose from "mongoose";
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
-
+import logger from "../config/logger.js";
 
 const router = express.Router();
-
-const safeLog = (label, obj) => {
-  try {
-    console.log(label, JSON.stringify(obj, (k, v) => (k === "stack" ? undefined : v)));
-  } catch (e) {
-    console.log(label, obj);
-  }
-};
 
 // Helper: get user id from several possible shapes
 const getUserIdFromReq = (req) => {
@@ -24,9 +15,6 @@ const getUserIdFromReq = (req) => {
 
 router.post("/", protect, async (req, res) => {
   try {
-    safeLog(">>> /api/orders - req.user", req.user);
-    safeLog(">>> /api/orders - body", req.body);
-
     const userId = getUserIdFromReq(req);
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized: user id not found in token" });
@@ -95,10 +83,10 @@ router.post("/", protect, async (req, res) => {
     });
 
 
-    safeLog("Order created:", { id: order._id, totalAmount });
+    logger.info({ orderId: order._id, totalAmount }, "order created");
     return res.status(201).json({ message: "Enquiry created successfully", order });
   } catch (err) {
-    console.error("Create order error (stack):", err && err.stack ? err.stack : err);
+    logger.error({ err }, "create order error");
     return res.status(500).json({ message: "Server error creating order" });
   }
 });
@@ -119,7 +107,7 @@ router.get("/", protect, async (req, res) => {
 
     res.json(orders);
   } catch (err) {
-    console.error("Get orders error (stack):", err && err.stack ? err.stack : err);
+    logger.error({ err }, "get orders error");
     res.status(500).json({ message: "Server error fetching orders" });
   }
 });
@@ -136,7 +124,7 @@ router.get("/:id", protect, async (req, res) => {
     }
     res.json(order);
   } catch (err) {
-    console.error("Get single order error (stack):", err && err.stack ? err.stack : err);
+    logger.error({ err }, "get single order error");
     res.status(500).json({ message: "Server error fetching order" });
   }
 });
@@ -161,7 +149,7 @@ router.put("/:id/status", protect, adminOnly, async (req, res) => {
     await order.save();
     res.json(order);
   } catch (err) {
-    console.error("Update order status error:", err);
+    logger.error({ err }, "update order status error");
     res.status(500).json({ message: "Server error updating order status" });
   }
 });

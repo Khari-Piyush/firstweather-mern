@@ -7,6 +7,7 @@ import fs from "fs";
 import csv from "csvtojson";
 import unzipper from "unzipper";
 import path from "path";
+import logger from "../config/logger.js";
 
 
 const router = express.Router();
@@ -51,7 +52,7 @@ router.get("/", async (req, res) => {
     res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
     res.json(products);
   } catch (err) {
-    console.error(err);
+    logger.error({ err }, "get products error");
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -68,7 +69,7 @@ router.get("/:id", async (req, res) => {
     res.set("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
     res.json(product);
   } catch (err) {
-    console.error("Get product by ID error:", err);
+    logger.error({ err }, "get product by id error");
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -87,9 +88,6 @@ router.post(
     const uploadedPaths = [];
 
     try {
-      console.log("✅ ROUTE HIT");
-      console.log("FILES:", req.files);
-
       if (!req.files?.csv || !req.files?.zip) {
         return res.status(400).json({ message: "CSV and ZIP both required" });
       }
@@ -97,8 +95,6 @@ router.post(
       const csvFile = req.files.csv[0];
       const zipFile = req.files.zip[0];
       uploadedPaths.push(csvFile.path, zipFile.path);
-
-      console.log("CSV PATH:", csvFile?.path);
 
       fs.mkdirSync(extractPath, { recursive: true });
       const resolvedExtract = path.resolve(extractPath);
@@ -128,19 +124,18 @@ router.post(
       }
 
       const products = await csv().fromFile(csvFile.path);
-      console.log("CSV DATA:", products);
       const finalProducts = [];
 
       for (let p of products) {
         if (!p.image) {
-          console.warn("Missing image column for:", p);
+          logger.warn({ row: p.productName }, "bulk upload: missing image column");
           continue;
         }
 
         // Validate CSV image path stays inside extractPath
         const imagePath = path.resolve(extractPath, p.image);
         if (!imagePath.startsWith(resolvedExtract + path.sep)) {
-          console.warn(`Rejected unsafe image path: ${p.image}`);
+          logger.warn({ imagePath: p.image }, "bulk upload: rejected unsafe image path");
           continue;
         }
 
@@ -148,12 +143,12 @@ router.post(
         const price = Number(rawPrice);
 
         if (isNaN(price)) {
-          console.warn("Invalid price, skipping:", p.productName, p.price);
+          logger.warn({ productName: p.productName, price: p.price }, "bulk upload: invalid price, skipping");
           continue;
         }
 
         if (!fs.existsSync(imagePath)) {
-          console.warn(`Image not found for ${p.productName}`);
+          logger.warn({ productName: p.productName }, "bulk upload: image file not found");
           continue;
         }
 
@@ -184,7 +179,7 @@ router.post(
         count: finalProducts.length,
       });
     } catch (err) {
-      console.error("Bulk upload error:", err);
+      logger.error({ err }, "bulk upload error");
       res.status(500).json({ message: "Server error" });
     } finally {
       // Clean up temp files and extracted directory on every exit path
@@ -213,7 +208,6 @@ router.post(
         category,
         carModel,
       } = req.body;
-      console.log("FILE:", req.file);
 
 
       // 🔐 VALIDATION
@@ -249,7 +243,7 @@ router.post(
 
       // 🧹 DELETE LOCAL FILE
       fs.unlink(req.file.path, (err) => {
-        if (err) console.warn("File delete warning:", err.message);
+        if (err) logger.warn({ err: err.message }, "temp file delete warning");
       });
 
 
@@ -271,7 +265,7 @@ router.post(
 
       res.status(201).json(product);
     } catch (err) {
-      console.error("Create product error:", err);
+      logger.error({ err }, "create product error");
       res.status(500).json({ message: "Server error" });
     }
   }
@@ -310,7 +304,7 @@ router.put(
 
       res.json(product);
     } catch (err) {
-      console.error("Update product error:", err);
+      logger.error({ err }, "update product error");
       res.status(500).json({ message: "Server error" });
     }
   }
@@ -327,7 +321,7 @@ router.delete("/:id", protect, adminOnly, async (req, res) => {
 
     res.json({ message: "Product deleted successfully" });
   } catch (err) {
-    console.error("Delete product error:", err);
+    logger.error({ err }, "delete product error");
     res.status(500).json({ message: "Server error" });
   }
 });
