@@ -1,0 +1,391 @@
+/* ================================================================
+   SCROLL-AWARE NAVBAR — Navbar.scrollaware.improved.css  (T30)
+   Fixed, premium. Morphs from a full-width bar into a centered
+   floating pill on scroll, hides on scroll-down, reappears on
+   scroll-up. All transitions skipped under prefers-reduced-motion
+   (instant state changes instead).
+   ================================================================ */
+
+/* Local size tokens — distinct names, do not collide with
+   --fw-nav-height / --fw-nav-height-desk used by the sticky navbar. */
+:root {
+  --fw-nav-sa-h-expanded: 68px;
+  --fw-nav-sa-h-compact: 56px;
+  --fw-nav-sa-logo-expanded: 44px;
+  --fw-nav-sa-logo-compact: 36px;
+  --fw-nav-sa-word-expanded: 17px;
+  --fw-nav-sa-word-compact: 14px;
+  --fw-nav-sa-logo-gap: 5px;
+  --fw-nav-sa-gap: 10px;
+  --fw-nav-sa-pill-max: 620px;
+}
+
+/* Tablet + desktop — large logo stays the focal point, but the bar
+   itself is slimmer with tighter padding for a leaner, premium feel. */
+@media (min-width: 768px) {
+  :root {
+    --fw-nav-sa-h-expanded: 104px;
+    --fw-nav-sa-h-compact: 80px;
+    --fw-nav-sa-logo-expanded: 84px;
+    --fw-nav-sa-logo-compact: 64px;
+    --fw-nav-sa-word-expanded: 28px;
+    --fw-nav-sa-word-compact: 22px;
+    --fw-nav-sa-logo-gap: 8px;
+    --fw-nav-sa-gap: 16px;
+    --fw-nav-sa-pill-max: 960px;
+  }
+}
+
+/* ── Positioning wrapper ─────────────────────────────────────────
+   Transparent; centers the visual bar and opens up the floating
+   gap once compact. Carries the hide/show transform.
+   ─────────────────────────────────────────────────────────────── */
+
+.fw-nav-sa {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  display: flex;
+  justify-content: center;
+  padding: 0;
+  transition:
+    padding 400ms var(--fw-ease),
+    transform 300ms var(--fw-ease);
+}
+
+.fw-nav-sa--compact {
+  padding: var(--fw-nav-sa-gap);
+}
+
+/* Hidden on scroll-down, slides back in on scroll-up.
+   Extra offset clears the floating pill's shadow too. */
+.fw-nav-sa--hidden {
+  transform: translateY(calc(-100% - 24px));
+}
+
+/* ── Visual bar ──────────────────────────────────────────────────
+   Background, blur, shape and shadow live here so the bar can
+   morph from a full-width rectangle into a centered floating pill.
+   ─────────────────────────────────────────────────────────────── */
+
+.fw-nav-sa__bar {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 0;
+  background: color-mix(in srgb, var(--fw-white) 70%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid transparent;
+  box-shadow: none;
+  transition:
+    max-width 400ms var(--fw-ease),
+    border-radius 400ms var(--fw-ease),
+    background-color 400ms var(--fw-ease),
+    border-color 400ms var(--fw-ease),
+    box-shadow 400ms var(--fw-ease);
+}
+
+/* Compact (scrolled) state — shrinks into a floating pill:
+   tighter, blurred, rounded, lifted off the page. Layered shadow
+   (inner top sheen + tight contact shadow + soft navy-tinted glow)
+   for a refined, glassy sense of depth. */
+.fw-nav-sa--compact .fw-nav-sa__bar {
+  max-width: min(var(--fw-nav-sa-pill-max), 100%);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--fw-white) 92%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-color: var(--fw-gray-300);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 2px 8px rgba(15, 23, 42, 0.06),
+    var(--fw-shadow-lg),
+    0 16px 40px -18px color-mix(in srgb, var(--fw-navy) 35%, transparent);
+}
+
+.fw-nav-sa__inner {
+  max-width: var(--fw-container);
+  margin: 0 auto;
+  padding: 0 var(--fw-section-px);
+  height: var(--fw-nav-sa-h-expanded);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: height 400ms var(--fw-ease), padding 400ms var(--fw-ease);
+}
+
+.fw-nav-sa--compact .fw-nav-sa__inner {
+  height: var(--fw-nav-sa-h-compact);
+  padding: 0 calc(var(--fw-section-px) * 1.1);
+}
+
+/* ── Logo ────────────────────────────────────────────────────────
+   Icon mark + wordmark, both rendered with subtle embossed depth
+   (soft highlight above + soft shadow below) — no gloss/3D plastic
+   look, just enough lift to feel premium.
+   ─────────────────────────────────────────────────────────────── */
+
+.fw-nav-sa__logo {
+  display: flex;
+  align-items: center;
+  gap: var(--fw-nav-sa-logo-gap);
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.fw-nav-sa__logo-icon {
+  height: var(--fw-nav-sa-logo-expanded);
+  width: auto;
+  display: block;
+  /* The source asset is a finished 3D render (own shading, highlights,
+     shadow) — no CSS filter here so it isn't double-shadowed. */
+  transition: height 400ms var(--fw-ease);
+}
+
+.fw-nav-sa--compact .fw-nav-sa__logo-icon {
+  height: var(--fw-nav-sa-logo-compact);
+}
+
+/* Wordmark — solid dark-navy fill (no gradient) with a layered
+   text-shadow for a subtle embossed "3D" bevel: a crisp top-edge
+   highlight, a tight contact shadow for the groove, and a soft
+   ambient shadow for lift. Same palette as the icon. */
+.fw-nav-sa__logo-text {
+  font-family: var(--fw-font);
+  font-weight: 900;
+  font-size: var(--fw-nav-sa-word-expanded);
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--fw-navy);
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.6),
+    0 1px 2px rgba(15, 23, 42, 0.18),
+    0 4px 14px rgba(15, 23, 42, 0.16);
+  transition: font-size 400ms var(--fw-ease);
+}
+
+.fw-nav-sa--compact .fw-nav-sa__logo-text {
+  font-size: var(--fw-nav-sa-word-compact);
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5),
+    0 1px 2px rgba(15, 23, 42, 0.14),
+    0 3px 10px rgba(15, 23, 42, 0.12);
+}
+
+/* Trademark — smaller, raised to the upper-right, slightly lighter
+   navy for typographic hierarchy against the main wordmark. */
+.fw-nav-sa__logo-tm {
+  font-size: 0.42em;
+  font-weight: 700;
+  letter-spacing: normal;
+  text-transform: none;
+  vertical-align: super;
+  margin-left: 1px;
+  color: var(--fw-navy-mid);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+/* ── Desktop links ───────────────────────────────────────────────  */
+
+.fw-nav-sa__links {
+  display: none;
+  align-items: center;
+  gap: var(--fw-space-5);
+}
+
+@media (min-width: 768px) {
+  .fw-nav-sa__links {
+    display: flex;
+  }
+}
+
+.fw-nav-sa__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--fw-tap);
+  font-size: var(--fw-text-sm);
+  font-weight: var(--fw-weight-semibold);
+  letter-spacing: 0.02em;
+  color: var(--fw-navy-mid);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition:
+    color var(--fw-duration) var(--fw-ease),
+    border-color var(--fw-duration) var(--fw-ease);
+}
+
+.fw-nav-sa__link:hover {
+  color: var(--fw-navy);
+  border-bottom-color: var(--fw-navy);
+}
+
+.fw-nav-sa__link--active {
+  color: var(--fw-navy);
+  border-bottom-color: var(--fw-navy);
+  font-weight: var(--fw-weight-semibold);
+}
+
+/* Logout (desktop) */
+.fw-nav-sa__logout {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--fw-tap);
+  padding: 0;
+  font-family: var(--fw-font);
+  font-size: var(--fw-text-sm);
+  font-weight: var(--fw-weight-semibold);
+  letter-spacing: 0.02em;
+  color: var(--fw-navy-mid);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition:
+    color var(--fw-duration) var(--fw-ease),
+    border-color var(--fw-duration) var(--fw-ease);
+}
+
+.fw-nav-sa__logout:hover {
+  color: var(--fw-navy);
+  border-bottom-color: var(--fw-navy);
+}
+
+/* Admin label chip (desktop) */
+.fw-nav-sa__admin-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--fw-text-xs);
+  font-weight: var(--fw-weight-semibold);
+  letter-spacing: var(--fw-tracking-wide);
+  text-transform: uppercase;
+  color: var(--fw-gray-500);
+  padding: var(--fw-space-1) var(--fw-space-3);
+  border: 1px solid var(--fw-gray-300);
+  border-radius: var(--fw-radius-sm);
+}
+
+/* ── Hamburger (mobile only) ─────────────────────────────────────  */
+
+.fw-nav-sa__hamburger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--fw-tap);
+  height: var(--fw-tap);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--fw-navy);
+  padding: 0;
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .fw-nav-sa__hamburger {
+    display: none;
+  }
+}
+
+/* ── Mobile overlay menu ─────────────────────────────────────────
+   Full-screen, sits below the fixed bar (padding-top clears it).
+   Slides down from behind the bar; fades in.
+────────────────────────────────────────────────────────────────── */
+
+.fw-nav-sa__mobile {
+  position: fixed;
+  inset: 0;
+  z-index: 190;
+  background: var(--fw-white);
+  padding-top: var(--fw-nav-sa-h-expanded);
+  overflow-y: auto;
+  transform: translateY(-12px);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    transform 300ms var(--fw-ease),
+    opacity 300ms var(--fw-ease),
+    visibility 0s linear 300ms;
+}
+
+.fw-nav-sa__mobile--open {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+  transition:
+    transform 300ms var(--fw-ease),
+    opacity 300ms var(--fw-ease),
+    visibility 0s;
+}
+
+@media (min-width: 768px) {
+  .fw-nav-sa__mobile {
+    display: none !important;
+  }
+}
+
+.fw-nav-sa__mobile-inner {
+  display: flex;
+  flex-direction: column;
+  padding: var(--fw-space-4) var(--fw-section-px) var(--fw-space-6);
+}
+
+.fw-nav-sa__mobile-link {
+  display: flex;
+  align-items: center;
+  min-height: calc(var(--fw-tap) + 8px);
+  font-size: var(--fw-text-lg);
+  font-weight: var(--fw-weight-medium);
+  color: var(--fw-navy);
+  text-decoration: none;
+  border-bottom: 1px solid var(--fw-gray-100);
+  transition: color var(--fw-duration) var(--fw-ease);
+}
+
+.fw-nav-sa__mobile-link:hover {
+  color: var(--fw-navy-mid);
+}
+
+.fw-nav-sa__mobile-divider {
+  font-size: var(--fw-text-xs);
+  font-weight: var(--fw-weight-semibold);
+  letter-spacing: var(--fw-tracking-wide);
+  text-transform: uppercase;
+  color: var(--fw-gray-500);
+  padding: var(--fw-space-4) 0 var(--fw-space-1);
+}
+
+.fw-nav-sa__mobile-logout {
+  display: flex;
+  align-items: center;
+  min-height: calc(var(--fw-tap) + 8px);
+  font-family: var(--fw-font);
+  font-size: var(--fw-text-lg);
+  font-weight: var(--fw-weight-medium);
+  color: var(--fw-gray-700);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--fw-gray-100);
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────
+   Switch states instantly — no shape/height/transform/opacity
+   animation.
+────────────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .fw-nav-sa,
+  .fw-nav-sa__bar,
+  .fw-nav-sa__inner,
+  .fw-nav-sa__logo img,
+  .fw-nav-sa__mobile {
+    transition: none !important;
+  }
+}

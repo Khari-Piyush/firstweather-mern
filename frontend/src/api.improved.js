@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://first-weather-webapp-h05a.onrender.com/api",
+  baseURL: import.meta.env.VITE_API_URL || "https://first-weather-webapp-h05a.onrender.com/api",
   withCredentials: true, // sends httpOnly auth_token cookie automatically
 });
 

@@ -128,7 +128,7 @@ const HomePage = () => {
           <h1 style={heroTitle}>
             India’s Leading Aftermarket Wiper Parts Manufacturer<br />
           </h1>
-          
+
 
           <ul style={{
             marginBottom: "2rem",
@@ -236,11 +236,11 @@ const HomePage = () => {
         )}
       </section>
 
-       <div style={dealerSection}>
-          <p style={{ opacity: 0.7, marginBottom: "1rem" }}>
-            Trusted by Dealers Across India
-          </p>
-        </div>
+      <div style={dealerSection}>
+        <p style={{ opacity: 0.7, marginBottom: "1rem" }}>
+          Trusted by Dealers Across India
+        </p>
+      </div>
 
       {/* ================= STATS (MINIMAL) ================= */}
       <section style={statsSection}>

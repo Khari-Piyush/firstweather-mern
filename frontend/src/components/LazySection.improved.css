@@ -1,0 +1,38 @@
+.fw-lazy-skeleton {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--fw-gray-100) 25%,
+    var(--fw-gray-300) 37%,
+    var(--fw-gray-100) 63%
+  );
+  background-size: 400% 100%;
+  animation: fw-skeleton-shimmer 1.4s ease infinite;
+  border-radius: var(--fw-radius-md);
+}
+
+.fw-lazy-skeleton--on-dark {
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.06) 25%,
+    rgba(255, 255, 255, 0.14) 37%,
+    rgba(255, 255, 255, 0.06) 63%
+  );
+}
+
+@keyframes fw-skeleton-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fw-lazy-skeleton {
+    animation: none;
+    background: var(--fw-gray-100);
+  }
+
+  .fw-lazy-skeleton--on-dark {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}

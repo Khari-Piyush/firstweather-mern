@@ -1,26 +1,31 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 
-import Navbar from "./components/Navbar.jsx";
-import Footer from "./components/Footer.jsx";
+import Navbar from "./components/Navbar.scrollaware.improved.jsx";
+import Footer from "./components/Footer.improved.jsx";
 import FloatingSocialMenu from "./components/FloatingSocialMenu.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import ScrollToTop from "./components/ScrollTop.jsx"
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import PageSkeleton from "./components/PageSkeleton.improved.jsx";
 
-const HomePage = lazy(() => import("./pages/HomePage.jsx"));
-const ProductsPage = lazy(() => import("./pages/ProductsPage.jsx"));
-const ProductDetailPage = lazy(() => import("./pages/ProductDetailPage.jsx"));
+const HomePage = lazy(() => import("./pages/HomePage.improved.jsx"));
+const CategoriesPage = lazy(() => import("./pages/CategoriesPage.improved.jsx"));
+const CategoryDetailPage = lazy(() => import("./pages/CategoryDetailPage.improved.jsx"));
+const ProductsPage = lazy(() => import("./pages/ProductsPage.improved.jsx"));
+const ProductDetailPage = lazy(() => import("./pages/ProductDetailPage.improved.jsx"));
 const LoginPage = lazy(() => import("./pages/LoginPage.jsx"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage.jsx"));
-const ContactUs = lazy(() => import("./pages/ContactUs.jsx"));
+const ContactUs = lazy(() => import("./pages/ContactUs.improved.jsx"));
+const AboutPage  = lazy(() => import("./pages/AboutPage.improved.jsx"));
 
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard.jsx"));
 const AdminProducts = lazy(() => import("./pages/AdminProducts.jsx"));
 const AdminOrders = lazy(() => import("./pages/AdminOrders.jsx"));
 const AdminEnquiries = lazy(() => import("./pages/AdminEnquiries.jsx"));
+const AdminTestimonials = lazy(() => import("./pages/AdminTestimonials.improved.jsx"));
 
 
 
@@ -28,14 +33,18 @@ const App = () => {
   return (
     <>
       <Navbar />
+      <div style={{ height: "var(--fw-nav-sa-h-expanded)" }} aria-hidden="true" />
 
-      <Suspense fallback={<div style={{ padding: "2rem" }}>Loading...</div>}>
+      <Suspense fallback={<PageSkeleton />}>
        <ScrollToTop />
         <Routes>
           {/* PUBLIC */}
           <Route path="/" element={<HomePage />} />
+          <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/categories/:slug" element={<CategoryDetailPage />} />
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/products/:id" element={<ProductDetailPage />} />
+          <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/enquire/:productId" element={<ContactUs />} />
 
@@ -84,6 +93,15 @@ const App = () => {
             element={
               <ProtectedRoute adminOnly>
                 <AdminEnquiries />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/testimonials"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminTestimonials />
               </ProtectedRoute>
             }
           />

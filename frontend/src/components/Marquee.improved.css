@@ -1,0 +1,85 @@
+.fw-marquee {
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+  gap: var(--fw-marquee-gap, 1rem);
+}
+
+.fw-marquee--vertical {
+  flex-direction: column;
+}
+
+.fw-marquee__group {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--fw-marquee-gap, 1rem);
+  will-change: transform;
+}
+
+.fw-marquee__group--row {
+  flex-direction: row;
+  animation: fw-marquee-scroll-x var(--fw-marquee-duration, 40s) linear infinite;
+}
+
+.fw-marquee__group--vertical {
+  flex-direction: column;
+  animation: fw-marquee-scroll-y var(--fw-marquee-duration, 40s) linear infinite;
+}
+
+.fw-marquee__group--reverse {
+  animation-direction: reverse;
+}
+
+@keyframes fw-marquee-scroll-x {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-100% - var(--fw-marquee-gap, 1rem))); }
+}
+
+@keyframes fw-marquee-scroll-y {
+  from { transform: translateY(0); }
+  to   { transform: translateY(calc(-100% - var(--fw-marquee-gap, 1rem))); }
+}
+
+.fw-marquee--pause-on-hover:hover .fw-marquee__group {
+  animation-play-state: paused;
+}
+
+/* Edge fade — colour should match the section background behind the marquee */
+.fw-marquee--fade {
+  position: relative;
+}
+
+.fw-marquee--fade::before,
+.fw-marquee--fade::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: clamp(32px, 10%, 96px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.fw-marquee--fade::before {
+  left: 0;
+  background: linear-gradient(to right, var(--fw-marquee-fade-color, var(--fw-surface)), transparent);
+}
+
+.fw-marquee--fade::after {
+  right: 0;
+  background: linear-gradient(to left, var(--fw-marquee-fade-color, var(--fw-surface)), transparent);
+}
+
+/* prefers-reduced-motion: single static, centred, wrapping set (no duplicated groups) */
+.fw-marquee--static {
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  overflow: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fw-marquee__group {
+    animation: none !important;
+  }
+}

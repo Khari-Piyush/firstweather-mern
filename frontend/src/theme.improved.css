@@ -1,0 +1,151 @@
+/* ================================================================
+   FIRST WEATHER — DESIGN TOKENS  (theme.improved.css)
+   Single source of truth for all redesigned surfaces (T20–T25).
+   Import this once at the top of main.jsx, before any other CSS.
+   ================================================================ */
+
+:root {
+
+  /* ── PALETTE ──────────────────────────────────────────────────
+     Minimalist: neutrals dominate. Navy is the brand anchor and
+     the only "colour" used at weight. Blue accent is deliberate
+     and rare — CTAs and active states only.
+  ────────────────────────────────────────────────────────────── */
+
+  /* Darks */
+  --fw-black:        #0a0a0a;
+  --fw-navy:         #0f172a;   /* primary text, CTA bg, footer */
+  --fw-navy-mid:     #1e3a8a;   /* links, active states */
+
+  /* Grays */
+  --fw-gray-700:     #374151;   /* secondary headings */
+  --fw-gray-500:     #6b7280;   /* body copy, captions */
+  --fw-gray-300:     #d1d5db;   /* borders, dividers */
+  --fw-gray-100:     #f3f4f6;   /* subtle backgrounds */
+
+  /* Lights */
+  --fw-off-white:    #f8f8f8;   /* page background */
+  --fw-white:        #ffffff;   /* card / section surface */
+
+  /* Semantic surfaces */
+  --fw-bg:           var(--fw-off-white);
+  --fw-surface:      var(--fw-white);
+  --fw-surface-alt:  #f0f4f8;   /* alternating section tint */
+
+  /* ── TYPOGRAPHY ───────────────────────────────────────────────
+     Mobile-first scale. Desktop bumps happen in @media below.
+  ────────────────────────────────────────────────────────────── */
+
+  --fw-font:  -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI",
+              Helvetica, Arial, sans-serif;
+
+  /* Size ramp */
+  --fw-text-xs:    0.75rem;    /* 12 */
+  --fw-text-sm:    0.875rem;   /* 14 */
+  --fw-text-base:  1rem;       /* 16 */
+  --fw-text-lg:    1.125rem;   /* 18 */
+  --fw-text-xl:    1.375rem;   /* 22 */
+  --fw-text-2xl:   1.75rem;    /* 28 */
+  --fw-text-3xl:   2.25rem;    /* 36 */
+  --fw-text-4xl:   3rem;       /* 48 */
+  --fw-text-5xl:   3.75rem;    /* 60 */
+
+  /* Weight */
+  --fw-weight-normal:   400;
+  --fw-weight-medium:   500;
+  --fw-weight-semibold: 600;
+  --fw-weight-bold:     700;
+
+  /* Line height */
+  --fw-leading-tight:  1.15;
+  --fw-leading-snug:   1.35;
+  --fw-leading-normal: 1.65;
+
+  /* Letter spacing */
+  --fw-tracking-tight:  -0.03em;  /* oversized headings */
+  --fw-tracking-normal:  0em;
+  --fw-tracking-wide:    0.07em;  /* labels / eyebrow caps */
+
+  /* ── SPACING ──────────────────────────────────────────────────
+     t-shirt scale in 4px increments.
+  ────────────────────────────────────────────────────────────── */
+
+  --fw-space-1:   0.25rem;   /*  4 */
+  --fw-space-2:   0.5rem;    /*  8 */
+  --fw-space-3:   0.75rem;   /* 12 */
+  --fw-space-4:   1rem;      /* 16 */
+  --fw-space-5:   1.25rem;   /* 20 */
+  --fw-space-6:   1.5rem;    /* 24 */
+  --fw-space-8:   2rem;      /* 32 */
+  --fw-space-10:  2.5rem;    /* 40 */
+  --fw-space-12:  3rem;      /* 48 */
+  --fw-space-16:  4rem;      /* 64 */
+  --fw-space-20:  5rem;      /* 80 */
+  --fw-space-24:  6rem;      /* 96 */
+  --fw-space-32:  8rem;      /* 128 */
+
+  /* Section vertical rhythm — mobile values */
+  --fw-section-py:  var(--fw-space-16);  /* 64px */
+  --fw-section-px:  var(--fw-space-6);   /* 24px sides */
+
+  /* Content container width */
+  --fw-container:   1200px;
+
+  /* ── INTERACTION ──────────────────────────────────────────────
+     Minimum tap-target height. Applied to all buttons and links.
+  ────────────────────────────────────────────────────────────── */
+
+  --fw-tap: 44px;
+
+  /* ── SHADOWS ──────────────────────────────────────────────────
+     Used sparingly — only where depth adds meaning.
+  ────────────────────────────────────────────────────────────── */
+
+  --fw-shadow-sm:  0 1px 3px  rgba(0, 0, 0, 0.07);
+  --fw-shadow-md:  0 4px 16px rgba(0, 0, 0, 0.08);
+  --fw-shadow-lg:  0 12px 40px rgba(0, 0, 0, 0.10);
+
+  /* ── SHAPE ────────────────────────────────────────────────────  */
+
+  --fw-radius-sm:  4px;
+  --fw-radius-md:  8px;
+  --fw-radius-lg:  12px;
+  --fw-border:     1px solid var(--fw-gray-300);
+
+  /* ── MOTION ───────────────────────────────────────────────────  */
+
+  --fw-ease:     cubic-bezier(0.4, 0, 0.2, 1);
+  --fw-duration: 200ms;
+
+  /* ── NAVBAR ───────────────────────────────────────────────────  */
+
+  --fw-nav-height:      60px;
+  --fw-nav-height-desk: 68px;
+}
+
+/* ── Desktop scale-ups ──────────────────────────────────────────── */
+
+@media (min-width: 768px) {
+  :root {
+    --fw-section-py: 5rem;    /* 80px */
+    --fw-section-px: 2rem;    /* 32px */
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --fw-section-py: 7rem;    /* 112px */
+    --fw-section-px: 2.5rem;
+  }
+}
+
+/* ── Global base resets used by the redesigned surfaces ─────────── */
+
+.fw-body {
+  font-family: var(--fw-font);
+  background: var(--fw-bg);
+  color: var(--fw-navy);
+  line-height: var(--fw-leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

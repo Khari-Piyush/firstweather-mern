@@ -1,0 +1,208 @@
+/* ================================================================
+   NAVBAR — Navbar.improved.css
+   Thin, premium, sticky. 5 public items. Mobile slide-down menu.
+   All interactive elements meet the 44px tap-target minimum.
+   ================================================================ */
+
+.fw-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  background: var(--fw-white);
+  border-bottom: 1px solid var(--fw-gray-300);
+}
+
+.fw-nav__inner {
+  max-width: var(--fw-container);
+  margin: 0 auto;
+  padding: 0 var(--fw-section-px);
+  height: var(--fw-nav-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@media (min-width: 768px) {
+  .fw-nav__inner {
+    height: var(--fw-nav-height-desk);
+  }
+}
+
+/* Logo */
+.fw-nav__logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.fw-nav__logo img {
+  height: 40px;
+  display: block;
+}
+
+/* Desktop links (hidden on mobile) */
+.fw-nav__links {
+  display: none;
+  align-items: center;
+  gap: var(--fw-space-8);
+}
+
+@media (min-width: 768px) {
+  .fw-nav__links {
+    display: flex;
+  }
+}
+
+.fw-nav__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--fw-tap);
+  font-size: var(--fw-text-sm);
+  font-weight: var(--fw-weight-medium);
+  letter-spacing: 0.01em;
+  color: var(--fw-gray-700);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition:
+    color var(--fw-duration) var(--fw-ease),
+    border-color var(--fw-duration) var(--fw-ease);
+}
+
+.fw-nav__link:hover {
+  color: var(--fw-navy);
+  border-bottom-color: var(--fw-navy);
+}
+
+.fw-nav__link--active {
+  color: var(--fw-navy);
+  border-bottom-color: var(--fw-navy);
+  font-weight: var(--fw-weight-semibold);
+}
+
+/* Logout (desktop) */
+.fw-nav__logout {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--fw-tap);
+  padding: 0;
+  font-family: var(--fw-font);
+  font-size: var(--fw-text-sm);
+  font-weight: var(--fw-weight-medium);
+  letter-spacing: 0.01em;
+  color: var(--fw-gray-700);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color var(--fw-duration) var(--fw-ease),
+    border-color var(--fw-duration) var(--fw-ease);
+}
+
+.fw-nav__logout:hover {
+  color: var(--fw-navy);
+  border-bottom-color: var(--fw-navy);
+}
+
+/* Admin label chip (desktop) */
+.fw-nav__admin-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--fw-text-xs);
+  font-weight: var(--fw-weight-semibold);
+  letter-spacing: var(--fw-tracking-wide);
+  text-transform: uppercase;
+  color: var(--fw-gray-500);
+  padding: var(--fw-space-1) var(--fw-space-3);
+  border: 1px solid var(--fw-gray-300);
+  border-radius: var(--fw-radius-sm);
+}
+
+/* Hamburger (mobile only) */
+.fw-nav__hamburger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--fw-tap);
+  height: var(--fw-tap);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--fw-navy);
+  padding: 0;
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .fw-nav__hamburger {
+    display: none;
+  }
+}
+
+/* Mobile slide-down menu */
+.fw-nav__mobile {
+  width: 100%;
+  background: var(--fw-white);
+  border-bottom: 1px solid var(--fw-gray-300);
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s var(--fw-ease);
+}
+
+.fw-nav__mobile--open {
+  max-height: 600px;
+}
+
+@media (min-width: 768px) {
+  .fw-nav__mobile {
+    display: none !important;
+  }
+}
+
+.fw-nav__mobile-inner {
+  display: flex;
+  flex-direction: column;
+  padding: var(--fw-space-2) var(--fw-section-px) var(--fw-space-6);
+}
+
+.fw-nav__mobile-link {
+  display: flex;
+  align-items: center;
+  min-height: var(--fw-tap);
+  font-size: var(--fw-text-base);
+  font-weight: var(--fw-weight-medium);
+  color: var(--fw-navy);
+  text-decoration: none;
+  border-bottom: 1px solid var(--fw-gray-100);
+  transition: color var(--fw-duration) var(--fw-ease);
+}
+
+.fw-nav__mobile-link:hover {
+  color: var(--fw-navy-mid);
+}
+
+.fw-nav__mobile-divider {
+  font-size: var(--fw-text-xs);
+  font-weight: var(--fw-weight-semibold);
+  letter-spacing: var(--fw-tracking-wide);
+  text-transform: uppercase;
+  color: var(--fw-gray-500);
+  padding: var(--fw-space-4) 0 var(--fw-space-1);
+}
+
+.fw-nav__mobile-logout {
+  display: flex;
+  align-items: center;
+  min-height: var(--fw-tap);
+  font-family: var(--fw-font);
+  font-size: var(--fw-text-base);
+  font-weight: var(--fw-weight-medium);
+  color: var(--fw-gray-700);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--fw-gray-100);
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}

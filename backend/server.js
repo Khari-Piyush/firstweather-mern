@@ -14,7 +14,9 @@ import productRoutes from "./routes/productRoutes.improved.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import enquiryRoutes from "./routes/enquiryRoutes.js";
-import recommendRoute from "./routes/recommend.js"
+import recommendRoute from "./routes/recommend.js";
+import categoryRoutes from "./routes/categoryRoutes.improved.js";
+import testimonialRoutes from "./routes/testimonialRoutes.js";
 
 
 dotenv.config();
@@ -72,7 +74,9 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/enquiry", enquiryLimiter);
 app.use("/api", enquiryRoutes);
-app.use("/api/recommend", recommendRoute)
+app.use("/api/recommend", recommendRoute);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/testimonials", testimonialRoutes);
 
 
 

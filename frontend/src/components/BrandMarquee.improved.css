@@ -1,0 +1,7 @@
+.fw-brand-marquee {
+  padding: var(--fw-space-2) 0;
+}
+
+.fw-brand-marquee .fw-marquee__group {
+  align-items: center;
+}

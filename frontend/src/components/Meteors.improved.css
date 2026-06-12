@@ -1,0 +1,77 @@
+/* ================================================================
+   METEORS — Meteors.improved.css
+   Subtle, looping meteor streaks. Color comes from CSS custom
+   properties set per-instance (see Meteors.improved.jsx) so the
+   same markup works on both navy and white sections.
+   GPU-friendly: only `transform` and `opacity` are animated.
+   ================================================================ */
+
+.fw-meteors {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.fw-meteor {
+  position: absolute;
+  top: -10%;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: var(--fw-meteor-color, var(--fw-white));
+  opacity: 0;
+  transform: rotate(var(--fw-meteor-angle, 215deg));
+  animation-name: fw-meteor-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+.fw-meteor::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 64px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--fw-meteor-trail, rgba(255, 255, 255, 0.6)), transparent);
+  transform: translateY(-50%);
+}
+
+@keyframes fw-meteor-fall {
+  0% {
+    transform: rotate(var(--fw-meteor-angle, 215deg)) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.65;
+  }
+  75% {
+    opacity: 0.65;
+  }
+  100% {
+    transform: rotate(var(--fw-meteor-angle, 215deg)) translateX(-640px);
+    opacity: 0;
+  }
+}
+
+/* Mobile: keep only the first 6 meteors, or none at all when the
+   wrapper opts into fw-meteors--mobile-disabled. */
+@media (max-width: 767px) {
+  .fw-meteors:not(.fw-meteors--mobile-disabled) .fw-meteor:nth-child(n + 7) {
+    display: none;
+  }
+
+  .fw-meteors--mobile-disabled .fw-meteor {
+    display: none;
+  }
+}
+
+/* No motion at all when the user has asked for it. */
+@media (prefers-reduced-motion: reduce) {
+  .fw-meteor {
+    display: none;
+  }
+}

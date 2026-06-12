@@ -1,0 +1,62 @@
+.fw-cat-card {
+  box-shadow: var(--fw-shadow-sm);
+  transition: transform 280ms var(--fw-ease), box-shadow 280ms var(--fw-ease);
+}
+
+.fw-cat-card-img {
+  display: block;
+  transition: transform 280ms var(--fw-ease);
+}
+
+.fw-cat-card-link {
+  transition: transform 280ms var(--fw-ease);
+}
+
+@media (hover: hover) {
+  .fw-cat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--fw-shadow-md);
+  }
+
+  .fw-cat-card:hover .fw-cat-card-img {
+    transform: scale(1.06);
+  }
+
+  .fw-cat-card:hover .fw-cat-card-link {
+    transform: translateX(4px);
+  }
+}
+
+.fw-cat-card:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: var(--fw-shadow-md);
+}
+
+.fw-cat-card:focus-visible .fw-cat-card-img {
+  transform: scale(1.06);
+}
+
+.fw-cat-card:focus-visible .fw-cat-card-link {
+  transform: translateX(4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fw-cat-card,
+  .fw-cat-card-img,
+  .fw-cat-card-link {
+    transition: none;
+  }
+
+  .fw-cat-card:hover,
+  .fw-cat-card:focus-visible {
+    transform: none;
+    box-shadow: var(--fw-shadow-sm);
+  }
+
+  .fw-cat-card:hover .fw-cat-card-img,
+  .fw-cat-card:focus-visible .fw-cat-card-img,
+  .fw-cat-card:hover .fw-cat-card-link,
+  .fw-cat-card:focus-visible .fw-cat-card-link {
+    transform: none;
+  }
+}

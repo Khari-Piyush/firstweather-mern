@@ -1,0 +1,34 @@
+.fw-kinetic-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.fw-kinetic-char {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.6em);
+}
+
+.fw-kinetic--in-view .fw-kinetic-char {
+  animation: fw-kinetic-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--fw-kinetic-delay, 0s);
+}
+
+@keyframes fw-kinetic-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.6em);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fw-kinetic-char {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}

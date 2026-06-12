@@ -1,0 +1,21 @@
+.fw-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 500ms var(--fw-ease), transform 500ms var(--fw-ease);
+  transition-delay: var(--fw-reveal-delay, 0s);
+  will-change: opacity, transform;
+}
+
+.fw-reveal--in-view {
+  opacity: 1;
+  transform: translateY(0);
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fw-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
