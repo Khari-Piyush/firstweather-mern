@@ -268,6 +268,45 @@
   border-radius: var(--fw-radius-sm);
 }
 
+/* ── Inquiry cart (desktop link row) ──────────────────────────────  */
+
+.fw-nav-sa__cart-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--fw-tap);
+  height: var(--fw-tap);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--fw-navy-mid);
+  font-size: var(--fw-text-lg);
+  padding: 0;
+  flex-shrink: 0;
+  transition: color var(--fw-duration) var(--fw-ease);
+}
+
+.fw-nav-sa__cart-btn:hover {
+  color: var(--fw-navy);
+}
+
+.fw-nav-sa__cart-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--fw-navy);
+  color: var(--fw-white);
+  font-size: 10px;
+  font-weight: var(--fw-weight-bold);
+  line-height: 16px;
+  text-align: center;
+}
+
 /* ── Hamburger (mobile only) ─────────────────────────────────────  */
 
 .fw-nav-sa__hamburger {
@@ -347,6 +386,34 @@
 
 .fw-nav-sa__mobile-link:hover {
   color: var(--fw-navy-mid);
+}
+
+.fw-nav-sa__mobile-cart-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--fw-space-3);
+  min-height: calc(var(--fw-tap) + 8px);
+  font-family: var(--fw-font);
+  font-size: var(--fw-text-lg);
+  font-weight: var(--fw-weight-medium);
+  color: var(--fw-navy);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--fw-gray-100);
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  width: 100%;
+  transition: color var(--fw-duration) var(--fw-ease);
+}
+
+.fw-nav-sa__mobile-cart-btn:hover {
+  color: var(--fw-navy-mid);
+}
+
+.fw-nav-sa__mobile-cart-btn .fw-nav-sa__cart-badge {
+  position: static;
 }
 
 .fw-nav-sa__mobile-divider {

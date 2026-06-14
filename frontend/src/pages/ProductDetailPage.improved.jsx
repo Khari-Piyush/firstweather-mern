@@ -4,6 +4,7 @@ import api from "../api.improved.js";
 import ProductCard from "../components/ProductCard.improved.jsx";
 import GetBestPriceButton from "../components/GetBestPriceButton.improved.jsx";
 import DownloadCatalogButton from "../components/DownloadCatalogButton.improved.jsx";
+import AddToInquiryButton from "../components/AddToInquiryButton.improved.jsx";
 import {
   PageWrapper,
   Section,
@@ -169,6 +170,8 @@ const ProductDetailPage = () => {
                 productName={product.productName}
                 full
               />
+
+              <AddToInquiryButton product={product} variant="secondary" full />
 
               <a href={waUrl} target="_blank" rel="noopener noreferrer" style={waBtn}>
                 <WaIcon />

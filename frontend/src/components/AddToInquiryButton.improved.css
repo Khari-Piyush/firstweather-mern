@@ -1,0 +1,40 @@
+/* ── Floating "Add to Inquiry" FAB — ProductCard overlay ─────────── */
+
+.fw-add-inquiry-fab {
+  position: absolute;
+  top: var(--fw-space-3);
+  right: var(--fw-space-3);
+  z-index: 2;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+
+  background: var(--fw-white);
+  color: var(--fw-navy-mid);
+  border: 1px solid var(--fw-gray-300);
+  border-radius: 50%;
+  box-shadow: var(--fw-shadow-sm);
+  cursor: pointer;
+  font-size: var(--fw-text-sm);
+
+  transition:
+    background var(--fw-duration) var(--fw-ease),
+    color var(--fw-duration) var(--fw-ease),
+    border-color var(--fw-duration) var(--fw-ease),
+    box-shadow var(--fw-duration) var(--fw-ease);
+}
+
+.fw-add-inquiry-fab:hover {
+  background: var(--fw-navy);
+  color: var(--fw-white);
+  border-color: var(--fw-navy);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fw-add-inquiry-fab {
+    transition: none;
+  }
+}
