@@ -11,7 +11,6 @@ export const CATEGORY_NAMES = [
   "Wiper Rods",
   "Complete Wiper Kits",
   "Bus Wiper Systems",
-  "Truck Wiper Systems",
   "Wiper Spare Parts",
 ];
 // Seed data — used by the /seed endpoint and the migration script
@@ -71,16 +70,10 @@ export const SEED_CATEGORIES = [
     order: 9,
   },
   {
-    name: "Truck Wiper Systems",
-    slug: "truck-wiper-systems",
-    description: "Heavy-duty wiper systems built for trucks and large vehicles.",
-    order: 10,
-  },
-  {
     name: "Wiper Spare Parts",
     slug: "wiper-spare-parts",
     description: "Individual spare parts and accessories for all wiper systems.",
-    order: 11,
+    order: 10,
   },
 ];
 

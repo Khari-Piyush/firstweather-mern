@@ -14,21 +14,21 @@ const LIMIT = 20;
 const ProductsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const urlCategory = searchParams.get("category") || "";
-  const urlVehicle  = searchParams.get("vehicle")  || "";
+  const urlVehicle = searchParams.get("vehicle") || "";
 
-  const [products,   setProducts]   = useState([]);
+  const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [page,       setPage]       = useState(1);
-  const [loading,    setLoading]    = useState(true);
-  const [error,      setError]      = useState("");
-  const [hasMore,    setHasMore]    = useState(false);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [hasMore, setHasMore] = useState(false);
 
   // Reset page when filter changes
   useEffect(() => { setPage(1); }, [urlCategory, urlVehicle]);
 
   // Fetch category list for filter chips
   useEffect(() => {
-    api.get("/categories").then((r) => setCategories(r.data)).catch(() => {});
+    api.get("/categories").then((r) => setCategories(r.data)).catch(() => { });
   }, []);
 
   // Fetch products
@@ -42,7 +42,7 @@ const ProductsPage = () => {
         page,
         limit: LIMIT,
         category: urlCategory || undefined,
-        vehicle:  urlVehicle  || undefined,
+        vehicle: urlVehicle || undefined,
       },
     })
       .then((r) => {

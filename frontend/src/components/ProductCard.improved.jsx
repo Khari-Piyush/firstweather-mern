@@ -61,8 +61,10 @@ const imgWrap = {
 const imgStyle = {
   width: "100%",
   height: "100%",
-  objectFit: "contain",
-  padding: "var(--fw-space-6)",
+  objectFit: "cover",          // cover ki jagah contain — poora product dikhega, crop nahi
+  padding: "var(--fw-space-1)",
+  boxSizing: "border-box",        // ← yeh padding ko width/height ke ANDAR rakhta hai, bahar nahi
+  display: "block",
 };
 
 const cardBody = {

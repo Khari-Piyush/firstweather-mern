@@ -31,64 +31,64 @@ const ProductsPage = () => {
 
 
   /* ================= URL CATEGORY ================= */
- useEffect(() => {
-  setPage(1);
+  useEffect(() => {
+    setPage(1);
 
-  if (urlCategory && CATEGORY_MAP[urlCategory]) {
-    setSelectedCategory(CATEGORY_MAP[urlCategory]);
-  } else {
-    setSelectedCategory("All");
-  }
-}, [urlCategory, urlVehicle]);
-
-
- useEffect(() => {
-  let cancelled = false;
-
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      setError("");
-
-      const params = {
-        page,
-        limit: LIMIT,
-        category: selectedCategory !== "All" ? selectedCategory : undefined,
-        vehicle: urlVehicle ? urlVehicle.trim().toLowerCase() : undefined,
-      };
-
-      const res = await api.get("/products", { params });
-
-      if (!cancelled) {
-        setProducts(res.data);
-      }
-    } catch (err) {
-      if (!cancelled) setError("Failed to load products");
-    } finally {
-      if (!cancelled) setLoading(false);
+    if (urlCategory && CATEGORY_MAP[urlCategory]) {
+      setSelectedCategory(CATEGORY_MAP[urlCategory]);
+    } else {
+      setSelectedCategory("All");
     }
-  };
-
-  fetchProducts();
-  return () => {
-    cancelled = true;
-  };
-}, [page, selectedCategory, urlVehicle]);
+  }, [urlCategory, urlVehicle]);
 
 
- /* ================= PREFETCH NEXT PAGE ================= */
-useEffect(() => {
-  if (products.length === LIMIT) {
-    api.get("/products", {
-      params: {
-        page: page + 1,
-        limit: LIMIT,
-        category: selectedCategory !== "All" ? selectedCategory : undefined,
-        vehicle: urlVehicle ? urlVehicle.trim().toLowerCase() : undefined,
-      },
-    });
-  }
-}, [products, page, selectedCategory, urlVehicle]);
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const params = {
+          page,
+          limit: LIMIT,
+          category: selectedCategory !== "All" ? selectedCategory : undefined,
+          vehicle: urlVehicle ? urlVehicle.trim().toLowerCase() : undefined,
+        };
+
+        const res = await api.get("/products", { params });
+
+        if (!cancelled) {
+          setProducts(res.data);
+        }
+      } catch (err) {
+        if (!cancelled) setError("Failed to load products");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    fetchProducts();
+    return () => {
+      cancelled = true;
+    };
+  }, [page, selectedCategory, urlVehicle]);
+
+
+  /* ================= PREFETCH NEXT PAGE ================= */
+  useEffect(() => {
+    if (products.length === LIMIT) {
+      api.get("/products", {
+        params: {
+          page: page + 1,
+          limit: LIMIT,
+          category: selectedCategory !== "All" ? selectedCategory : undefined,
+          vehicle: urlVehicle ? urlVehicle.trim().toLowerCase() : undefined,
+        },
+      });
+    }
+  }, [products, page, selectedCategory, urlVehicle]);
 
 
   if (loading)

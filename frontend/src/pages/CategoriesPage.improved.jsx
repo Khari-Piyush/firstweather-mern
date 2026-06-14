@@ -15,6 +15,12 @@ const CATEGORY_IMG = {
   "wiper-blades": "/fw-blade.webp",
   "wiper-linkage-assemblies": "/fw-linkage.webp",
   "wiper-wheel-box": "/fw-wheelbox.webp",
+  "wiper-motors": "/fw-motor.webp",
+  "wiper-rods": "/fw-rod.webp",
+  "wiper-motor-gear": "/fw-gear.webp",
+  "complete-wiper-kits": "/fw-wipersys.webp",
+  "bus-wiper-systems": "/fw-bus-system.webp",
+  "wiper-spare-parts": "/fw-spares.webp",
 };
 
 const CategoriesPage = () => {
