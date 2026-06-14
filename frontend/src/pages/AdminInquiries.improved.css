@@ -1,0 +1,248 @@
+/* ================================================================
+   ADMIN — INQUIRIES LIST  (AdminInquiries.improved.css)
+   T20 tokens. Mobile: table rows collapse into stacked cards.
+   ================================================================ */
+
+.fw-admin-inq {
+  min-height: 100vh;
+  background: var(--fw-bg);
+  font-family: var(--fw-font);
+  padding: var(--fw-space-6) var(--fw-space-4);
+}
+
+@media (min-width: 768px) {
+  .fw-admin-inq {
+    padding: var(--fw-space-8) var(--fw-space-8);
+  }
+}
+
+.fw-admin-inq__header {
+  margin-bottom: var(--fw-space-6);
+}
+
+.fw-admin-inq__title {
+  margin: 0 0 var(--fw-space-1);
+  font-size: var(--fw-text-2xl);
+  font-weight: var(--fw-weight-bold);
+  color: var(--fw-navy);
+  letter-spacing: var(--fw-tracking-tight);
+}
+
+.fw-admin-inq__subtitle {
+  margin: 0;
+  color: var(--fw-gray-500);
+  font-size: var(--fw-text-sm);
+}
+
+/* ── Toolbar ─────────────────────────────────────────────────── */
+
+.fw-admin-inq__toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fw-space-3);
+  margin-bottom: var(--fw-space-4);
+}
+
+@media (min-width: 640px) {
+  .fw-admin-inq__toolbar {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.fw-admin-inq__search {
+  display: flex;
+  align-items: center;
+  gap: var(--fw-space-2);
+  flex: 1;
+  background: var(--fw-white);
+  border: var(--fw-border);
+  border-radius: var(--fw-radius-md);
+  padding: 0 var(--fw-space-4);
+  min-height: var(--fw-tap);
+  color: var(--fw-gray-500);
+}
+
+.fw-admin-inq__search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: var(--fw-text-sm);
+  font-family: var(--fw-font);
+  color: var(--fw-navy);
+  background: transparent;
+  min-height: var(--fw-tap);
+}
+
+.fw-admin-inq__filter {
+  min-height: var(--fw-tap);
+  border: var(--fw-border);
+  border-radius: var(--fw-radius-md);
+  background: var(--fw-white);
+  color: var(--fw-navy);
+  font-size: var(--fw-text-sm);
+  font-family: var(--fw-font);
+  padding: 0 var(--fw-space-4);
+  cursor: pointer;
+}
+
+.fw-admin-inq__error {
+  color: #b91c1c;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: var(--fw-radius-md);
+  padding: var(--fw-space-3) var(--fw-space-4);
+  margin-bottom: var(--fw-space-4);
+  font-size: var(--fw-text-sm);
+}
+
+/* ── Table ───────────────────────────────────────────────────── */
+
+.fw-admin-inq__table-wrap {
+  background: var(--fw-white);
+  border-radius: var(--fw-radius-lg);
+  box-shadow: var(--fw-shadow-sm);
+  overflow-x: auto;
+}
+
+.fw-admin-inq__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fw-text-sm);
+}
+
+.fw-admin-inq__table th {
+  text-align: left;
+  padding: var(--fw-space-3) var(--fw-space-4);
+  background: var(--fw-gray-100);
+  color: var(--fw-gray-500);
+  font-weight: var(--fw-weight-semibold);
+  font-size: var(--fw-text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--fw-tracking-wide);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+
+.fw-admin-inq__table td {
+  padding: var(--fw-space-3) var(--fw-space-4);
+  border-bottom: 1px solid var(--fw-gray-100);
+  color: var(--fw-navy);
+  vertical-align: middle;
+}
+
+.fw-admin-inq__table tbody tr:not(.fw-admin-inq__skeleton-row):hover {
+  background: var(--fw-gray-100);
+  cursor: pointer;
+}
+
+.fw-admin-inq__table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.fw-admin-inq__id {
+  font-family: "Courier New", monospace;
+  font-weight: var(--fw-weight-semibold);
+  color: var(--fw-navy-mid);
+  letter-spacing: var(--fw-tracking-wide);
+}
+
+.fw-admin-inq__sort-icon {
+  margin-left: var(--fw-space-1);
+  font-size: 0.8em;
+  color: var(--fw-gray-300);
+  vertical-align: middle;
+}
+
+.fw-admin-inq__sort-icon--active {
+  color: var(--fw-navy-mid);
+}
+
+/* ── Empty state ─────────────────────────────────────────────── */
+
+.fw-admin-inq__empty {
+  text-align: center;
+  padding: var(--fw-space-12) var(--fw-space-4) !important;
+  color: var(--fw-gray-500);
+}
+
+.fw-admin-inq__empty svg {
+  font-size: 2rem;
+  color: var(--fw-gray-300);
+  margin-bottom: var(--fw-space-2);
+}
+
+.fw-admin-inq__empty p {
+  margin: 0;
+}
+
+/* ── Status badges ───────────────────────────────────────────── */
+
+.fw-status-badge {
+  display: inline-block;
+  padding: var(--fw-space-1) var(--fw-space-3);
+  border-radius: 999px;
+  font-size: var(--fw-text-xs);
+  font-weight: var(--fw-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--fw-tracking-wide);
+  white-space: nowrap;
+}
+
+.fw-status--new        { background: #dbeafe; color: #1e40af; }
+.fw-status--contacted  { background: #fef9c3; color: #854d0e; }
+.fw-status--quotation  { background: #ede9fe; color: #5b21b6; }
+.fw-status--negotiation{ background: #ffedd5; color: #c2410c; }
+.fw-status--confirmed  { background: #dcfce7; color: #166534; }
+.fw-status--closed     { background: var(--fw-gray-100); color: var(--fw-gray-500); }
+
+/* ── Mobile: collapse table into stacked cards ──────────────── */
+
+@media (max-width: 767px) {
+  .fw-admin-inq__table thead {
+    display: none;
+  }
+
+  .fw-admin-inq__table tbody tr {
+    display: block;
+    padding: var(--fw-space-3) var(--fw-space-4);
+    border-bottom: 1px solid var(--fw-gray-100);
+  }
+
+  .fw-admin-inq__table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--fw-space-3);
+    padding: var(--fw-space-1) 0;
+    border-bottom: none;
+    text-align: right;
+  }
+
+  .fw-admin-inq__table td::before {
+    content: attr(data-label);
+    font-weight: var(--fw-weight-semibold);
+    color: var(--fw-gray-500);
+    font-size: var(--fw-text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--fw-tracking-wide);
+    text-align: left;
+  }
+
+  .fw-admin-inq__table .fw-admin-inq__skeleton-row td {
+    display: block;
+  }
+
+  .fw-admin-inq__table .fw-admin-inq__skeleton-row td::before {
+    content: none;
+  }
+
+  .fw-admin-inq__empty {
+    display: block !important;
+  }
+
+  .fw-admin-inq__empty td::before {
+    content: none;
+  }
+}

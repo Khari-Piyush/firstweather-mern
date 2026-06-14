@@ -187,4 +187,53 @@ router.get("/:id", protect, adminOnly, async (req, res) => {
   }
 });
 
+const STATUS_VALUES = Inquiry.schema.path("status").enumValues;
+
+/* UPDATE STATUS — admin only */
+router.patch("/:id/status", protect, adminOnly, async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid inquiry id" });
+    }
+    const { status } = req.body || {};
+    if (!STATUS_VALUES.includes(status)) {
+      return res.status(400).json({ message: `Status must be one of: ${STATUS_VALUES.join(", ")}` });
+    }
+
+    const inquiry = await Inquiry.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    if (!inquiry) return res.status(404).json({ message: "Inquiry not found" });
+
+    logger.info({ inquiryId: inquiry.inquiryId, status }, "inquiry status updated");
+    res.json(inquiry);
+  } catch (err) {
+    logger.error({ err }, "update inquiry status error");
+    res.status(500).json({ message: "Failed to update status" });
+  }
+});
+
+/* ADD INTERNAL NOTE — admin only, append-only */
+router.post("/:id/notes", protect, adminOnly, async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid inquiry id" });
+    }
+    const { text } = req.body || {};
+    if (!text || !String(text).trim()) {
+      return res.status(400).json({ message: "Note text is required" });
+    }
+
+    const inquiry = await Inquiry.findByIdAndUpdate(
+      req.params.id,
+      { $push: { internalNotes: { text: String(text).trim(), createdAt: new Date() } } },
+      { new: true }
+    );
+    if (!inquiry) return res.status(404).json({ message: "Inquiry not found" });
+
+    res.json(inquiry);
+  } catch (err) {
+    logger.error({ err }, "add inquiry note error");
+    res.status(500).json({ message: "Failed to add note" });
+  }
+});
+
 export default router;

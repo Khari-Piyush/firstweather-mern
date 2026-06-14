@@ -28,6 +28,8 @@ const AdminProducts = lazy(() => import("./pages/AdminProducts.jsx"));
 const AdminOrders = lazy(() => import("./pages/AdminOrders.jsx"));
 const AdminEnquiries = lazy(() => import("./pages/AdminEnquiries.jsx"));
 const AdminTestimonials = lazy(() => import("./pages/AdminTestimonials.improved.jsx"));
+const AdminInquiries = lazy(() => import("./pages/AdminInquiries.improved.jsx"));
+const AdminInquiryDetail = lazy(() => import("./pages/AdminInquiryDetail.improved.jsx"));
 
 
 
@@ -105,6 +107,24 @@ const App = () => {
             element={
               <ProtectedRoute adminOnly>
                 <AdminTestimonials />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/inquiries"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminInquiries />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/inquiries/:id"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminInquiryDetail />
               </ProtectedRoute>
             }
           />

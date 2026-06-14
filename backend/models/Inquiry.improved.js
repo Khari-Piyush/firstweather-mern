@@ -55,6 +55,20 @@ const inquirySchema = new mongoose.Schema(
     },
 
     pdfUrl: { type: String, default: "" },
+
+    // Admin-only, append-only audit trail — entries are never edited or removed.
+    internalNotes: {
+      type: [
+        new mongoose.Schema(
+          {
+            text: { type: String, required: true, trim: true },
+            createdAt: { type: Date, default: Date.now },
+          },
+          { _id: false }
+        ),
+      ],
+      default: [],
+    },
   },
   { timestamps: true }
 );
