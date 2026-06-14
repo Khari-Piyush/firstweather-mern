@@ -12,6 +12,20 @@ import {
 
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
 
+const STATUS_ORDER = ["New", "Contacted", "Quotation Sent", "Negotiation", "Confirmed", "Closed"];
+
+const STATUS_COLORS = {
+  New: "#3b82f6",
+  Contacted: "#eab308",
+  "Quotation Sent": "#8b5cf6",
+  Negotiation: "#f97316",
+  Confirmed: "#22c55e",
+  Closed: "#9ca3af",
+};
+
+const formatDate = (date) =>
+  new Date(date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [chart, setChart] = useState({
@@ -31,6 +45,13 @@ const AdminDashboard = () => {
     enquirySubmit: 0,
   });
 
+  const [inqAnalytics, setInqAnalytics] = useState({
+    statusSummary: {},
+    monthly: { current: 0, previous: 0, trend: 0 },
+    mostRequestedProducts: [],
+    recentInquiries: [],
+  });
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -38,8 +59,12 @@ const AdminDashboard = () => {
     const fetchStats = async () => {
       try {
         setLoading(true);
-        const res = await api.get("/admin/stats");
-        setStats(res.data);
+        const [statsRes, inqRes] = await Promise.all([
+          api.get("/admin/stats"),
+          api.get("/inquiries/analytics"),
+        ]);
+        setStats(statsRes.data);
+        setInqAnalytics(inqRes.data);
       } catch {
         setError("Failed to load admin stats");
       } finally {
@@ -213,6 +238,14 @@ const AdminDashboard = () => {
         />
 
         <DashboardCard
+          title="Inquiries This Month"
+          value={inqAnalytics.monthly.current}
+          gradient="linear-gradient(135deg, #6366f1, #4338ca)"
+          trend={inqAnalytics.monthly.trend}
+          onClick={() => navigate("/admin/inquiries")}
+        />
+
+        <DashboardCard
           title="Total Visitors"
           value={analytics.visitors}
           gradient="linear-gradient(135deg, #10b981, #047857)"
@@ -279,12 +312,153 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
+
+      <div
+        style={{
+          marginTop: "1.5rem",
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+          gap: "1.5rem",
+        }}
+      >
+        {/* 📥 RECENT INQUIRIES */}
+        <div style={glassCard}>
+          <h3>📥 Recent Inquiries</h3>
+
+          {inqAnalytics.recentInquiries.length === 0 ? (
+            <p style={{ color: "#888", marginTop: "0.75rem" }}>No inquiries yet.</p>
+          ) : (
+            <div style={{ overflowX: "auto", marginTop: "0.75rem" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+                <thead>
+                  <tr style={{ textAlign: "left", color: "#888" }}>
+                    <th style={{ padding: "0.4rem 0.5rem" }}>Inquiry ID</th>
+                    <th style={{ padding: "0.4rem 0.5rem" }}>Customer</th>
+                    <th style={{ padding: "0.4rem 0.5rem" }}>Items</th>
+                    <th style={{ padding: "0.4rem 0.5rem" }}>Status</th>
+                    <th style={{ padding: "0.4rem 0.5rem" }}>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {inqAnalytics.recentInquiries.map((inq) => (
+                    <tr
+                      key={inq._id}
+                      onClick={() => navigate(`/admin/inquiries/${inq._id}`)}
+                      style={{ cursor: "pointer", borderTop: "1px solid rgba(0,0,0,0.06)" }}
+                    >
+                      <td style={{ padding: "0.5rem", fontFamily: "monospace" }}>{inq.inquiryId}</td>
+                      <td style={{ padding: "0.5rem" }}>{inq.customerName}</td>
+                      <td style={{ padding: "0.5rem" }}>{inq.itemCount}</td>
+                      <td style={{ padding: "0.5rem" }}>{inq.status}</td>
+                      <td style={{ padding: "0.5rem" }}>{formatDate(inq.createdAt)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* 📊 STATUS SUMMARY */}
+        <div style={glassCard}>
+          <h3>📊 Inquiry Status Summary</h3>
+
+          <div style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "0.65rem" }}>
+            {STATUS_ORDER.map((status) => {
+              const count = inqAnalytics.statusSummary[status] || 0;
+              const pct = stats.totalInquiries ? (count / stats.totalInquiries) * 100 : 0;
+              return (
+                <div key={status}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem" }}>
+                    <span>{status}</span>
+                    <span style={{ fontWeight: "bold" }}>{count}</span>
+                  </div>
+                  <div style={{ height: "6px", borderRadius: "4px", background: "rgba(0,0,0,0.06)", marginTop: "4px" }}>
+                    <div
+                      style={{
+                        height: "100%",
+                        width: `${pct}%`,
+                        borderRadius: "4px",
+                        background: STATUS_COLORS[status],
+                        transition: "width 0.4s ease",
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* 🏆 MOST REQUESTED PRODUCTS */}
+      <div style={{ ...glassCard, marginTop: "1.5rem" }}>
+        <h3>🏆 Most Requested Products</h3>
+
+        {inqAnalytics.mostRequestedProducts.length === 0 ? (
+          <p style={{ color: "#888", marginTop: "0.75rem" }}>No product requests yet.</p>
+        ) : (
+          <div style={{ overflowX: "auto", marginTop: "0.75rem" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+              <thead>
+                <tr style={{ textAlign: "left", color: "#888" }}>
+                  <th style={{ padding: "0.4rem 0.5rem" }}>Product Code</th>
+                  <th style={{ padding: "0.4rem 0.5rem" }}>Product Name</th>
+                  <th style={{ padding: "0.4rem 0.5rem" }}>Total Qty Requested</th>
+                  <th style={{ padding: "0.4rem 0.5rem" }}>In # Inquiries</th>
+                </tr>
+              </thead>
+              <tbody>
+                {inqAnalytics.mostRequestedProducts.map((p, i) => (
+                  <tr key={i} style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+                    <td style={{ padding: "0.5rem", fontFamily: "monospace" }}>{p.productCode || "-"}</td>
+                    <td style={{ padding: "0.5rem" }}>{p.productName}</td>
+                    <td style={{ padding: "0.5rem" }}>{p.totalQty}</td>
+                    <td style={{ padding: "0.5rem" }}>{p.inquiryCount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
+/* 🔹 SHARED GLASS CARD STYLE */
+const glassCard = {
+  background: "rgba(255,255,255,0.7)",
+  backdropFilter: "blur(12px)",
+  padding: "1.5rem",
+  borderRadius: "16px",
+  boxShadow: "0 10px 25px rgba(0,0,0,0.06)",
+};
+
+/* 🔹 TREND BADGE */
+const TrendBadge = ({ trend }) => {
+  if (trend === undefined) return null;
+
+  if (trend === null) {
+    return (
+      <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#2563eb" }}>
+        New this month
+      </span>
+    );
+  }
+
+  const color = trend > 0 ? "#16a34a" : trend < 0 ? "#dc2626" : "#6b7280";
+  const arrow = trend > 0 ? "▲" : trend < 0 ? "▼" : "—";
+
+  return (
+    <span style={{ fontSize: "0.8rem", fontWeight: 600, color }}>
+      {arrow} {Math.abs(trend)}% vs last month
+    </span>
+  );
+};
+
 /* 🔹 CARD COMPONENT */
-const DashboardCard = ({ title, value, gradient, onClick }) => {
+const DashboardCard = ({ title, value, gradient, onClick, trend }) => {
   return (
     <div
       onClick={onClick}
@@ -335,6 +509,8 @@ const DashboardCard = ({ title, value, gradient, onClick }) => {
       >
         {value}
       </p>
+
+      <TrendBadge trend={trend} />
     </div>
   );
 };

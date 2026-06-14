@@ -15,6 +15,8 @@ import {
 
 const router = express.Router();
 
+const STATUS_VALUES = Inquiry.schema.path("status").enumValues;
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const submitLimiter = rateLimit({
@@ -172,6 +174,92 @@ router.get("/", protect, adminOnly, async (req, res) => {
   }
 });
 
+/* ANALYTICS — admin only. Single aggregation, no N+1 queries. */
+router.get("/analytics", protect, adminOnly, async (req, res) => {
+  try {
+    const now = new Date();
+    const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+    const [result] = await Inquiry.aggregate([
+      {
+        $facet: {
+          total: [{ $count: "count" }],
+          statusCounts: [{ $group: { _id: "$status", count: { $sum: 1 } } }],
+          monthlyCounts: [
+            { $match: { createdAt: { $gte: startOfLastMonth } } },
+            {
+              $group: {
+                _id: { $gte: ["$createdAt", startOfThisMonth] },
+                count: { $sum: 1 },
+              },
+            },
+          ],
+          topProducts: [
+            { $unwind: "$items" },
+            {
+              $group: {
+                _id: { productCode: "$items.productCode", productName: "$items.productName" },
+                totalQty: { $sum: "$items.qty" },
+                inquiryCount: { $sum: 1 },
+              },
+            },
+            { $sort: { totalQty: -1 } },
+            { $limit: 5 },
+          ],
+          recent: [
+            { $sort: { createdAt: -1 } },
+            { $limit: 5 },
+            {
+              $project: {
+                inquiryId: 1,
+                customerName: 1,
+                status: 1,
+                createdAt: 1,
+                itemCount: { $size: "$items" },
+              },
+            },
+          ],
+        },
+      },
+    ]);
+
+    const totalInquiries = result.total[0]?.count || 0;
+
+    const statusSummary = {};
+    for (const s of STATUS_VALUES) statusSummary[s] = 0;
+    for (const row of result.statusCounts) {
+      if (statusSummary[row._id] !== undefined) statusSummary[row._id] = row.count;
+    }
+
+    let current = 0;
+    let previous = 0;
+    for (const row of result.monthlyCounts) {
+      if (row._id === true) current = row.count;
+      else previous = row.count;
+    }
+    const trend = previous === 0 ? (current === 0 ? 0 : null) : Math.round(((current - previous) / previous) * 100);
+
+    const mostRequestedProducts = result.topProducts.map((p) => ({
+      productCode: p._id.productCode,
+      productName: p._id.productName,
+      totalQty: p.totalQty,
+      inquiryCount: p.inquiryCount,
+    }));
+
+    res.json({
+      totalInquiries,
+      statusSummary,
+      monthly: { current, previous, trend },
+      mostRequestedProducts,
+      recentInquiries: result.recent,
+    });
+  } catch (err) {
+    logger.error({ err }, "inquiry analytics error");
+    res.status(500).json({ message: "Failed to fetch inquiry analytics" });
+  }
+});
+
 /* DETAIL — admin only */
 router.get("/:id", protect, adminOnly, async (req, res) => {
   try {
@@ -186,8 +274,6 @@ router.get("/:id", protect, adminOnly, async (req, res) => {
     res.status(500).json({ message: "Failed to fetch inquiry" });
   }
 });
-
-const STATUS_VALUES = Inquiry.schema.path("status").enumValues;
 
 /* UPDATE STATUS — admin only */
 router.patch("/:id/status", protect, adminOnly, async (req, res) => {
