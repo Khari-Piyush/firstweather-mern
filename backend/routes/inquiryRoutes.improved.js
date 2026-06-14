@@ -1,0 +1,138 @@
+import express from "express";
+import mongoose from "mongoose";
+import rateLimit from "express-rate-limit";
+import Inquiry from "../models/Inquiry.improved.js";
+import Product from "../models/Product.js";
+import { protect, adminOnly } from "../middleware/authMiddleware.js";
+import logger from "../config/logger.js";
+
+const router = express.Router();
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const submitLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many inquiries submitted, please try again later" },
+});
+
+// FW-YYYYMMDD-XXXX, sequential per day with collision retry
+const generateInquiryId = async () => {
+  const now = new Date();
+  const datePart = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const end = new Date(start.getTime() + 24 * 60 * 60 * 1000);
+
+  const countToday = await Inquiry.countDocuments({ createdAt: { $gte: start, $lt: end } });
+
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const seq = countToday + 1 + attempt;
+    const id = `FW-${datePart}-${String(seq).padStart(4, "0")}`;
+    // eslint-disable-next-line no-await-in-loop
+    if (!(await Inquiry.exists({ inquiryId: id }))) return id;
+  }
+  return `FW-${datePart}-${Date.now().toString().slice(-4)}`;
+};
+
+/* CREATE — public, rate-limited */
+router.post("/", submitLimiter, async (req, res) => {
+  try {
+    const { customer = {}, items, notes } = req.body || {};
+    const { name, company, email, phone, city, country } = customer;
+
+    if (!name || !String(name).trim()) {
+      return res.status(400).json({ message: "Name is required" });
+    }
+    if (!email || !EMAIL_RE.test(String(email).trim())) {
+      return res.status(400).json({ message: "A valid email is required" });
+    }
+    if (!phone || !String(phone).trim()) {
+      return res.status(400).json({ message: "Phone is required" });
+    }
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ message: "At least one item is required" });
+    }
+
+    const productIds = [];
+    for (const [i, raw] of items.entries()) {
+      const id = raw?.productId;
+      if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: `Invalid product reference at item ${i + 1}` });
+      }
+      productIds.push(id);
+    }
+
+    const products = await Product.find({ _id: { $in: productIds } })
+      .select("_id productName productId")
+      .lean();
+    const productMap = new Map(products.map((p) => [p._id.toString(), p]));
+
+    const normalizedItems = [];
+    for (const [i, raw] of items.entries()) {
+      const product = productMap.get(String(raw.productId));
+      if (!product) {
+        return res.status(404).json({ message: `Product not found for item ${i + 1}` });
+      }
+      normalizedItems.push({
+        product: product._id,
+        productCode: product.productId || "",
+        productName: product.productName,
+        qty: Math.max(1, Number(raw.qty) || 1),
+      });
+    }
+
+    const inquiryId = await generateInquiryId();
+
+    const inquiry = await Inquiry.create({
+      inquiryId,
+      items: normalizedItems,
+      customerName: String(name).trim(),
+      company: company ? String(company).trim() : "",
+      customerEmail: String(email).trim(),
+      customerPhone: String(phone).trim(),
+      city: city ? String(city).trim() : "",
+      country: country ? String(country).trim() : "",
+      notes: notes ? String(notes).trim() : "",
+    });
+
+    logger.info({ inquiryId: inquiry.inquiryId }, "inquiry created");
+    res.status(201).json({
+      success: true,
+      message: "Inquiry submitted successfully",
+      inquiryId: inquiry.inquiryId,
+    });
+  } catch (err) {
+    logger.error({ err }, "create inquiry error");
+    res.status(500).json({ message: "Failed to submit inquiry" });
+  }
+});
+
+/* LIST — admin only */
+router.get("/", protect, adminOnly, async (req, res) => {
+  try {
+    const inquiries = await Inquiry.find().sort({ createdAt: -1 });
+    res.json(inquiries);
+  } catch (err) {
+    logger.error({ err }, "list inquiries error");
+    res.status(500).json({ message: "Failed to fetch inquiries" });
+  }
+});
+
+/* DETAIL — admin only */
+router.get("/:id", protect, adminOnly, async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid inquiry id" });
+    }
+    const inquiry = await Inquiry.findById(req.params.id);
+    if (!inquiry) return res.status(404).json({ message: "Inquiry not found" });
+    res.json(inquiry);
+  } catch (err) {
+    logger.error({ err }, "get inquiry error");
+    res.status(500).json({ message: "Failed to fetch inquiry" });
+  }
+});
+
+export default router;

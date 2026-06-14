@@ -1,5 +1,8 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { FaClipboardList, FaTrash, FaMinus, FaPlus } from "react-icons/fa";
+import { FaClipboardList, FaTrash, FaMinus, FaPlus, FaCheckCircle } from "react-icons/fa";
+import { toast } from "react-toastify";
+import api from "../api.improved.js";
 import { useInquiryCart } from "../contexts/InquiryCartContext.improved.jsx";
 import { PrimaryButton, SecondaryButton } from "../components/Button.improved.jsx";
 import {
@@ -14,8 +17,103 @@ import "./InquiryListPage.improved.css";
 const optimizeImg = (url) =>
   url ? url.replace("/upload/", "/upload/w_200,f_auto,q_auto/") : null;
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const EMPTY_FORM = {
+  name: "",
+  company: "",
+  email: "",
+  phone: "",
+  city: "",
+  country: "",
+  notes: "",
+};
+
 const InquiryListPage = () => {
   const { items, itemCount, updateQty, removeItem, clearCart } = useInquiryCart();
+
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null); // { inquiryId } on success
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: value }));
+    setErrors((er) => (er[name] ? { ...er, [name]: undefined } : er));
+  };
+
+  const validate = () => {
+    const next = {};
+    if (!form.name.trim()) next.name = "Name is required";
+    if (!form.email.trim()) next.email = "Email is required";
+    else if (!EMAIL_RE.test(form.email.trim())) next.email = "Enter a valid email";
+    if (!form.phone.trim()) next.phone = "Phone is required";
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (loading) return;
+    if (!validate()) return;
+
+    setLoading(true);
+    try {
+      const res = await api.post("/inquiries", {
+        customer: {
+          name: form.name.trim(),
+          company: form.company.trim(),
+          email: form.email.trim(),
+          phone: form.phone.trim(),
+          city: form.city.trim(),
+          country: form.country.trim(),
+        },
+        items: items.map((i) => ({ productId: i.productId, qty: i.qty })),
+        notes: form.notes.trim(),
+      });
+
+      if (typeof window.gtag === "function") {
+        window.gtag("event", "inquiry_submit", {
+          event_category: "engagement",
+          event_label: "inquiry_form_submit",
+          value: itemCount,
+        });
+      }
+
+      setResult({ inquiryId: res.data.inquiryId });
+      clearCart();
+      setForm(EMPTY_FORM);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+      const message = err.response?.data?.message || "Failed to submit inquiry. Please try again.";
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (result) {
+    return (
+      <PageWrapper>
+        <Section bg="var(--fw-white)">
+          <div className="fw-inquiry-success">
+            <FaCheckCircle aria-hidden="true" />
+            <h2 className="fw-inquiry-success__title">Inquiry Submitted</h2>
+            <p className="fw-inquiry-success__id">{result.inquiryId}</p>
+            <p className="fw-inquiry-success__text">
+              Thank you! Our team has received your request and will get back
+              to you within 24 hours with pricing and availability.
+            </p>
+            <div className="fw-inquiry-list__actions">
+              <PrimaryButton to="/products">Continue Browsing</PrimaryButton>
+              <SecondaryButton to="/">Back to Home</SecondaryButton>
+            </div>
+          </div>
+        </Section>
+      </PageWrapper>
+    );
+  }
 
   return (
     <PageWrapper>
@@ -107,14 +205,88 @@ const InquiryListPage = () => {
               </div>
             </div>
 
-            <div className="fw-inquiry-list__assist">
-              <p>
-                Ready to request a quote for this list? Our quote request
-                form is launching soon. In the meantime, reach out via{" "}
-                <Link to="/contact">Contact Us</Link> and our team will help
-                with pricing and availability for everything on your list.
+            {/* ── Submit Inquiry form ─────────────────────────────── */}
+            <form className="fw-inquiry-form" onSubmit={handleSubmit} noValidate>
+              <SectionLabel>Request a Quote</SectionLabel>
+              <h2 className="fw-inquiry-form__heading">Tell us how to reach you</h2>
+              <p className="fw-inquiry-form__intro">
+                Share your details below and our team will respond with
+                pricing and availability for everything in your list.
               </p>
-            </div>
+
+              <div className="fw-inquiry-form__row">
+                <FormField
+                  label="Name"
+                  name="name"
+                  placeholder="Your full name"
+                  value={form.name}
+                  onChange={handleChange}
+                  error={errors.name}
+                  required
+                />
+                <FormField
+                  label="Company"
+                  name="company"
+                  placeholder="Company name (optional)"
+                  value={form.company}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="fw-inquiry-form__row">
+                <FormField
+                  label="Email"
+                  name="email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={form.email}
+                  onChange={handleChange}
+                  error={errors.email}
+                  required
+                />
+                <FormField
+                  label="Phone"
+                  name="phone"
+                  type="tel"
+                  placeholder="+91 XXXXX XXXXX"
+                  value={form.phone}
+                  onChange={handleChange}
+                  error={errors.phone}
+                  required
+                />
+              </div>
+
+              <div className="fw-inquiry-form__row">
+                <FormField
+                  label="City"
+                  name="city"
+                  placeholder="City (optional)"
+                  value={form.city}
+                  onChange={handleChange}
+                />
+                <FormField
+                  label="Country"
+                  name="country"
+                  placeholder="Country (optional)"
+                  value={form.country}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <FormField
+                as="textarea"
+                label="Notes"
+                name="notes"
+                rows={4}
+                placeholder="Any additional details about your requirement (optional)"
+                value={form.notes}
+                onChange={handleChange}
+              />
+
+              <button type="submit" className="fw-inquiry-form__submit" disabled={loading}>
+                {loading ? "Submitting…" : "Submit Inquiry"}
+              </button>
+            </form>
           </>
         )}
       </Section>
@@ -123,3 +295,25 @@ const InquiryListPage = () => {
 };
 
 export default InquiryListPage;
+
+/* ── FormField ───────────────────────────────────────────────────── */
+
+const FormField = ({ label, name, as, rows, error, required, ...rest }) => {
+  const El = as === "textarea" ? "textarea" : "input";
+  return (
+    <div className="fw-inquiry-form__field">
+      <label htmlFor={name} className="fw-inquiry-form__label">
+        {label}{required && <span aria-hidden="true"> *</span>}
+      </label>
+      <El
+        id={name}
+        name={name}
+        rows={rows}
+        className={`fw-inquiry-form__input${as === "textarea" ? " fw-inquiry-form__input--textarea" : ""}${error ? " fw-inquiry-form__input--error" : ""}`}
+        aria-invalid={error ? "true" : undefined}
+        {...rest}
+      />
+      {error && <p className="fw-inquiry-form__error">{error}</p>}
+    </div>
+  );
+};
