@@ -6,10 +6,16 @@ import {
   FaInstagram,
   FaFacebookF,
 } from "react-icons/fa";
+import { useInquiryCart } from "../contexts/InquiryCartContext.improved.jsx";
 
 const FloatingSocialMenu = () => {
   const [open, setOpen] = useState(false);
+  const { drawerOpen } = useInquiryCart();
   const phone = "917428088039";
+
+  // Hidden while the inquiry cart drawer is open — both are fixed,
+  // bottom-right elements and would otherwise overlap.
+  if (drawerOpen) return null;
 
   return (
     <div style={wrapper}>
