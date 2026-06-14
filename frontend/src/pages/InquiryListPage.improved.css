@@ -356,3 +356,19 @@
   max-width: 60ch;
   margin: 0 0 var(--fw-space-2);
 }
+
+.fw-inquiry-success__whatsapp {
+  background: #25d366;
+  color: var(--fw-white);
+  border: 1.5px solid #25d366;
+}
+
+.fw-inquiry-success__whatsapp:hover {
+  background: #1ebe5d;
+  border-color: #1ebe5d;
+}
+
+.fw-inquiry-success__whatsapp svg {
+  font-size: 1.1em;
+  color: inherit;
+}

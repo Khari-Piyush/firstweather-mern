@@ -7,6 +7,11 @@ import { protect, adminOnly } from "../middleware/authMiddleware.js";
 import logger from "../config/logger.js";
 import { generateInquiryPdfBuffer } from "../utils/inquiryPdf.improved.js";
 import { saveInquiryPdfFile, inquiryPdfFilePath } from "../utils/storeInquiryPdf.improved.js";
+import {
+  sendAdminInquiryEmail,
+  sendCustomerConfirmationEmail,
+  buildInquiryWhatsappUrl,
+} from "../utils/inquiryNotifications.improved.js";
 
 const router = express.Router();
 
@@ -103,8 +108,9 @@ router.post("/", submitLimiter, async (req, res) => {
 
     // PDF generation is best-effort — a failure here must not lose the
     // inquiry that's already saved.
+    let pdfBuffer = null;
     try {
-      const pdfBuffer = await generateInquiryPdfBuffer(inquiry);
+      pdfBuffer = await generateInquiryPdfBuffer(inquiry);
       saveInquiryPdfFile(pdfBuffer, inquiry.inquiryId);
       inquiry.pdfUrl = `${req.protocol}://${req.get("host")}/api/inquiries/pdf/${inquiry.inquiryId}`;
       await inquiry.save();
@@ -112,10 +118,25 @@ router.post("/", submitLimiter, async (req, res) => {
       logger.error({ err: pdfErr, inquiryId: inquiry.inquiryId }, "inquiry pdf generation error");
     }
 
+    // Notifications are best-effort too — failures must not lose the
+    // inquiry or block the response. No PII in logs, only the inquiryId.
+    try {
+      await sendAdminInquiryEmail(inquiry, pdfBuffer);
+    } catch (mailErr) {
+      logger.error({ err: mailErr, inquiryId: inquiry.inquiryId }, "admin notification email error");
+    }
+
+    try {
+      await sendCustomerConfirmationEmail(inquiry);
+    } catch (mailErr) {
+      logger.error({ err: mailErr, inquiryId: inquiry.inquiryId }, "customer confirmation email error");
+    }
+
     res.status(201).json({
       success: true,
       message: "Inquiry submitted successfully",
       inquiryId: inquiry.inquiryId,
+      whatsappUrl: buildInquiryWhatsappUrl(inquiry),
     });
   } catch (err) {
     logger.error({ err }, "create inquiry error");

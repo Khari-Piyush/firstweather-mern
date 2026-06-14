@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { FaClipboardList, FaTrash, FaMinus, FaPlus, FaCheckCircle } from "react-icons/fa";
+import { FaClipboardList, FaTrash, FaMinus, FaPlus, FaCheckCircle, FaWhatsapp } from "react-icons/fa";
 import { toast } from "react-toastify";
 import api from "../api.improved.js";
 import { useInquiryCart } from "../contexts/InquiryCartContext.improved.jsx";
@@ -81,7 +81,7 @@ const InquiryListPage = () => {
         });
       }
 
-      setResult({ inquiryId: res.data.inquiryId });
+      setResult({ inquiryId: res.data.inquiryId, whatsappUrl: res.data.whatsappUrl });
       clearCart();
       setForm(EMPTY_FORM);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -103,11 +103,29 @@ const InquiryListPage = () => {
             <p className="fw-inquiry-success__id">{result.inquiryId}</p>
             <p className="fw-inquiry-success__text">
               Thank you! Our team has received your request and will get back
-              to you within 24 hours with pricing and availability.
+              to you within 24 hours with pricing and availability. A
+              confirmation email with your Inquiry ID has been sent to you.
             </p>
+            {result.whatsappUrl && (
+              <p className="fw-inquiry-success__text">
+                Want a faster response? Send us your inquiry details on
+                WhatsApp too.
+              </p>
+            )}
             <div className="fw-inquiry-list__actions">
               <PrimaryButton to="/products">Continue Browsing</PrimaryButton>
               <SecondaryButton to="/">Back to Home</SecondaryButton>
+              {result.whatsappUrl && (
+                <a
+                  href={result.whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="fw-btn fw-inquiry-success__whatsapp"
+                >
+                  <FaWhatsapp aria-hidden="true" />
+                  Notify us on WhatsApp
+                </a>
+              )}
             </div>
           </div>
         </Section>
