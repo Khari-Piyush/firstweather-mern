@@ -53,6 +53,8 @@ const inquirySchema = new mongoose.Schema(
       enum: ["New", "Contacted", "Quotation Sent", "Negotiation", "Confirmed", "Closed"],
       default: "New",
     },
+
+    pdfUrl: { type: String, default: "" },
   },
   { timestamps: true }
 );

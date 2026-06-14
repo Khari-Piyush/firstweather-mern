@@ -5,6 +5,8 @@ import Inquiry from "../models/Inquiry.improved.js";
 import Product from "../models/Product.js";
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
 import logger from "../config/logger.js";
+import { generateInquiryPdfBuffer } from "../utils/inquiryPdf.improved.js";
+import { saveInquiryPdfFile, inquiryPdfFilePath } from "../utils/storeInquiryPdf.improved.js";
 
 const router = express.Router();
 
@@ -98,6 +100,18 @@ router.post("/", submitLimiter, async (req, res) => {
     });
 
     logger.info({ inquiryId: inquiry.inquiryId }, "inquiry created");
+
+    // PDF generation is best-effort — a failure here must not lose the
+    // inquiry that's already saved.
+    try {
+      const pdfBuffer = await generateInquiryPdfBuffer(inquiry);
+      saveInquiryPdfFile(pdfBuffer, inquiry.inquiryId);
+      inquiry.pdfUrl = `${req.protocol}://${req.get("host")}/api/inquiries/pdf/${inquiry.inquiryId}`;
+      await inquiry.save();
+    } catch (pdfErr) {
+      logger.error({ err: pdfErr, inquiryId: inquiry.inquiryId }, "inquiry pdf generation error");
+    }
+
     res.status(201).json({
       success: true,
       message: "Inquiry submitted successfully",
@@ -107,6 +121,23 @@ router.post("/", submitLimiter, async (req, res) => {
     logger.error({ err }, "create inquiry error");
     res.status(500).json({ message: "Failed to submit inquiry" });
   }
+});
+
+/* PDF — public (link shared with the customer who submitted the inquiry) */
+router.get("/pdf/:inquiryId", (req, res) => {
+  const { inquiryId } = req.params;
+  if (!/^FW-\d{8}-\d{4}$/.test(inquiryId)) {
+    return res.status(400).json({ message: "Invalid inquiry id" });
+  }
+
+  const filePath = inquiryPdfFilePath(inquiryId);
+  res.sendFile(filePath, {
+    headers: { "Content-Type": "application/pdf" },
+  }, (err) => {
+    if (err) {
+      if (!res.headersSent) res.status(404).json({ message: "PDF not found" });
+    }
+  });
 });
 
 /* LIST — admin only */
