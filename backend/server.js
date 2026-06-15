@@ -17,7 +17,7 @@ import enquiryRoutes from "./routes/enquiryRoutes.js";
 import recommendRoute from "./routes/recommend.js";
 import categoryRoutes from "./routes/categoryRoutes.improved.js";
 import testimonialRoutes from "./routes/testimonialRoutes.js";
-//import inquiryRoutes from "./routes/inquiryRoutes.improved.js";
+import inquiryRoutes from "./routes/inquiryRoutes.improved.js";
 
 
 dotenv.config();
@@ -46,12 +46,20 @@ const enquiryLimiter = rateLimit({
 
 
 let analyticsDataClient = null;
-try {
-  analyticsDataClient = new BetaAnalyticsDataClient({
-    credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT),
-  });
-} catch (e) {
-  logger.warn({ err: e.message }, "analytics client init failed — routes unavailable");
+if (!process.env.GOOGLE_SERVICE_ACCOUNT) {
+  logger.warn("GOOGLE_SERVICE_ACCOUNT not set — analytics routes unavailable");
+} else {
+  try {
+    const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
+    // Render/host env UIs often store the private_key with literal \n
+    // sequences instead of real newlines — normalize either form.
+    if (credentials.private_key) {
+      credentials.private_key = credentials.private_key.replace(/\\n/g, "\n");
+    }
+    analyticsDataClient = new BetaAnalyticsDataClient({ credentials });
+  } catch (e) {
+    logger.warn({ err: e.message }, "analytics client init failed — routes unavailable");
+  }
 }
 
 const propertyId = '492464995'; // GA se milega
@@ -80,7 +88,7 @@ app.use("/api", enquiryRoutes);
 app.use("/api/recommend", recommendRoute);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/testimonials", testimonialRoutes);
-//app.use("/api/inquiries", inquiryRoutes);
+app.use("/api/inquiries", inquiryRoutes);
 
 
 
