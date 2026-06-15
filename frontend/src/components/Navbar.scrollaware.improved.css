@@ -197,7 +197,11 @@
   gap: var(--fw-space-5);
 }
 
-@media (min-width: 768px) {
+/* Switches later than the 768px size breakpoint above: at 768-1023px
+   (tablet portrait) the full link row + cart icon is wider than the
+   available bar space and spills past the viewport edge, so those
+   widths keep the hamburger/mobile-overlay nav instead. */
+@media (min-width: 1024px) {
   .fw-nav-sa__links {
     display: flex;
   }
@@ -323,7 +327,7 @@
   flex-shrink: 0;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .fw-nav-sa__hamburger {
     display: none;
   }
@@ -360,7 +364,7 @@
     visibility 0s;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .fw-nav-sa__mobile {
     display: none !important;
   }
