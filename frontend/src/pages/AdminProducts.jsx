@@ -217,7 +217,7 @@ const AdminProducts = () => {
           <option value="all">All Categories</option>
           <option value="F.W Wiper Blade">Wiper Blades</option>
           <option value="F.W Wiper Arm">Wiper Arm</option>
-          <option value="F.W Wiper Linkage ">Wiper Linkage Assembly</option>
+          <option value="F.W Wiper Linkage">Wiper Linkage Assembly</option>
           <option value="F.W Wiper Wheel Box">Wiper Wheel Box</option>
           <option value="F.W Wiper Rod">Wiper Rod</option>
           <option value="F.W Wiper Motor Gear">Wiper Motor Gear</option>

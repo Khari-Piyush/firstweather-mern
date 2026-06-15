@@ -1,30 +1,34 @@
 import { Link } from "react-router-dom";
+import AddToInquiryButton from "./AddToInquiryButton.improved.jsx";
 import "./ProductCard.improved.css";
 
 const optimizeImg = (url) =>
   url ? url.replace("/upload/", "/upload/w_400,f_auto,q_auto/") : null;
 
 const ProductCard = ({ product }) => (
-  <Link to={`/products/${product._id}`} className="fw-product-card" style={card}>
-    <div style={imgWrap}>
-      <img
-        src={optimizeImg(product.imageUrl) || "/fw-logo-blue.webp"}
-        alt={product.productName}
-        style={imgStyle}
-        loading="lazy"
-        decoding="async"
-      />
-    </div>
-    <div style={cardBody}>
-      <p style={nameStyle}>{product.productName}</p>
-      {product.productId && (
-        <p style={codeStyle}>{product.productId}</p>
-      )}
-      {product.price != null && (
-        <p style={priceStyle}>₹{product.price}</p>
-      )}
-    </div>
-  </Link>
+  <div className="fw-product-card" style={card}>
+    <Link to={`/products/${product._id}`} style={cardLink}>
+      <div style={imgWrap}>
+        <img
+          src={optimizeImg(product.imageUrl) || "/fw-logo-blue.webp"}
+          alt={product.productName}
+          style={imgStyle}
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+      <div style={cardBody}>
+        <p style={nameStyle}>{product.productName}</p>
+        {product.productId && (
+          <p style={codeStyle}>{product.productId}</p>
+        )}
+        {product.price != null && (
+          <p style={priceStyle}>₹{product.price}</p>
+        )}
+      </div>
+    </Link>
+    <AddToInquiryButton product={product} floating />
+  </div>
 );
 
 export default ProductCard;
@@ -32,14 +36,19 @@ export default ProductCard;
 /* ── Styles ──────────────────────────────────────────────────────── */
 
 const card = {
-  display: "flex",
-  flexDirection: "column",
-  textDecoration: "none",
+  position: "relative",
   background: "var(--fw-white)",
   border: "1px solid var(--fw-gray-300)",
   borderRadius: "var(--fw-radius-md)",
   overflow: "hidden",
   boxShadow: "var(--fw-shadow-sm)",
+};
+
+const cardLink = {
+  display: "flex",
+  flexDirection: "column",
+  height: "100%",
+  textDecoration: "none",
 };
 
 const imgWrap = {
@@ -52,8 +61,10 @@ const imgWrap = {
 const imgStyle = {
   width: "100%",
   height: "100%",
-  objectFit: "contain",
-  padding: "var(--fw-space-6)",
+  objectFit: "cover",          // cover ki jagah contain — poora product dikhega, crop nahi
+  padding: "var(--fw-space-1)",
+  boxSizing: "border-box",        // ← yeh padding ko width/height ke ANDAR rakhta hai, bahar nahi
+  display: "block",
 };
 
 const cardBody = {

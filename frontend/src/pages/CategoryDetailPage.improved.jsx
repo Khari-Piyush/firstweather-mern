@@ -16,18 +16,23 @@ import Reveal from "../components/Reveal.improved.jsx";
 
 // Categories that have dedicated hero images in public/
 const CATEGORY_HERO = {
-  "wiper-arms":                "/fw-arm.webp",
-  "wiper-blades":              "/fw-blade.webp",
-  "wiper-linkage-assemblies":  "/fw-linkage.webp",
-  "wiper-wheel-box":           "/fw-wheelbox.webp",
+  "wiper-arms": "/fw-arm.webp",
+  "wiper-blades": "/fw-blade.webp",
+  "wiper-linkage-assemblies": "/fw-linkage.webp",
+  "wiper-wheel-box": "/fw-wheelbox.webp",
+  "wiper-motors": "/fw-motor.webp",
+  "wiper-motor-gear": "/fw-gear.webp",
+  "complete-wiper-kits": "/fw-wipersys.webp",
+  "bus-wiper-systems": "/fw-bus-system.webp",
+  "wiper-spare-parts": "/fw-spares.webp",
 };
 
 const CategoryDetailPage = () => {
   const { slug } = useParams();
   const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     setLoading(true);

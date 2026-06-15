@@ -14,3 +14,6 @@ yarn-error.log*
 Thumbs.db
 *service-account*.json
 first-weather-analytics-*.json
+
+# Generated inquiry PDFs
+backend/uploads/inquiries/

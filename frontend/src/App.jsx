@@ -4,6 +4,7 @@ import { lazy, Suspense } from "react";
 import Navbar from "./components/Navbar.scrollaware.improved.jsx";
 import Footer from "./components/Footer.improved.jsx";
 import FloatingSocialMenu from "./components/FloatingSocialMenu.jsx";
+import InquiryCartDrawer from "./components/InquiryCartDrawer.improved.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import ScrollToTop from "./components/ScrollTop.jsx"
 
@@ -20,12 +21,15 @@ const LoginPage = lazy(() => import("./pages/LoginPage.jsx"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage.jsx"));
 const ContactUs = lazy(() => import("./pages/ContactUs.improved.jsx"));
 const AboutPage  = lazy(() => import("./pages/AboutPage.improved.jsx"));
+const InquiryListPage = lazy(() => import("./pages/InquiryListPage.improved.jsx"));
 
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard.jsx"));
 const AdminProducts = lazy(() => import("./pages/AdminProducts.jsx"));
 const AdminOrders = lazy(() => import("./pages/AdminOrders.jsx"));
 const AdminEnquiries = lazy(() => import("./pages/AdminEnquiries.jsx"));
 const AdminTestimonials = lazy(() => import("./pages/AdminTestimonials.improved.jsx"));
+const AdminInquiries = lazy(() => import("./pages/AdminInquiries.improved.jsx"));
+const AdminInquiryDetail = lazy(() => import("./pages/AdminInquiryDetail.improved.jsx"));
 
 
 
@@ -47,6 +51,7 @@ const App = () => {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/enquire/:productId" element={<ContactUs />} />
+          <Route path="/inquiry" element={<InquiryListPage />} />
 
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -106,6 +111,24 @@ const App = () => {
             }
           />
 
+          <Route
+            path="/admin/inquiries"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminInquiries />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/inquiries/:id"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminInquiryDetail />
+              </ProtectedRoute>
+            }
+          />
+
           {/* 404 */}
           <Route
             path="*"
@@ -124,6 +147,7 @@ const App = () => {
 
       <Footer />
       <FloatingSocialMenu />
+      <InquiryCartDrawer />
     </>
   );
 };

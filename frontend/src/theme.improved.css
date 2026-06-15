@@ -141,6 +141,15 @@
 
 /* ── Global base resets used by the redesigned surfaces ─────────── */
 
+/* Without this, padding on any width:100% element (e.g. .fw-btn--full)
+   adds to its box and overflows the parent — causes horizontal
+   scrollbars on pages like the product detail CTA stack. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 .fw-body {
   font-family: var(--fw-font);
   background: var(--fw-bg);

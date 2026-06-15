@@ -1,5 +1,7 @@
 # Site-wide lazy-load + scroll-reveal — implementation notes
 
+{% raw %}
+
 ## 1. Plan summary
 
 **New files added** (all dependency-free, no framer-motion since it isn't installed):
@@ -453,3 +455,5 @@ Both card images: added `decoding="async"` alongside the existing `loading="lazy
    - Test on a narrow viewport (e.g. 390×844) with CPU/network throttling — scrolling should stay smooth (60fps), with no jank from the reveal/lazy logic (animations are transform/opacity only, single IntersectionObserver per section).
 
 **Automated check performed:** Playwright (Chromium) — reveal-on-scroll fires once and persists on scroll-back, `prefers-reduced-motion` shows final state immediately with no console errors, lazy skeletons mount real content on scroll, CLS ≈ 0.002 on a mobile viewport while scrolling the homepage, and all routes (`/categories`, `/products`, `/about`, `/contact`, a category detail page, hard refresh) render without console errors.
+
+{% endraw %}

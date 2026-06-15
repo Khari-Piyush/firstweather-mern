@@ -1,6 +1,8 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import { FaClipboardList } from "react-icons/fa";
 import { AuthContext } from "../contexts/AuthContext.improved.jsx";
+import { useInquiryCart } from "../contexts/InquiryCartContext.improved.jsx";
 import logoIcon from "../../public/fw-logo-blue.webp";
 import "./Navbar.scrollaware.improved.css";
 
@@ -28,6 +30,7 @@ const HIDE_AFTER = 80;
 
 const NavbarScrollAware = () => {
   const { user, logout } = useContext(AuthContext);
+  const { itemCount, openDrawer } = useInquiryCart();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const navRef = useRef(null);
@@ -154,6 +157,15 @@ const NavbarScrollAware = () => {
                   Login
                 </NavLink>
               )}
+
+              <button
+                className="fw-nav-sa__cart-btn"
+                onClick={openDrawer}
+                aria-label={`Inquiry list${itemCount > 0 ? `, ${itemCount} item${itemCount === 1 ? "" : "s"}` : ""}`}
+              >
+                <FaClipboardList />
+                {itemCount > 0 && <span className="fw-nav-sa__cart-badge">{itemCount}</span>}
+              </button>
             </div>
 
             {/* Hamburger (mobile) */}
@@ -194,6 +206,15 @@ const NavbarScrollAware = () => {
               {item.label}
             </Link>
           ))}
+
+          <button
+            className="fw-nav-sa__mobile-cart-btn"
+            onClick={() => { openDrawer(); close(); }}
+          >
+            <FaClipboardList aria-hidden="true" />
+            Inquiry List
+            {itemCount > 0 && <span className="fw-nav-sa__cart-badge">{itemCount}</span>}
+          </button>
 
           {isAdmin && (
             <>

@@ -17,11 +17,14 @@ import enquiryRoutes from "./routes/enquiryRoutes.js";
 import recommendRoute from "./routes/recommend.js";
 import categoryRoutes from "./routes/categoryRoutes.improved.js";
 import testimonialRoutes from "./routes/testimonialRoutes.js";
+//import inquiryRoutes from "./routes/inquiryRoutes.improved.js";
 
 
 dotenv.config();
 const PORT = process.env.PORT || 4000;
 const app = express();
+
+app.set("trust proxy", 1);
 
 app.use(helmet());
 
@@ -63,7 +66,7 @@ app.use(express.json());
 app.use(cors({
   origin: allowedOrigins,
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
 }));
 
@@ -77,6 +80,7 @@ app.use("/api", enquiryRoutes);
 app.use("/api/recommend", recommendRoute);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/testimonials", testimonialRoutes);
+//app.use("/api/inquiries", inquiryRoutes);
 
 
 

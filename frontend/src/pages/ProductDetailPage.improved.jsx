@@ -4,6 +4,7 @@ import api from "../api.improved.js";
 import ProductCard from "../components/ProductCard.improved.jsx";
 import GetBestPriceButton from "../components/GetBestPriceButton.improved.jsx";
 import DownloadCatalogButton from "../components/DownloadCatalogButton.improved.jsx";
+import AddToInquiryButton from "../components/AddToInquiryButton.improved.jsx";
 import {
   PageWrapper,
   Section,
@@ -35,9 +36,9 @@ const optimizeImg = (url) =>
 const ProductDetailPage = () => {
   const { id } = useParams();
 
-  const [product,         setProduct]         = useState(null);
-  const [loading,         setLoading]         = useState(true);
-  const [error,           setError]           = useState("");
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [recommendations, setRecommendations] = useState([]);
 
   // Fetch product
@@ -67,7 +68,7 @@ const ProductDetailPage = () => {
     if (!product?._id) return;
     api.get(`/recommend/${product._id}`)
       .then((r) => setRecommendations(Array.isArray(r.data) ? r.data : []))
-      .catch(() => {});
+      .catch(() => { });
   }, [product?._id]);
 
   if (loading) {
@@ -92,7 +93,7 @@ const ProductDetailPage = () => {
   }
 
   const imgSrc = optimizeImg(product.imageUrl) || "/fw-logo-blue.webp";
-  const waUrl  = buildWaUrl(product);
+  const waUrl = buildWaUrl(product);
 
   return (
     <PageWrapper>
@@ -170,6 +171,8 @@ const ProductDetailPage = () => {
                 full
               />
 
+              <AddToInquiryButton product={product} variant="secondary" full />
+
               <a href={waUrl} target="_blank" rel="noopener noreferrer" style={waBtn}>
                 <WaIcon />
                 WhatsApp
@@ -237,8 +240,8 @@ const SpecRow = ({ label, value, mono, accent }) => (
       ...specValue,
       fontFamily: mono ? "'Courier New', monospace" : undefined,
       color: accent === "green" ? "#16a34a"
-           : accent === "red"   ? "#dc2626"
-           : undefined,
+        : accent === "red" ? "#dc2626"
+          : undefined,
       fontWeight: accent ? "var(--fw-weight-semibold)" : undefined,
     }}>
       {value}
@@ -298,7 +301,7 @@ const topGrid = {
 const imgWrap = {
   background: "var(--fw-gray-100)",
   borderRadius: "var(--fw-radius-lg)",
-  padding: "var(--fw-space-10)",
+  padding: "var(--fw-space-2)",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -307,7 +310,7 @@ const imgWrap = {
 const imgStyle = {
   width: "100%",
   maxHeight: "380px",
-  objectFit: "contain",
+  objectFit: "cover",
 };
 
 const infoCol = {
