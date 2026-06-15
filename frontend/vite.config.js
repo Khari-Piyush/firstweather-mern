@@ -7,5 +7,8 @@ export default defineConfig({
   build: {
     cssCodeSplit: true,
     minify: "esbuild",
+    // exceljs is already dynamically imported (admin export-to-Excel only) and
+    // lands in its own ~940kB chunk, well above the default 500kB threshold.
+    chunkSizeWarningLimit: 1000,
   },
 })
