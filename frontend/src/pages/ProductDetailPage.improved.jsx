@@ -13,6 +13,7 @@ import {
   BodyText,
 } from "../components/Layout.improved.jsx";
 import Reveal from "../components/Reveal.improved.jsx";
+import "../components/LazySection.improved.css";
 
 const WA_NUMBER = "917428088039";
 
@@ -40,6 +41,8 @@ const ProductDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [recommendations, setRecommendations] = useState([]);
+  const [recLoading, setRecLoading] = useState(false);
+  const [recFallback, setRecFallback] = useState(false);
 
   // Fetch product
   useEffect(() => {
@@ -63,13 +66,47 @@ const ProductDetailPage = () => {
     }
   }, [product]);
 
-  // ML recommendations
+  // ML recommendations — falls back to same-category products on empty/error
   useEffect(() => {
     if (!product?._id) return;
+    let cancelled = false;
+
+    const loadFallback = () => {
+      if (!product.category) {
+        if (!cancelled) setRecLoading(false);
+        return;
+      }
+      api.get("/products", { params: { category: product.category, limit: 6 } })
+        .then((r) => {
+          if (cancelled) return;
+          const items = Array.isArray(r.data) ? r.data : [];
+          const filtered = items.filter((p) => p._id !== product._id).slice(0, 5);
+          setRecommendations(filtered);
+          setRecFallback(true);
+        })
+        .catch(() => { if (!cancelled) setRecommendations([]); })
+        .finally(() => { if (!cancelled) setRecLoading(false); });
+    };
+
+    setRecLoading(true);
+    setRecFallback(false);
+    setRecommendations([]);
+
     api.get(`/recommend/${product._id}`)
-      .then((r) => setRecommendations(Array.isArray(r.data) ? r.data : []))
-      .catch(() => { });
-  }, [product?._id]);
+      .then((r) => {
+        if (cancelled) return;
+        const items = Array.isArray(r.data) ? r.data : [];
+        if (items.length > 0) {
+          setRecommendations(items);
+          setRecLoading(false);
+        } else {
+          loadFallback();
+        }
+      })
+      .catch(() => { if (!cancelled) loadFallback(); });
+
+    return () => { cancelled = true; };
+  }, [product?._id, product?.category]);
 
   if (loading) {
     return (
@@ -197,31 +234,45 @@ const ProductDetailPage = () => {
       )}
 
       {/* ── 3. Recommendations ─────────────────────────────────── */}
-      {recommendations.length > 0 && (
+      {(recLoading || recommendations.length > 0) && (
         <Reveal as={Section} bg="var(--fw-white)">
           <div style={{ marginBottom: "var(--fw-space-8)" }}>
-            <SectionLabel>You May Also Need</SectionLabel>
+            <SectionLabel>
+              {recFallback ? "You May Also Like" : "You May Also Need"}
+            </SectionLabel>
             <SectionHeading style={{ margin: 0 }}>
-              Frequently Bought Together
+              {recFallback ? "More From This Category" : "Frequently Bought Together"}
             </SectionHeading>
           </div>
 
           <div style={recGrid}>
-            {recommendations.map((item) => (
-              <div
-                key={item._id}
-                onClick={() => {
-                  if (typeof window.gtag === "function") {
-                    window.gtag("event", "recommendation_click", {
-                      event_category: "engagement",
-                      event_label: item.productName,
-                    });
-                  }
-                }}
-              >
-                <ProductCard product={item} />
-              </div>
-            ))}
+            {recLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} style={recSkeletonCard}>
+                  <div className="fw-lazy-skeleton" style={recSkeletonImg} />
+                  <div style={recSkeletonBody}>
+                    <div className="fw-lazy-skeleton" style={recSkeletonLine} />
+                    <div className="fw-lazy-skeleton" style={recSkeletonLineShort} />
+                  </div>
+                </div>
+              ))
+            ) : (
+              recommendations.map((item) => (
+                <div
+                  key={item._id}
+                  onClick={() => {
+                    if (typeof window.gtag === "function") {
+                      window.gtag("event", "recommendation_click", {
+                        event_category: "engagement",
+                        event_label: item.productName,
+                      });
+                    }
+                  }}
+                >
+                  <ProductCard product={item} />
+                </div>
+              ))
+            )}
           </div>
         </Reveal>
       )}
@@ -399,4 +450,33 @@ const recGrid = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
   gap: "var(--fw-space-5)",
+};
+
+const recSkeletonCard = {
+  background: "var(--fw-white)",
+  border: "1px solid var(--fw-gray-300)",
+  borderRadius: "var(--fw-radius-md)",
+  overflow: "hidden",
+};
+
+const recSkeletonImg = {
+  width: "100%",
+  aspectRatio: "1 / 1",
+  borderRadius: 0,
+};
+
+const recSkeletonBody = {
+  padding: "var(--fw-space-4) var(--fw-space-5)",
+  borderTop: "1px solid var(--fw-gray-300)",
+};
+
+const recSkeletonLine = {
+  height: 14,
+  width: "80%",
+  marginBottom: "var(--fw-space-2)",
+};
+
+const recSkeletonLineShort = {
+  height: 12,
+  width: "40%",
 };
