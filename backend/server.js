@@ -17,7 +17,7 @@ import enquiryRoutes from "./routes/enquiryRoutes.js";
 import recommendRoute from "./routes/recommend.js";
 import categoryRoutes from "./routes/categoryRoutes.improved.js";
 import testimonialRoutes from "./routes/testimonialRoutes.js";
-import inquiryRoutes from "./routes/inquiryRoutes.improved.js";
+//import inquiryRoutes from "./routes/inquiryRoutes.improved.js";
 
 
 dotenv.config();
@@ -80,7 +80,7 @@ app.use("/api", enquiryRoutes);
 app.use("/api/recommend", recommendRoute);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/testimonials", testimonialRoutes);
-app.use("/api/inquiries", inquiryRoutes);
+//app.use("/api/inquiries", inquiryRoutes);
 
 
 
