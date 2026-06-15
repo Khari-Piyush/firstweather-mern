@@ -11,7 +11,6 @@ import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.improved.js";
 import productRoutes from "./routes/productRoutes.improved.js";
-import orderRoutes from "./routes/orderRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import enquiryRoutes from "./routes/enquiryRoutes.js";
 import recommendRoute from "./routes/recommend.js";
@@ -81,7 +80,6 @@ app.use(cors({
 
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/products", productRoutes);
-app.use("/api/orders", orderRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/enquiry", enquiryLimiter);
 app.use("/api", enquiryRoutes);

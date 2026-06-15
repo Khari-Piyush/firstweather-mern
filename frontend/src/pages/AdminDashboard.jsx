@@ -35,8 +35,6 @@ const AdminDashboard = () => {
 
   const [stats, setStats] = useState({
     totalProducts: 0,
-    totalOrders: 0,
-    pendingOrders: 0, // enquiries count
     totalInquiries: 0,
   });
   const [analytics, setAnalytics] = useState({
@@ -214,20 +212,6 @@ const AdminDashboard = () => {
           value={stats.totalProducts}
           gradient="linear-gradient(135deg, #2563eb, #1e40af)"
           onClick={() => navigate("/admin/products")}
-        />
-
-        <DashboardCard
-          title="Total Orders"
-          value={stats.totalOrders}
-          gradient="linear-gradient(135deg, #0ea5e9, #0369a1)"
-          onClick={() => navigate("/admin/orders")}
-        />
-
-        <DashboardCard
-          title="Pending Enquiries"
-          value={stats.pendingOrders}
-          gradient="linear-gradient(135deg, #f59e0b, #b45309)"
-          onClick={() => navigate("/admin/enquiries")}
         />
 
         <DashboardCard

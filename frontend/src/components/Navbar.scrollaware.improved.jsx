@@ -18,8 +18,6 @@ const PUBLIC_NAV = [
 const ADMIN_NAV = [
   { label: "Dashboard", to: "/admin/dashboard" },
   { label: "Products",  to: "/admin/products" },
-  { label: "Orders",    to: "/admin/orders" },
-  { label: "Enquiries", to: "/admin/enquiries" },
   { label: "Testimonials", to: "/admin/testimonials" },
 ];
 

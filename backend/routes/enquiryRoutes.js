@@ -1,7 +1,6 @@
 import express from "express";
 import nodemailer from "nodemailer";
 import Enquiry from "../models/Enquiry.js";
-import { protect, adminOnly } from "../middleware/authMiddleware.js";
 import logger from "../config/logger.js";
 
 const router = express.Router();
@@ -55,16 +54,5 @@ router.post("/enquiry", async (req, res) => {
     });
   }
 });
-
-/* GET ALL ENQUIRIES */
-router.get("/enquiries", protect, adminOnly, async (req, res) => {
-  try {
-    const enquiries = await Enquiry.find().sort({ createdAt: -1 });
-    res.json(enquiries);
-  } catch (err) {
-    res.status(500).json({ message: "Failed to fetch enquiries" });
-  }
-});
-
 
 export default router;
