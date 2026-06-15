@@ -82,7 +82,7 @@ const AdminDashboard = () => {
 
         const labels = data.rows?.map(row =>
           row.dimensionValues[0].value
-        );
+        ) || [];
         const formattedLabels = labels.map(d => {
           const date = new Date(
             d.slice(0, 4),
@@ -94,7 +94,7 @@ const AdminDashboard = () => {
 
         const values = data.rows?.map(row =>
           Number(row.metricValues[0].value)
-        );
+        ) || [];
 
         setChart({
           labels: formattedLabels,
