@@ -71,7 +71,10 @@ mongo_uri = os.environ.get("MONGO_URI")
 if not mongo_uri:
     raise RuntimeError("MONGO_URI environment variable is not set")
 client = pymongo.MongoClient(mongo_uri)
-db = client["firstweather"]
+# The backend's MONGO_URI has no database segment, so its driver defaults
+# to the "test" database — that's where the live `products` collection
+# actually lives. Override with DB_NAME if your URI/db differs.
+db = client[os.environ.get("DB_NAME", "test")]
 collection = db["products"]
 
 # 🔥 MODEL STATE — protected by lock for thread-safe reload
