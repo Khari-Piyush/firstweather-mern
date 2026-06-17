@@ -12,6 +12,7 @@ import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.improved.js";
 import productRoutes from "./routes/productRoutes.improved.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import { verifySmtpConfig } from "./utils/inquiryNotifications.improved.js";
 import enquiryRoutes from "./routes/enquiryRoutes.js";
 import recommendRoute from "./routes/recommend.js";
 import categoryRoutes from "./routes/categoryRoutes.improved.js";
@@ -68,6 +69,10 @@ const allowedOrigins = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(",").map((o) => o.trim()).filter(Boolean)
   : ["http://localhost:5173"];
 
+if (!process.env.CORS_ORIGINS) {
+  logger.warn("CORS_ORIGINS not set — only http://localhost:5173 is allowed; live Vercel requests will be CORS-blocked");
+}
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(cors({
@@ -108,6 +113,11 @@ app.listen(PORT, () => {
   connectDB().catch((err) => {
     logger.error({ err: err.message }, "DB connection failed on startup");
   });
+
+  // SMTP connectivity check — surfaces bad credentials immediately in Render logs
+  verifySmtpConfig()
+    .then(() => logger.info("SMTP ready (Gmail)"))
+    .catch((err) => logger.warn({ err: err.message }, "SMTP verify failed — inquiry emails will not send until MAIL_USER/MAIL_PASS are set correctly on Render"));
 });
 
 if (process.env.NODE_ENV === "production") {

@@ -14,14 +14,28 @@ const formatDate = (date) =>
     minute: "2-digit",
   });
 
-const getTransporter = () =>
-  nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_PASS,
-    },
-  });
+const getTransporter = () => {
+  const user = process.env.MAIL_USER;
+  const pass = process.env.MAIL_PASS;
+  if (!user || !pass) {
+    throw new Error("MAIL_USER or MAIL_PASS env var not set — email disabled");
+  }
+  return nodemailer.createTransport({ service: "gmail", auth: { user, pass } });
+};
+
+// Call once at startup to verify SMTP credentials are live.
+// Resolves silently on success; rejects with an Error whose .message
+// contains the SMTP response (e.g. "535 Invalid login") — safe to log.
+export const verifySmtpConfig = () => {
+  const user = process.env.MAIL_USER;
+  const pass = process.env.MAIL_PASS;
+  if (!user || !pass) {
+    return Promise.reject(new Error("MAIL_USER or MAIL_PASS env var not set"));
+  }
+  return nodemailer
+    .createTransport({ service: "gmail", auth: { user, pass } })
+    .verify();
+};
 
 const itemsHtmlRows = (items) =>
   items
