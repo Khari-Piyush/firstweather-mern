@@ -73,15 +73,29 @@ const InquiryListPage = () => {
         notes: form.notes.trim(),
       });
 
-      if (typeof window.gtag === "function") {
-        window.gtag("event", "inquiry_submit", {
-          event_category: "engagement",
-          event_label: "inquiry_form_submit",
-          value: itemCount,
-        });
-      }
+      // Fire analytics in its own guard — a gtag throw must NOT fall into the
+      // catch block below and show an error toast on a successful save.
+      try {
+        if (typeof window.gtag === "function") {
+          window.gtag("event", "inquiry_submit", {
+            event_category: "engagement",
+            event_label: "inquiry_form_submit",
+            value: itemCount,
+          });
+        }
+      } catch (_) { /* analytics errors are non-fatal */ }
 
-      setResult({ inquiryId: res.data.inquiryId, whatsappUrl: res.data.whatsappUrl });
+      const inquiryId = res.data?.inquiryId;
+      const whatsappUrl = res.data?.whatsappUrl;
+
+      // Immediate feedback — visible before the full success screen renders
+      toast.success(
+        inquiryId
+          ? `Inquiry ${inquiryId} received! We'll be in touch within 24 hours.`
+          : "Inquiry received! We'll be in touch within 24 hours."
+      );
+
+      setResult({ inquiryId, whatsappUrl });
       clearCart();
       setForm(EMPTY_FORM);
       window.scrollTo({ top: 0, behavior: "smooth" });
