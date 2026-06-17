@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import logger from "../config/logger.js";
 
 const NAVY = "#0f172a";
 const GRAY_500 = "#6b7280";
@@ -14,28 +15,81 @@ const formatDate = (date) =>
     minute: "2-digit",
   });
 
-const getTransporter = () => {
+// ── Transport selection ──────────────────────────────────────────────────────
+//
+// RESEND_API_KEY present → Resend HTTP API (HTTPS only, no SMTP ports needed,
+//   reliable on Render). Requires a verified sending domain on resend.com and
+//   RESEND_FROM env var (e.g. "First Weather <inquiries@firstweather.com>").
+//
+// Otherwise → Gmail SMTP on port 587 (STARTTLS). Port 465 (SSL) was blocked
+//   on Render causing ETIMEDOUT; 587 is the standard submission port and is
+//   allowed. Requires MAIL_USER + MAIL_PASS (Gmail App Password).
+
+const useResend = () => Boolean(process.env.RESEND_API_KEY);
+
+const getSmtpTransporter = () => {
   const user = process.env.MAIL_USER;
   const pass = process.env.MAIL_PASS;
   if (!user || !pass) {
     throw new Error("MAIL_USER or MAIL_PASS env var not set — email disabled");
   }
-  return nodemailer.createTransport({ service: "gmail", auth: { user, pass } });
+  return nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,     // STARTTLS — port 465 (SSL) is blocked on Render
+    secure: false, // false = upgrade to TLS via STARTTLS after connect
+    auth: { user, pass },
+    connectionTimeout: 12000,
+    greetingTimeout: 12000,
+    socketTimeout: 15000,
+  });
 };
 
-// Call once at startup to verify SMTP credentials are live.
-// Resolves silently on success; rejects with an Error whose .message
-// contains the SMTP response (e.g. "535 Invalid login") — safe to log.
+// Sends one email via the Resend HTTP API.
+// Uses native fetch (Node 18+) — no extra npm package needed.
+// Resend docs: https://resend.com/docs/api-reference/emails/send-email
+const resendSend = async ({ from, to, subject, html, pdfBuffer, pdfFilename }) => {
+  const apiKey = process.env.RESEND_API_KEY;
+  const payload = { from, to: [to], subject, html };
+  if (pdfBuffer && pdfFilename) {
+    payload.attachments = [{ filename: pdfFilename, content: pdfBuffer.toString("base64") }];
+  }
+  const r = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!r.ok) {
+    const text = await r.text().catch(() => "(no body)");
+    throw new Error(`Resend API ${r.status}: ${text}`);
+  }
+};
+
+// ── Startup config check ─────────────────────────────────────────────────────
+// Call once at server start to surface bad credentials in Render boot logs.
+// Resolves silently on success; rejects with a descriptive Error (safe to log).
 export const verifySmtpConfig = () => {
+  if (useResend()) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) return Promise.reject(new Error("RESEND_API_KEY not set"));
+    const from = process.env.RESEND_FROM;
+    if (!from) {
+      logger.warn("RESEND_FROM env var not set — Resend emails will fail to send");
+    }
+    return fetch("https://api.resend.com/domains", {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    }).then((r) => {
+      if (!r.ok) throw new Error(`Resend API key check failed: HTTP ${r.status}`);
+    });
+  }
   const user = process.env.MAIL_USER;
   const pass = process.env.MAIL_PASS;
   if (!user || !pass) {
     return Promise.reject(new Error("MAIL_USER or MAIL_PASS env var not set"));
   }
-  return nodemailer
-    .createTransport({ service: "gmail", auth: { user, pass } })
-    .verify();
+  return getSmtpTransporter().verify();
 };
+
+// ── Email content helpers ────────────────────────────────────────────────────
 
 const itemsHtmlRows = (items) =>
   items
@@ -75,10 +129,11 @@ const itemsTable = (items) => `
   </table>
 `;
 
-/* Sends the admin notification email with the inquiry details and, if
- * available, the generated PDF attached. */
+// ── Public send functions ────────────────────────────────────────────────────
+
 export const sendAdminInquiryEmail = async (inquiry, pdfBuffer) => {
   const location = [inquiry.city, inquiry.country].filter(Boolean).join(", ");
+  const transport = useResend() ? "resend" : "smtp";
 
   const body = `
     <h3 style="margin-top:0;">Customer Details</h3>
@@ -102,20 +157,30 @@ export const sendAdminInquiryEmail = async (inquiry, pdfBuffer) => {
     body
   );
 
-  await getTransporter().sendMail({
-    from: `"First Weather Inquiries" <${process.env.MAIL_USER}>`,
-    to: ADMIN_EMAIL,
-    subject: `New Inquiry ${inquiry.inquiryId} — ${inquiry.items.length} item(s)`,
-    html,
-    attachments: pdfBuffer
-      ? [{ filename: `${inquiry.inquiryId}.pdf`, content: pdfBuffer, contentType: "application/pdf" }]
-      : [],
-  });
+  const subject = `New Inquiry ${inquiry.inquiryId} — ${inquiry.items.length} item(s)`;
+
+  if (useResend()) {
+    const from = process.env.RESEND_FROM;
+    if (!from) throw new Error("RESEND_FROM env var not set — cannot send admin notification");
+    await resendSend({ from, to: ADMIN_EMAIL, subject, html, pdfBuffer, pdfFilename: `${inquiry.inquiryId}.pdf` });
+  } else {
+    await getSmtpTransporter().sendMail({
+      from: `"First Weather Inquiries" <${process.env.MAIL_USER}>`,
+      to: ADMIN_EMAIL,
+      subject,
+      html,
+      attachments: pdfBuffer
+        ? [{ filename: `${inquiry.inquiryId}.pdf`, content: pdfBuffer, contentType: "application/pdf" }]
+        : [],
+    });
+  }
+
+  logger.info({ inquiryId: inquiry.inquiryId, transport }, "admin notification email sent");
 };
 
-/* Sends the customer-facing confirmation email with the Inquiry ID and an
- * optional link to the generated PDF. */
 export const sendCustomerConfirmationEmail = async (inquiry) => {
+  const transport = useResend() ? "resend" : "smtp";
+
   const body = `
     <h3 style="margin-top:0;">Thank you, ${inquiry.customerName}!</h3>
     <p>We've received your inquiry and our team will get back to you within
@@ -143,17 +208,24 @@ export const sendCustomerConfirmationEmail = async (inquiry) => {
     body
   );
 
-  await getTransporter().sendMail({
-    from: `"First Weather" <${process.env.MAIL_USER}>`,
-    to: inquiry.customerEmail,
-    subject: `Your Inquiry ${inquiry.inquiryId} has been received — First Weather`,
-    html,
-  });
+  const subject = `Your Inquiry ${inquiry.inquiryId} has been received — First Weather`;
+
+  if (useResend()) {
+    const from = process.env.RESEND_FROM;
+    if (!from) throw new Error("RESEND_FROM env var not set — cannot send customer confirmation");
+    await resendSend({ from, to: inquiry.customerEmail, subject, html });
+  } else {
+    await getSmtpTransporter().sendMail({
+      from: `"First Weather" <${process.env.MAIL_USER}>`,
+      to: inquiry.customerEmail,
+      subject,
+      html,
+    });
+  }
+
+  logger.info({ inquiryId: inquiry.inquiryId, transport }, "customer confirmation email sent");
 };
 
-/* Builds a wa.me click-to-chat URL (to the business number) pre-filled with
- * the full inquiry details and PDF link. WhatsApp links cannot auto-attach
- * files, so the PDF URL is included as plain text for the recipient to open. */
 export const buildInquiryWhatsappUrl = (inquiry) => {
   const location = [inquiry.city, inquiry.country].filter(Boolean).join(", ");
 

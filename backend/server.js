@@ -114,10 +114,11 @@ app.listen(PORT, () => {
     logger.error({ err: err.message }, "DB connection failed on startup");
   });
 
-  // SMTP connectivity check — surfaces bad credentials immediately in Render logs
+  // Email transport check — surfaces bad credentials immediately in Render logs.
+  // Uses Resend HTTP API if RESEND_API_KEY is set, otherwise Gmail SMTP port 587.
   verifySmtpConfig()
-    .then(() => logger.info("SMTP ready (Gmail)"))
-    .catch((err) => logger.warn({ err: err.message }, "SMTP verify failed — inquiry emails will not send until MAIL_USER/MAIL_PASS are set correctly on Render"));
+    .then(() => logger.info("email transport ready"))
+    .catch((err) => logger.warn({ err: err.message }, "email transport verify failed — set RESEND_API_KEY+RESEND_FROM (recommended) or MAIL_USER/MAIL_PASS on Render"));
 });
 
 if (process.env.NODE_ENV === "production") {
