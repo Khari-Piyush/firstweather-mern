@@ -120,25 +120,23 @@ router.post("/", submitLimiter, async (req, res) => {
       logger.error({ err: pdfErr, inquiryId: inquiry.inquiryId }, "inquiry pdf generation error");
     }
 
-    // Notifications are best-effort too — failures must not lose the
-    // inquiry or block the response. No PII in logs, only the inquiryId.
-    try {
-      await sendAdminInquiryEmail(inquiry, pdfBuffer);
-    } catch (mailErr) {
-      logger.error({ err: mailErr, inquiryId: inquiry.inquiryId }, "admin notification email error");
-    }
-
-    try {
-      await sendCustomerConfirmationEmail(inquiry);
-    } catch (mailErr) {
-      logger.error({ err: mailErr, inquiryId: inquiry.inquiryId }, "customer confirmation email error");
-    }
-
+    // Respond immediately — the user must never wait on email delivery.
     res.status(201).json({
       success: true,
       message: "Inquiry submitted successfully",
       inquiryId: inquiry.inquiryId,
       whatsappUrl: buildInquiryWhatsappUrl(inquiry),
+    });
+
+    // Notifications are fire-and-forget, sent after the response. Failures
+    // must not lose the inquiry — they're just logged. No PII in logs,
+    // only the inquiryId.
+    sendAdminInquiryEmail(inquiry, pdfBuffer).catch((mailErr) => {
+      logger.error({ err: mailErr, inquiryId: inquiry.inquiryId }, "admin notification email error");
+    });
+
+    sendCustomerConfirmationEmail(inquiry).catch((mailErr) => {
+      logger.error({ err: mailErr, inquiryId: inquiry.inquiryId }, "customer confirmation email error");
     });
   } catch (err) {
     logger.error({ err }, "create inquiry error");

@@ -12,7 +12,7 @@ import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.improved.js";
 import productRoutes from "./routes/productRoutes.improved.js";
 import adminRoutes from "./routes/adminRoutes.js";
-import { verifySmtpConfig } from "./utils/inquiryNotifications.improved.js";
+import { verifyEmailConfig } from "./utils/inquiryNotifications.improved.js";
 import enquiryRoutes from "./routes/enquiryRoutes.js";
 import recommendRoute from "./routes/recommend.js";
 import categoryRoutes from "./routes/categoryRoutes.improved.js";
@@ -114,11 +114,11 @@ app.listen(PORT, () => {
     logger.error({ err: err.message }, "DB connection failed on startup");
   });
 
-  // Email transport check — surfaces bad credentials immediately in Render logs.
-  // Uses Resend HTTP API if RESEND_API_KEY is set, otherwise Gmail SMTP port 587.
-  verifySmtpConfig()
-    .then(() => logger.info("email transport ready"))
-    .catch((err) => logger.warn({ err: err.message }, "email transport verify failed — set RESEND_API_KEY+RESEND_FROM (recommended) or MAIL_USER/MAIL_PASS on Render"));
+  // Email config check — surfaces a missing/bad Resend API key immediately
+  // in Render logs. SMTP is not used: Render's network can't reach Gmail SMTP.
+  verifyEmailConfig()
+    .then(() => logger.info("email transport ready (resend)"))
+    .catch((err) => logger.warn({ err: err.message }, "email transport verify failed — set RESEND_API_KEY (and RESEND_FROM once a domain is verified) on Render"));
 });
 
 if (process.env.NODE_ENV === "production") {
