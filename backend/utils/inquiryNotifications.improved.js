@@ -1,9 +1,23 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
+import logger from "../config/logger.js";
 
 const NAVY = "#0f172a";
 const GRAY_500 = "#6b7280";
 const ADMIN_EMAIL = "firstweather16@gmail.com";
 const WA_NUMBER = "917428088039";
+
+// Render's outbound network can't reach Gmail SMTP at all (ENETUNREACH /
+// IPv6, on both port 465 and 587) — SMTP is not viable there, so inquiry
+// email goes exclusively over HTTPS via the Resend API.
+// Sender defaults to Resend's shared test domain; set RESEND_FROM once a
+// real domain is verified on resend.com (required to email customers).
+const FROM_ADDRESS = process.env.RESEND_FROM || "First Weather <onboarding@resend.dev>";
+
+const getResendClient = () => {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return null;
+  return new Resend(apiKey);
+};
 
 const formatDate = (date) =>
   new Date(date).toLocaleString("en-IN", {
@@ -14,27 +28,40 @@ const formatDate = (date) =>
     minute: "2-digit",
   });
 
-const getTransporter = () => {
-  const user = process.env.MAIL_USER;
-  const pass = process.env.MAIL_PASS;
-  if (!user || !pass) {
-    throw new Error("MAIL_USER or MAIL_PASS env var not set — email disabled");
+// Call once at startup to verify the Resend API key is live. Resolves
+// silently on success; rejects with a descriptive Error (safe to log).
+export const verifyEmailConfig = () => {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    return Promise.reject(new Error("RESEND_API_KEY not set — inquiry emails are disabled"));
   }
-  return nodemailer.createTransport({ service: "gmail", auth: { user, pass } });
+  return fetch("https://api.resend.com/domains", {
+    headers: { Authorization: `Bearer ${apiKey}` },
+  }).then((r) => {
+    if (!r.ok) throw new Error(`Resend API key check failed: HTTP ${r.status}`);
+  });
 };
 
-// Call once at startup to verify SMTP credentials are live.
-// Resolves silently on success; rejects with an Error whose .message
-// contains the SMTP response (e.g. "535 Invalid login") — safe to log.
-export const verifySmtpConfig = () => {
-  const user = process.env.MAIL_USER;
-  const pass = process.env.MAIL_PASS;
-  if (!user || !pass) {
-    return Promise.reject(new Error("MAIL_USER or MAIL_PASS env var not set"));
+// Sends one email via Resend. Returns false (and logs a warning) instead of
+// sending when RESEND_API_KEY isn't configured — callers must not crash or
+// lose the inquiry just because email is unconfigured.
+const sendResendEmail = async ({ to, subject, html, pdfBuffer, pdfFilename }) => {
+  const resend = getResendClient();
+  if (!resend) {
+    logger.warn("RESEND_API_KEY not set — skipping email send");
+    return false;
   }
-  return nodemailer
-    .createTransport({ service: "gmail", auth: { user, pass } })
-    .verify();
+
+  const payload = { from: FROM_ADDRESS, to, subject, html };
+  if (pdfBuffer && pdfFilename) {
+    payload.attachments = [{ filename: pdfFilename, content: pdfBuffer }];
+  }
+
+  const { error } = await resend.emails.send(payload);
+  if (error) {
+    throw new Error(`Resend send failed: ${error.message || JSON.stringify(error)}`);
+  }
+  return true;
 };
 
 const itemsHtmlRows = (items) =>
@@ -102,15 +129,14 @@ export const sendAdminInquiryEmail = async (inquiry, pdfBuffer) => {
     body
   );
 
-  await getTransporter().sendMail({
-    from: `"First Weather Inquiries" <${process.env.MAIL_USER}>`,
+  const sent = await sendResendEmail({
     to: ADMIN_EMAIL,
     subject: `New Inquiry ${inquiry.inquiryId} — ${inquiry.items.length} item(s)`,
     html,
-    attachments: pdfBuffer
-      ? [{ filename: `${inquiry.inquiryId}.pdf`, content: pdfBuffer, contentType: "application/pdf" }]
-      : [],
+    pdfBuffer,
+    pdfFilename: `${inquiry.inquiryId}.pdf`,
   });
+  if (sent) logger.info({ inquiryId: inquiry.inquiryId }, "admin notification email sent via resend");
 };
 
 /* Sends the customer-facing confirmation email with the Inquiry ID and an
@@ -143,12 +169,12 @@ export const sendCustomerConfirmationEmail = async (inquiry) => {
     body
   );
 
-  await getTransporter().sendMail({
-    from: `"First Weather" <${process.env.MAIL_USER}>`,
+  const sent = await sendResendEmail({
     to: inquiry.customerEmail,
     subject: `Your Inquiry ${inquiry.inquiryId} has been received — First Weather`,
     html,
   });
+  if (sent) logger.info({ inquiryId: inquiry.inquiryId }, "customer confirmation email sent via resend");
 };
 
 /* Builds a wa.me click-to-chat URL (to the business number) pre-filled with
