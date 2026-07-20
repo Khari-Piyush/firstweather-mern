@@ -6,10 +6,10 @@ import { Section, SectionLabel, SectionHeading } from "./Layout.improved.jsx";
 const LEADERSHIP = [
   {
     name: "SUNIL KUMAR",
-    title: "Founder & Managing Director",
+    title: "P roprietor",
     bio: "Sunil Kumar founded First Weather in 2005 and moved the business into automotive wiper parts in 2008. He has since grown it into a full range of wiper systems — arms, blades, linkages, wheel boxes, motor gears and spares — built to OEM-equivalent quality, making First Weather a trusted one-stop source for body builders, dealers and retailers across India.",
     photo: "/founder-image.webp",
-    photoAlt: "Sunil Kumar, Founder & Managing Director of First Weather",
+    photoAlt: "Sunil Kumar, Proprietorr of First Weather",
     initials: "SK",
   },
 ];
