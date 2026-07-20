@@ -36,7 +36,7 @@ const productSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        videoUrl: { type: String },
+        videoUrl: { type: String, default: "" },
 
         inStock: {
             type: Boolean,

@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import api from "../api.improved";
 
+const YOUTUBE_URL_PATTERN = /^(https?:\/\/)?(www\.|m\.)?(youtube\.com\/(watch\?v=|shorts\/)|youtu\.be\/)/i;
+const isLikelyYouTubeUrl = (url) => YOUTUBE_URL_PATTERN.test(url.trim());
+
 const AdminProducts = () => {
   const [products, setProducts] = useState([]);
   const [editingId, setEditingId] = useState(null);
@@ -16,6 +19,7 @@ const AdminProducts = () => {
     category: "",
     carModel: "",
     unit: "",
+    videoUrl: "",
     imageFile: null,
   });
 
@@ -68,6 +72,7 @@ const AdminProducts = () => {
       category: "",
       carModel: "",
       unit: "",
+      videoUrl: "",
       imageFile: null,
     });
 
@@ -76,7 +81,9 @@ const AdminProducts = () => {
 
   const handleEdit = (p) => {
     setEditingId(p._id);
-    setForm({ ...p, imageFile: null });
+    // .lean() list results omit schema defaults, so undefined videoUrl needs coalescing here
+    // to keep the input controlled for existing products that predate this field.
+    setForm({ ...p, videoUrl: p.videoUrl || "", imageFile: null });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -149,6 +156,21 @@ const AdminProducts = () => {
             rows={3}
             style={{ ...input, gridColumn: "1 / -1" }}
           />
+
+          <div style={{ gridColumn: "1 / -1" }}>
+            <input
+              name="videoUrl"
+              placeholder="YouTube Video Link (optional)"
+              value={form.videoUrl}
+              onChange={handleChange}
+              style={{ ...input, width: "100%", boxSizing: "border-box" }}
+            />
+            {form.videoUrl.trim() && !isLikelyYouTubeUrl(form.videoUrl) && (
+              <p style={videoHint}>
+                This doesn't look like a YouTube link (watch, youtu.be, or shorts URL).
+              </p>
+            )}
+          </div>
 
           <select
             value={form.unit}
@@ -290,6 +312,12 @@ const input = {
   padding: "0.55rem",
   borderRadius: "8px",
   border: "1px solid #c7d2fe",
+};
+
+const videoHint = {
+  margin: "0.35rem 0 0",
+  fontSize: "0.8rem",
+  color: "#b91c1c",
 };
 
 const primaryBtn = {

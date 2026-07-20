@@ -32,6 +32,40 @@ const buildWaUrl = (product) => {
 const optimizeImg = (url) =>
   url ? url.replace("/upload/", "/upload/w_800,f_auto,q_auto/") : null;
 
+const YOUTUBE_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
+
+// Extracts the 11-char video id from watch/youtu.be/shorts (and embed) URL forms; null if not YouTube.
+const extractYouTubeId = (url) => {
+  if (!url) return null;
+  let u;
+  try {
+    u = new URL(url);
+  } catch {
+    return null;
+  }
+
+  const host = u.hostname.replace(/^www\./, "").replace(/^m\./, "");
+
+  if (host === "youtu.be") {
+    const id = u.pathname.slice(1).split("/")[0];
+    return YOUTUBE_ID_REGEX.test(id) ? id : null;
+  }
+
+  if (host === "youtube.com" || host === "youtube-nocookie.com") {
+    if (u.pathname === "/watch") {
+      const id = u.searchParams.get("v");
+      return id && YOUTUBE_ID_REGEX.test(id) ? id : null;
+    }
+    const shortsMatch = u.pathname.match(/^\/shorts\/([^/]+)/);
+    if (shortsMatch) return YOUTUBE_ID_REGEX.test(shortsMatch[1]) ? shortsMatch[1] : null;
+
+    const embedMatch = u.pathname.match(/^\/embed\/([^/]+)/);
+    if (embedMatch) return YOUTUBE_ID_REGEX.test(embedMatch[1]) ? embedMatch[1] : null;
+  }
+
+  return null;
+};
+
 /* ── Page ────────────────────────────────────────────────────────── */
 
 const ProductDetailPage = () => {
@@ -131,6 +165,7 @@ const ProductDetailPage = () => {
 
   const imgSrc = optimizeImg(product.imageUrl) || "/fw-logo-blue.webp";
   const waUrl = buildWaUrl(product);
+  const videoId = extractYouTubeId(product.videoUrl);
 
   return (
     <PageWrapper>
@@ -233,7 +268,24 @@ const ProductDetailPage = () => {
         </Reveal>
       )}
 
-      {/* ── 3. Recommendations ─────────────────────────────────── */}
+      {/* ── 3. Product Video ───────────────────────────────────── */}
+      {videoId && (
+        <Reveal as={Section} bg="var(--fw-white)" compact>
+          <SectionLabel>Product Video</SectionLabel>
+          <div style={videoWrap}>
+            <iframe
+              src={`https://www.youtube-nocookie.com/embed/${videoId}`}
+              title={`${product.productName} — Product Video`}
+              style={videoIframe}
+              loading="lazy"
+              allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        </Reveal>
+      )}
+
+      {/* ── 4. Recommendations ─────────────────────────────────── */}
       {(recLoading || recommendations.length > 0) && (
         <Reveal as={Section} bg="var(--fw-white)">
           <div style={{ marginBottom: "var(--fw-space-8)" }}>
@@ -444,6 +496,22 @@ const waBtn = {
   fontWeight: "var(--fw-weight-semibold)",
   fontFamily: "var(--fw-font)",
   letterSpacing: "var(--fw-tracking-tight)",
+};
+
+const videoWrap = {
+  width: "100%",
+  maxWidth: "720px",
+  aspectRatio: "16 / 9",
+  borderRadius: "var(--fw-radius-lg)",
+  overflow: "hidden",
+  background: "var(--fw-gray-100)",
+};
+
+const videoIframe = {
+  width: "100%",
+  height: "100%",
+  border: "none",
+  display: "block",
 };
 
 const recGrid = {

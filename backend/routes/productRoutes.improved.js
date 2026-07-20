@@ -14,6 +14,39 @@ const router = express.Router();
 const MAX_SEARCH_LEN = 100;
 const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+const YOUTUBE_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
+
+// Extracts the 11-char video id from watch/youtu.be/shorts (and embed) URL forms; null if not YouTube.
+const extractYouTubeId = (url) => {
+  let u;
+  try {
+    u = new URL(url);
+  } catch {
+    return null;
+  }
+
+  const host = u.hostname.replace(/^www\./, "").replace(/^m\./, "");
+
+  if (host === "youtu.be") {
+    const id = u.pathname.slice(1).split("/")[0];
+    return YOUTUBE_ID_REGEX.test(id) ? id : null;
+  }
+
+  if (host === "youtube.com" || host === "youtube-nocookie.com") {
+    if (u.pathname === "/watch") {
+      const id = u.searchParams.get("v");
+      return id && YOUTUBE_ID_REGEX.test(id) ? id : null;
+    }
+    const shortsMatch = u.pathname.match(/^\/shorts\/([^/]+)/);
+    if (shortsMatch) return YOUTUBE_ID_REGEX.test(shortsMatch[1]) ? shortsMatch[1] : null;
+
+    const embedMatch = u.pathname.match(/^\/embed\/([^/]+)/);
+    if (embedMatch) return YOUTUBE_ID_REGEX.test(embedMatch[1]) ? embedMatch[1] : null;
+  }
+
+  return null;
+};
+
 
 /* ================= GET ALL PRODUCTS ================= */
 router.get("/", async (req, res) => {
@@ -40,7 +73,7 @@ router.get("/", async (req, res) => {
 
     const products = await Product.find(
       filter,
-      "productName price imageUrl slug productId category"
+      "productName price imageUrl slug productId category videoUrl"
     )
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
@@ -205,6 +238,7 @@ router.post(
         price,
         category,
         carModel,
+        videoUrl,
       } = req.body;
 
 
@@ -218,6 +252,13 @@ router.post(
       if (!req.file) {
         return res.status(400).json({
           message: "Product image is required",
+        });
+      }
+
+      const trimmedVideoUrl = (videoUrl || "").trim();
+      if (trimmedVideoUrl && !extractYouTubeId(trimmedVideoUrl)) {
+        return res.status(400).json({
+          message: "videoUrl must be a valid YouTube watch, youtu.be, or shorts link",
         });
       }
 
@@ -259,6 +300,7 @@ router.post(
         category,
         carModel,
         imageUrl,
+        videoUrl: trimmedVideoUrl,
       });
 
       res.status(201).json(product);
@@ -278,6 +320,16 @@ router.put(
   async (req, res) => {
     try {
       const updates = { ...req.body };
+
+      if (updates.videoUrl !== undefined) {
+        const trimmedVideoUrl = updates.videoUrl.trim();
+        if (trimmedVideoUrl && !extractYouTubeId(trimmedVideoUrl)) {
+          return res.status(400).json({
+            message: "videoUrl must be a valid YouTube watch, youtu.be, or shorts link",
+          });
+        }
+        updates.videoUrl = trimmedVideoUrl;
+      }
 
       if (req.file) {
         const result = await cloudinary.uploader.upload(
