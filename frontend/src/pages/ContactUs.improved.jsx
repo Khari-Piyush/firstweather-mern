@@ -74,11 +74,14 @@ const ContactUs = () => {
       });
     }
     setLoading(true);
+    console.log("[enquiry] submitting", form);
     try {
-      await api.post("/enquiry", form);
+      const res = await api.post("/enquiry", form);
+      console.log("[enquiry] submit succeeded", res.data);
       toast.success("Message sent! We'll be in touch within 24 hours.");
       setForm({ name: "", phone: "", email: "", message: "" });
-    } catch {
+    } catch (err) {
+      console.error("[enquiry] submit failed", err.response?.data || err.message);
       toast.error("Failed to send. Please try again or call us directly.");
     } finally {
       setLoading(false);

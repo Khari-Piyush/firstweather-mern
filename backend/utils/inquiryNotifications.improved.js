@@ -177,6 +177,30 @@ export const sendCustomerConfirmationEmail = async (inquiry) => {
   if (sent) logger.info({ inquiryId: inquiry.inquiryId }, "customer confirmation email sent via resend");
 };
 
+/* Sends the admin notification email for a simple contact-form enquiry
+ * (name/phone/email/message — no product items, unlike Inquiry). */
+export const sendEnquiryNotificationEmail = async (enquiry) => {
+  const body = `
+    <p style="margin:4px 0;"><b>Name:</b> ${enquiry.name}</p>
+    <p style="margin:4px 0;"><b>Phone:</b> ${enquiry.phone}</p>
+    <p style="margin:4px 0;"><b>Email:</b> ${enquiry.email || "N/A"}</p>
+    <p style="margin:4px 0;"><b>Message:</b> ${enquiry.message || "N/A"}</p>
+  `;
+
+  const html = emailShell(
+    `<h2 style="margin:0;">New Website Enquiry</h2>
+     <p style="margin:4px 0 0;color:#cbd5e1;">${formatDate(enquiry.createdAt || new Date())}</p>`,
+    body
+  );
+
+  const sent = await sendResendEmail({
+    to: ADMIN_EMAIL,
+    subject: "New Website Enquiry",
+    html,
+  });
+  if (sent) logger.info({ enquiryId: enquiry._id }, "enquiry notification email sent via resend");
+};
+
 /* Builds a wa.me click-to-chat URL (to the business number) pre-filled with
  * the full inquiry details and PDF link. WhatsApp links cannot auto-attach
  * files, so the PDF URL is included as plain text for the recipient to open. */

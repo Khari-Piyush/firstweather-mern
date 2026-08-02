@@ -86,7 +86,7 @@ app.use(cors({
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/admin", adminRoutes);
-app.use("/api/enquiry", enquiryLimiter);
+app.post("/api/enquiry", enquiryLimiter);
 app.use("/api", enquiryRoutes);
 app.use("/api/recommend", recommendRoute);
 app.use("/api/categories", categoryRoutes);

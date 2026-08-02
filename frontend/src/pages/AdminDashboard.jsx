@@ -36,7 +36,10 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState({
     totalProducts: 0,
     totalInquiries: 0,
+    totalEnquiries: 0,
   });
+
+  const [recentEnquiries, setRecentEnquiries] = useState([]);
   const [analytics, setAnalytics] = useState({
     visitors: 0,
     enquiryClicks: 0,
@@ -70,6 +73,12 @@ const AdminDashboard = () => {
       }
     };
     fetchStats();
+  }, []);
+
+  useEffect(() => {
+    api.get("/enquiry")
+      .then((res) => setRecentEnquiries(res.data.slice(0, 5)))
+      .catch((err) => console.error("Failed to load recent enquiries:", err));
   }, []);
 
   useEffect(() => {
@@ -227,6 +236,12 @@ const AdminDashboard = () => {
           gradient="linear-gradient(135deg, #6366f1, #4338ca)"
           trend={inqAnalytics.monthly.trend}
           onClick={() => navigate("/admin/inquiries")}
+        />
+
+        <DashboardCard
+          title="Enquiries"
+          value={stats.totalEnquiries}
+          gradient="linear-gradient(135deg, #f59e0b, #b45309)"
         />
 
         <DashboardCard
@@ -399,6 +414,42 @@ const AdminDashboard = () => {
                     <td style={{ padding: "0.5rem" }}>{p.productName}</td>
                     <td style={{ padding: "0.5rem" }}>{p.totalQty}</td>
                     <td style={{ padding: "0.5rem" }}>{p.inquiryCount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* 📩 RECENT ENQUIRIES */}
+      <div style={{ ...glassCard, marginTop: "1.5rem" }}>
+        <h3>📩 Recent Enquiries</h3>
+
+        {recentEnquiries.length === 0 ? (
+          <p style={{ color: "#888", marginTop: "0.75rem" }}>No enquiries yet.</p>
+        ) : (
+          <div style={{ overflowX: "auto", marginTop: "0.75rem" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+              <thead>
+                <tr style={{ textAlign: "left", color: "#888" }}>
+                  <th style={{ padding: "0.4rem 0.5rem" }}>Name</th>
+                  <th style={{ padding: "0.4rem 0.5rem" }}>Phone</th>
+                  <th style={{ padding: "0.4rem 0.5rem" }}>Email</th>
+                  <th style={{ padding: "0.4rem 0.5rem" }}>Message</th>
+                  <th style={{ padding: "0.4rem 0.5rem" }}>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentEnquiries.map((enq) => (
+                  <tr key={enq._id} style={{ borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+                    <td style={{ padding: "0.5rem" }}>{enq.name}</td>
+                    <td style={{ padding: "0.5rem" }}>{enq.phone}</td>
+                    <td style={{ padding: "0.5rem" }}>{enq.email || "-"}</td>
+                    <td style={{ padding: "0.5rem", maxWidth: "260px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {enq.message || "-"}
+                    </td>
+                    <td style={{ padding: "0.5rem" }}>{formatDate(enq.createdAt)}</td>
                   </tr>
                 ))}
               </tbody>
